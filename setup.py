@@ -36,9 +36,7 @@ if sys.argv[-1] == 'publish':
     print("You probably want to also tag the version now:")
     print("  git tag -a %s -m %s" % (about['__version__'], about['__version__']))
     print("  git push --tags")
-    shutil.rmtree('dist')
-    shutil.rmtree('build')
-    shutil.rmtree('djangorestframework.egg-info')
+    os.system("make clean")
     sys.exit()
 
 

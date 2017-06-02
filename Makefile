@@ -16,8 +16,8 @@ clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and 
 
 clean-build:  ## remove build artifacts
 	rm -rf build/ dist/ .eggs/
-	find -name '*.egg-info' -delete
-	find -name '*.egg' -delete
+	rm -rf '*.egg-info'
+	rm -rf '*.egg'
 
 clean-pyc:  ## remove Python file artifacts
 	find -name '*.pyc' -delete
