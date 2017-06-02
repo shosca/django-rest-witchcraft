@@ -1,0 +1,60 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "e8fccbafd501fcf2fba24b79b9ce4c53b644db86e38ad6b003559c6ba20920d1"
+        },
+        "requires": {},
+        "sources": [
+            {
+                "url": "https://pypi.python.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "django": {
+            "version": "==1.11.2"
+        },
+        "djangorestframework": {
+            "version": "==3.6.3"
+        },
+        "pytz": {
+            "version": "==2017.2"
+        },
+        "six": {
+            "version": "==1.10.0"
+        },
+        "sqlalchemy": {
+            "version": "==1.1.10"
+        }
+    },
+    "develop": {
+        "coverage": {
+            "version": "==4.4.1"
+        },
+        "flake8": {
+            "version": "==3.3.0"
+        },
+        "mccabe": {
+            "version": "==0.6.1"
+        },
+        "py": {
+            "version": "==1.4.33"
+        },
+        "pycodestyle": {
+            "version": "==2.3.1"
+        },
+        "pyflakes": {
+            "version": "==1.5.0"
+        },
+        "pytest": {
+            "version": "==3.1.1"
+        },
+        "pytest-cov": {
+            "version": "==2.5.1"
+        },
+        "setuptools": {
+            "version": "==36.0.1"
+        }
+    }
+}
