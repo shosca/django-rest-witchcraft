@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import sys
+import shutil
 
 from setuptools import setup, find_packages
 from pipenv.project import Project
@@ -20,10 +22,25 @@ try:
     def read_md(f):
         return convert(f, 'rst')
 except ImportError:
-    print("warning: pypandoc module not found, could not convert Markdown to RST")
+    print("pypandoc not installed.\nUse `pip install pypandoc`.\nExiting.")
+    sys.exit()
 
-    def read_md(f):
-        return open(f, 'r', encoding='utf-8').read()
+
+if sys.argv[-1] == 'publish':
+    twine = shutil.which('twine')
+    if twine is None:
+        print("twine not installed.\nUse `pip install twine`.\nExiting.")
+        sys.exit()
+    os.system("python setup.py sdist bdist_wheel")
+    os.system("twine upload dist/*")
+    print("You probably want to also tag the version now:")
+    print("  git tag -a %s -m %s" % (about['__version__'], about['__version__']))
+    print("  git push --tags")
+    shutil.rmtree('dist')
+    shutil.rmtree('build')
+    shutil.rmtree('djangorestframework.egg-info')
+    sys.exit()
+
 
 setup(
     author=about['__author__'],
