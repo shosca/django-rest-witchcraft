@@ -13,12 +13,25 @@ about = {}
 with open(os.path.join(here, "rest_witchcraft", "__version__.py")) as f:
     exec(f.read(), about)
 
+
+try:
+    from pypandoc import convert
+
+    def read_md(f):
+        return convert(f, 'rst')
+except ImportError:
+    print("warning: pypandoc module not found, could not convert Markdown to RST")
+
+    def read_md(f):
+        return open(f, 'r', encoding='utf-8').read()
+
 setup(
     author=about['__author__'],
     author_email=about['__author_email__'],
     description=about['__description__'],
     install_requires=project.parsed_pipfile['packages'].keys(),
     license='MIT',
+    long_description=read_md('README.md'),
     name=project.name,
     packages=find_packages(exclude=['tests']),
     url='https://github.com/shosca/django-rest-witchcraft',
