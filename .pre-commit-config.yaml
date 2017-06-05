@@ -1,0 +1,29 @@
+---
+- repo: git://github.com/pre-commit/pre-commit-hooks
+  sha: 'master'
+  hooks:
+  - id: check-added-large-files
+  - id: check-byte-order-marker
+  - id: check-case-conflict
+  - id: check-docstring-first
+  - id: check-json
+  - id: check-merge-conflict
+  - id: check-xml
+  - id: check-yaml
+  - id: debug-statements
+  - id: double-quote-string-fixer
+  - id: end-of-file-fixer
+  - id: fix-encoding-pragma
+  - id: flake8
+  - id: trailing-whitespace
+
+- repo: git://github.com/pre-commit/mirrors-yapf
+  sha: 'master'
+  hooks:
+  - id: yapf
+
+- repo: git://github.com/FalconSocial/pre-commit-python-sorter
+  sha: 1.0.4
+  hooks:
+  - id: python-import-sorter
+    args: ['--silent-overwrite']

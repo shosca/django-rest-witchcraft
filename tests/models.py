@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import enum
 
-from sqlalchemy import Column, ForeignKey, Sequence, create_engine, types
+from sqlalchemy import Column, ForeignKey, Sequence, create_engine, orm, types
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import backref, composite, relationship, scoped_session, sessionmaker
 
 engine = create_engine('sqlite://')
-session = scoped_session(sessionmaker(bind=engine))
+session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
 Base = declarative_base()
 
@@ -63,10 +62,10 @@ class Vehicle(Base):
     _engn_dsplmt_l = Column('engn_dsplmt_l_nb', types.Numeric(asdecimal=True, precision=10, scale=2))
     _engn_type = Column('engn_typ_nm', types.String(length=25))
     _fuel_type = Column('fuel_typ_nm', types.String(length=10))
-    engine = composite(Engine, _engn_cylinders, _engn_dsplmt_ci, _engn_dsplmt_l, _engn_type, _fuel_type)
+    engine = orm.composite(Engine, _engn_cylinders, _engn_dsplmt_ci, _engn_dsplmt_l, _engn_type, _fuel_type)
 
     _owner_id = Column('owner_id', types.Integer(), ForeignKey(Owner.id))
-    owner = relationship(Owner, backref='vehicles')
+    owner = orm.relationship(Owner, backref='vehicles')
 
 
 class VehicleOther(Base):
@@ -89,7 +88,7 @@ class VehicleOther(Base):
     vehicle_invoice = Column(types.BigInteger())
     vehicle_msrp = Column(types.BigInteger())
 
-    vehicle = relationship(Vehicle, backref=backref('other', uselist=False), uselist=False)
+    vehicle = orm.relationship(Vehicle, backref=orm.backref('other', uselist=False), uselist=False)
 
 
 class Option(Base):
@@ -98,7 +97,7 @@ class Option(Base):
     name = Column(types.String())
 
     _vehicle_id = Column(types.Integer(), ForeignKey(Vehicle.id))
-    vehicle = relationship(Vehicle, backref='options')
+    vehicle = orm.relationship(Vehicle, backref='options')
 
 
 Base.metadata.create_all(engine)

@@ -8,12 +8,11 @@ from rest_framework import fields
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ListSerializer
 from rest_framework.settings import api_settings
+from rest_witchcraft.serializers import (BaseSerializer, CompositeSerializer, ModelSerializer, model_info)
+from rest_witchcraft.utils import _column_info
 from sqlalchemy import Column, types
 
-from rest_witchcraft.serializers import BaseSerializer, CompositeSerializer, ModelSerializer, model_info
-from rest_witchcraft.utils import _column_info
-
-from .models import COLORS, Engine, Option, Owner, Vehicle, VehicleOther, VehicleType, session
+from .models import (COLORS, Engine, Option, Owner, Vehicle, VehicleOther, VehicleType, session)
 
 
 class TestModelSerializer(unittest.TestCase):

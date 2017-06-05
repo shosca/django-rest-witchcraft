@@ -11,20 +11,16 @@ class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
     """
 
 
-class ReadOnlyViewModelViewSet(mixins.RetrieveModelMixin,
-                               mixins.ListModelMixin,
-                               GenericViewSet):
+class ReadOnlyViewModelViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, GenericViewSet):
     """
     A viewset that provides default `list()` and `retrieve()` actions.
     """
 
 
-class ModelViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   GenericViewSet):
+class ModelViewSet(
+    mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
+    mixins.ListModelMixin, GenericViewSet
+):
     """
     A viewset that provides default `create()`, `retrieve()`, `update()`, `partial_update()`, `destroy()` and `list()`
     actions.
