@@ -5,11 +5,12 @@ verify_ssl = true
 [packages]
 djangorestframework = "*"
 six = "*"
-Django = "*"
-SQLAlchemy = "*"
+django = "*"
+sqlalchemy = "*"
 
 [dev-packages]
 pytest = "*"
 pytest-cov = "*"
 flake8 = "*"
-pre_commit = "*"
+pre-commit = "*"
+simplejson = "*"

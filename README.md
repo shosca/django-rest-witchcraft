@@ -1,6 +1,7 @@
 # Django REST Witchcraft
 
 [![Build Status](https://travis-ci.org/shosca/django-rest-witchcraft.svg?branch=master)](https://travis-ci.org/shosca/django-rest-witchcraft)
+[![PyPI version](https://badge.fury.io/py/django-rest-witchcraft.svg)](https://badge.fury.io/py/django-rest-witchcraft)
 
 **SQLAlchemy specific things for django-rest-framework**
 

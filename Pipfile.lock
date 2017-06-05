@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e8fccbafd501fcf2fba24b79b9ce4c53b644db86e38ad6b003559c6ba20920d1"
+            "sha256": "65025acc4df54001bdd455025c2a87d1c7e8a156794cc0e341d08e4dfe5ecc64"
         },
         "requires": {},
         "sources": [
@@ -29,6 +29,12 @@
         }
     },
     "develop": {
+        "aspy.yaml": {
+            "version": "==0.3.0"
+        },
+        "cached-property": {
+            "version": "==1.3.0"
+        },
         "coverage": {
             "version": "==4.4.1"
         },
@@ -38,8 +44,14 @@
         "mccabe": {
             "version": "==0.6.1"
         },
+        "nodeenv": {
+            "version": "==1.1.2"
+        },
+        "pre-commit": {
+            "version": "==0.14.1"
+        },
         "py": {
-            "version": "==1.4.33"
+            "version": "==1.4.34"
         },
         "pycodestyle": {
             "version": "==2.3.1"
@@ -53,8 +65,20 @@
         "pytest-cov": {
             "version": "==2.5.1"
         },
+        "pyyaml": {
+            "version": "==3.12"
+        },
         "setuptools": {
             "version": "==36.0.1"
+        },
+        "simplejson": {
+            "version": "==3.10.0"
+        },
+        "six": {
+            "version": "==1.10.0"
+        },
+        "virtualenv": {
+            "version": "==15.1.0"
         }
     }
 }
