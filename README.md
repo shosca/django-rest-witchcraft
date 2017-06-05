@@ -39,7 +39,7 @@ class User(Base):
     password = Column(String())
 
     _group_id = Column('group_id', Integer(), ForeignKey('groups.id'))
-    group = relationship(Group, backref='addresses')
+    group = relationship(Group, backref='users')
 
 
 class Address(Base):
