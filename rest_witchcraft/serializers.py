@@ -547,6 +547,7 @@ class ModelSerializer(BaseSerializer):
         """
         instance = self.update(self.Meta.model(), validated_data)
         self.session.add(instance)
+        self.session.flush()
         return instance
 
     def update(self, instance, validated_data):
@@ -560,6 +561,7 @@ class ModelSerializer(BaseSerializer):
         if errors:
             raise ValidationError(errors)
 
+        self.session.flush()
         return instance
 
     def perform_update(self, instance, validated_data, errors):

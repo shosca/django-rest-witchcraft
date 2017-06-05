@@ -26,17 +26,17 @@ class VehicleType(enum.Enum):
 
 class Engine(object):
 
-    def __init__(self, cylinders, displacement_ci, displacement_liters, type_):
+    def __init__(self, cylinders, displacement, type_, fuel_type):
         self.cylinders = cylinders
-        self.displacement_ci = displacement_ci
-        self.displacement_liters = displacement_liters
+        self.displacement = displacement
         self.type_ = type_
+        self.fuel_type = fuel_type
 
     def __composite_values__(self):
-        return self.cylinders, self.displacement_ci, self.displacement_liters, self.type_
+        return self.cylinders, self.displacement, self.type_, self.fuel_type
 
     def __repr__(self):
-        return 'Engine(cylinder={},displacement_ci={},displacement_liters={},type={}'.format(
+        return 'Engine(cylinder={},displacement={},displacement_liters={},type="{}",fuel_type="{}"'.format(
             *self.__composite_values__()
         )
 
@@ -57,12 +57,11 @@ class Vehicle(Base):
     def lower_name(self):
         return self.name.lower()
 
-    _engn_cylinders = Column('engn_cylinders_nb', types.BigInteger())
-    _engn_dsplmt_ci = Column('engn_dsplmt_ci_nb', types.Numeric(asdecimal=True, precision=10, scale=2))
-    _engn_dsplmt_l = Column('engn_dsplmt_l_nb', types.Numeric(asdecimal=True, precision=10, scale=2))
-    _engn_type = Column('engn_typ_nm', types.String(length=25))
-    _fuel_type = Column('fuel_typ_nm', types.String(length=10))
-    engine = orm.composite(Engine, _engn_cylinders, _engn_dsplmt_ci, _engn_dsplmt_l, _engn_type, _fuel_type)
+    _engine_cylinders = Column('engine_cylinders', types.BigInteger())
+    _engine_displacement = Column('engine_displacement', types.Numeric(asdecimal=True, precision=10, scale=2))
+    _engine_type = Column('engine_type', types.String(length=25))
+    _engine_fuel_type = Column('engine_fuel_type', types.String(length=10))
+    engine = orm.composite(Engine, _engine_cylinders, _engine_displacement, _engine_type, _engine_fuel_type)
 
     _owner_id = Column('owner_id', types.Integer(), ForeignKey(Owner.id))
     owner = orm.relationship(Owner, backref='vehicles')
@@ -71,7 +70,7 @@ class Vehicle(Base):
 class VehicleOther(Base):
     __tablename__ = 'vehicle_other'
 
-    id = Column(types.Integer(), ForeignKey(Vehicle.id), primary_key=True, doc='The primary key')
+    id = Column(types.Integer(), primary_key=True, doc='The primary key')
 
     advertising_cost = Column(types.BigInteger())
     base_invoice = Column(types.BigInteger())
@@ -88,6 +87,7 @@ class VehicleOther(Base):
     vehicle_invoice = Column(types.BigInteger())
     vehicle_msrp = Column(types.BigInteger())
 
+    _vehicle_id = Column(types.Integer(), ForeignKey(Vehicle.id))
     vehicle = orm.relationship(Vehicle, backref=orm.backref('other', uselist=False), uselist=False)
 
 

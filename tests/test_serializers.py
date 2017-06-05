@@ -8,11 +8,16 @@ from rest_framework import fields
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ListSerializer
 from rest_framework.settings import api_settings
-from rest_witchcraft.serializers import (BaseSerializer, CompositeSerializer, ModelSerializer, model_info)
 from rest_witchcraft.utils import _column_info
 from sqlalchemy import Column, types
 
-from .models import (COLORS, Engine, Option, Owner, Vehicle, VehicleOther, VehicleType, session)
+from .models import (  # noqa # isort:skip
+    COLORS, Engine, Option, Owner, Vehicle, VehicleOther, VehicleType, session
+)
+
+from rest_witchcraft.serializers import (  # noqa # isort:skip
+    BaseSerializer, CompositeSerializer,
+    ModelSerializer, model_info)
 
 
 class TestModelSerializer(unittest.TestCase):
@@ -521,9 +526,7 @@ class TestModelSerializer(unittest.TestCase):
 
         engine_serializer = serializer.fields['engine']
         self.assertEqual(len(engine_serializer.fields), 4)
-        self.assertEqual(
-            set(engine_serializer.fields.keys()), set(['type_', 'displacement_ci', 'displacement_liters', 'cylinders'])
-        )
+        self.assertEqual(set(engine_serializer.fields.keys()), set(['type_', 'displacement', 'fuel_type', 'cylinders']))
 
         owner_serializer = serializer.fields['owner']
         self.assertEqual(len(owner_serializer.fields), 2)
@@ -550,10 +553,7 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertFalse(serializer.is_valid())
 
-        self.assertDictEqual(
-            dict(serializer.errors), {'type': ['This field is required.'],
-                                      'other': ['This field is required.']}
-        )
+        self.assertDictEqual(dict(serializer.errors), {'type': ['This field is required.']})
 
     def test_serializer_zero_depth_post_basic_validation(self):
 
@@ -570,7 +570,7 @@ class TestModelSerializer(unittest.TestCase):
             'one': 'Two',
             'type': 'bus',
             'engine': {
-                'displacement_ci': 1234,
+                'displacement': 1234,
                 'cylinders': 4,
             },
             'owner': {
@@ -587,7 +587,7 @@ class TestModelSerializer(unittest.TestCase):
                 'name': 'Test vehicle',
                 'type': VehicleType['bus'],
                 'engine': {
-                    'displacement_ci': Decimal('1234.00'),
+                    'displacement': Decimal('1234.00'),
                     'cylinders': 4,
                 },
                 'owner': {
@@ -612,7 +612,7 @@ class TestModelSerializer(unittest.TestCase):
             'one': 'Two',
             'type': 'bus',
             'engine': {
-                'displacement_ci': 1234,
+                'displacement': 1234,
                 'cylinders': 4,
             },
             'owner': {
@@ -630,8 +630,8 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(vehicle.name, data['name'])
         self.assertEqual(vehicle.type, VehicleType[data['type']])
         self.assertEqual(vehicle.engine.cylinders, data['engine']['cylinders'])
-        self.assertEqual(vehicle.engine.displacement_ci, data['engine']['displacement_ci'])
-        self.assertEqual(vehicle.engine.displacement_liters, None)
+        self.assertEqual(vehicle.engine.displacement, data['engine']['displacement'])
+        self.assertEqual(vehicle.engine.fuel_type, None)
         self.assertEqual(vehicle.engine.type_, None)
         self.assertEqual(vehicle.owner.id, data['owner']['id'])
         self.assertEqual(vehicle.owner.name, 'Test owner')
@@ -657,10 +657,10 @@ class TestModelSerializer(unittest.TestCase):
             'one': 'Two',
             'type': 'car',
             'engine': {
-                'displacement_ci': 4321,
-                'displacement_liters': 4321,
+                'displacement': 4321,
                 'cylinders': 2,
-                'type_': 'banana'
+                'type_': 'banana',
+                'fuel_type': 'petrol',
             },
             'owner': {
                 'id': 1
@@ -680,8 +680,8 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(vehicle.name, data['name'])
         self.assertEqual(vehicle.type, VehicleType[data['type']])
         self.assertEqual(vehicle.engine.cylinders, data['engine']['cylinders'])
-        self.assertEqual(vehicle.engine.displacement_ci, data['engine']['displacement_ci'])
-        self.assertEqual(vehicle.engine.displacement_liters, data['engine']['displacement_ci'])
+        self.assertEqual(vehicle.engine.displacement, data['engine']['displacement'])
+        self.assertEqual(vehicle.engine.fuel_type, data['engine']['fuel_type'])
         self.assertEqual(vehicle.engine.type_, data['engine']['type_'])
         self.assertEqual(vehicle.owner.id, data['owner']['id'])
         self.assertEqual(vehicle.owner.name, 'Test owner')
@@ -722,8 +722,8 @@ class TestModelSerializer(unittest.TestCase):
 
         data = {
             'cylinders': 2,
-            'displacement_ci': 1234,
-            'displacement_liters': 4321,
+            'displacement': 1234,
+            'fuel_type': 'petrol',
             'type_': 'banana',
         }
 
@@ -734,8 +734,8 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertIsInstance(engine, Engine)
         self.assertEqual(engine.cylinders, 2)
-        self.assertEqual(engine.displacement_ci, 1234)
-        self.assertEqual(engine.displacement_liters, 4321)
+        self.assertEqual(engine.displacement, 1234)
+        self.assertEqual(engine.fuel_type, 'petrol')
         self.assertEqual(engine.type_, 'banana')
 
     def test_composite_serializer_can_update(self):
@@ -747,11 +747,11 @@ class TestModelSerializer(unittest.TestCase):
 
         data = {
             'cylinders': 2,
-            'displacement_ci': 1234,
-            'displacement_liters': 4321,
+            'displacement': 1234,
+            'fuel_type': 'diesel',
             'type_': 'banana',
         }
-        engine = Engine(4, 2345, 5432, 'apple')
+        engine = Engine(4, 2345, 'apple', 'petrol')
 
         serializer = EngineSerializer(engine, data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -760,8 +760,8 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertIsInstance(engine, Engine)
         self.assertEqual(engine.cylinders, 2)
-        self.assertEqual(engine.displacement_ci, 1234)
-        self.assertEqual(engine.displacement_liters, 4321)
+        self.assertEqual(engine.displacement, 1234)
+        self.assertEqual(engine.fuel_type, 'diesel')
         self.assertEqual(engine.type_, 'banana')
 
     def test_composite_serializer_can_update_patch(self):
@@ -774,7 +774,7 @@ class TestModelSerializer(unittest.TestCase):
         data = {
             'cylinders': 2,
         }
-        engine = Engine(4, 2345, 5432, 'apple')
+        engine = Engine(4, 2345, 'apple', 'petrol')
 
         serializer = EngineSerializer(engine, data=data, partial=True)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -783,8 +783,8 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertIsInstance(engine, Engine)
         self.assertEqual(engine.cylinders, 2)
-        self.assertEqual(engine.displacement_ci, 2345)
-        self.assertEqual(engine.displacement_liters, 5432)
+        self.assertEqual(engine.displacement, 2345)
+        self.assertEqual(engine.fuel_type, 'petrol')
         self.assertEqual(engine.type_, 'apple')
 
     def test_patch_update_to_list_with_empty_list_clears_it(self):
