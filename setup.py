@@ -42,11 +42,16 @@ setup(
     author=about['__author__'], author_email=about['__author_email__'], description=about['__description__'],
     install_requires=project.parsed_pipfile['packages'].keys(), license='MIT', long_description=read_md('README.md'),
     name=project.name, packages=find_packages(exclude=['tests']),
-    url='https://github.com/shosca/django-rest-witchcraft', version=about['__version__'], classifiers=[
+    url='https://github.com/shosca/django-rest-witchcraft', version=about['__version__'],
+    keywords='sqlalchemy django rest framework drf rest_framework', classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Environment :: Web Environment',
+        'Framework :: Django :: 1.11',
+        'Framework :: Django',
         'Intended Audience :: Developers',
-        'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
@@ -54,6 +59,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
-        'Development Status :: 2 - Pre-Alpha',
+        'Programming Language :: Python',
+        'Topic :: Internet :: WWW/HTTP',
     ]
 )

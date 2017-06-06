@@ -18,7 +18,7 @@ class GenericAPIView(generics.GenericAPIView):
         """
         model = None
 
-        with suppress(InvalidRequestError):
+        with suppress(AttributeError, InvalidRequestError):
             model = cls.queryset._only_entity_zero().class_
 
         if model:
@@ -27,8 +27,12 @@ class GenericAPIView(generics.GenericAPIView):
         with suppress(AttributeError):
             model = cls.serializer_class.Meta.model
 
-        if model:
-            return model
+        assert model is not None, (
+            "Couldn't figure out the model for {viewset} attribute, either provide a"
+            'queryset or a serializer with a Meta.model'.format(viewset=cls.__name__)
+        )
+
+        return model
 
     def get_object(self):
         """
@@ -38,9 +42,10 @@ class GenericAPIView(generics.GenericAPIView):
         """
         queryset = self.get_queryset()
 
-        obj = queryset.get(get_primary_keys(self.get_model(), self.kwargs))
+        model = self.get_model()
+        obj = queryset.get(get_primary_keys(model, self.kwargs))
 
         if not obj:
-            raise Http404('No %s matches the given query.' % self.model.__name__)
+            raise Http404('No %s matches the given query.' % model.__name__)
 
         return obj
