@@ -157,6 +157,8 @@ class CompositeSerializer(BaseSerializer):
         if instance:
             return instance
 
+        validated_data = validated_data or {}
+
         composite_args = []
         for attr in get_args(self.composite_class.__init__):
             composite_args.append(validated_data.get(attr))
@@ -178,6 +180,8 @@ class CompositeSerializer(BaseSerializer):
         return instance
 
     def perform_update(self, instance, validated_data, errors):
+
+        validated_data = validated_data or {}
 
         for field in self._writable_fields:
 
