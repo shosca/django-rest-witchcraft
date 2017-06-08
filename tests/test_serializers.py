@@ -493,6 +493,25 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsInstance(nested_serializer, ModelSerializer)
         self.assertEqual(len(nested_serializer.fields), 2)
 
+    def test_build_one_to_many_relationship_field_with_nested_updates_disabled(self):
+
+        class VehicleSerializer(ModelSerializer):
+
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = '__all__'
+                extra_kwargs = {'owner': {'allow_nested_updates': False}}
+
+        serializer = VehicleSerializer()
+        info = model_info(Vehicle)
+        nested_serializer = serializer.build_field(Vehicle.owner.key, info, 0)
+
+        self.assertIsNotNone(nested_serializer)
+        self.assertIsInstance(nested_serializer, ModelSerializer)
+        self.assertEqual(len(nested_serializer.fields), 2)
+        self.assertTrue(nested_serializer.fields['name'].read_only)
+
     def test_build_serializer_with_depth(self):
 
         class VehicleSerializer(ModelSerializer):

@@ -113,7 +113,7 @@ class _model_info(object):
 
         for col in self.mapper.columns:
             attr = self.mapper.get_property_by_column(col)
-            if attr.key not in self.mapper.primary_key:
+            if attr.key not in self.primary_keys:
                 self.properties[attr.key] = _column_info(attr, col)
 
         for composite in self.mapper.composites:

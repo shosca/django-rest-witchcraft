@@ -437,11 +437,18 @@ class ModelSerializer(BaseSerializer):
 
         field_kwargs = self.get_relationship_kwargs(relationship, nested_depth)
         field_kwargs = self.include_extra_kwargs(field_kwargs, self._extra_kwargs.get(field_name))
-        nested_extra_kwargs = None
+        nested_extra_kwargs = {}
 
+        nested_info = model_info(target_model)
         if not field_kwargs.get('required', True):
-            nested_info = model_info(target_model)
-            nested_extra_kwargs = {pk: {'required': False} for pk in nested_info.primary_keys}
+            for nested_field in nested_info.primary_keys:
+                nested_extra_kwargs.setdefault(nested_field, {}).setdefault('required', False)
+
+        if not field_kwargs.get('allow_nested_updates', True):
+            nested_depth = 0
+            for nested_field in nested_info.properties:
+                nested_extra_kwargs.setdefault(nested_field, {}).setdefault('read_only', True)
+                nested_extra_kwargs.setdefault(nested_field, {}).pop('required', None)
 
         class NestedSerializer(ModelSerializer):
 
@@ -581,7 +588,8 @@ class ModelSerializer(BaseSerializer):
 
                 if isinstance(field, BaseSerializer):
 
-                    child_instance = field.get_object(value, getattr(instance, field.field_name, None))
+                    child_instance = getattr(instance, field.field_name, None)
+                    child_instance = field.get_object(value, child_instance)
 
                     if field.allow_nested_updates:
                         value = field.perform_update(child_instance, value, errors)
