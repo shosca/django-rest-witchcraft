@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "65025acc4df54001bdd455025c2a87d1c7e8a156794cc0e341d08e4dfe5ecc64"
+            "sha256": "af353ae840fa7092abf5b5286e5bbd298b84fe5f1abc18d4bff75faf46f88976"
         },
         "requires": {},
         "sources": [
@@ -60,7 +60,7 @@
             "version": "==1.5.0"
         },
         "pytest": {
-            "version": "==3.1.1"
+            "version": "==3.1.2"
         },
         "pytest-cov": {
             "version": "==2.5.1"

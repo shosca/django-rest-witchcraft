@@ -705,7 +705,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(vehicle.owner.id, data['owner']['id'])
         self.assertEqual(vehicle.owner.name, 'Test owner')
         self.assertEqual(vehicle.options, data['options'])
-        self.assertEqual(vehicle.other.advertising_cost, data['other']['advertising_cost'])
+        self.assertIsNone(vehicle.other)
 
     def test_patch_update(self):
 
@@ -918,6 +918,7 @@ class TestModelSerializer(unittest.TestCase):
                 model = Vehicle
                 session = session
                 fields = ('owner', )
+                extra_kwargs = {'owner': {'allow_null': False}}
 
         data = {'owner': {'id': 1234}}
 

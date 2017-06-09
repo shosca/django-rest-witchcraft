@@ -10,7 +10,7 @@ from rest_framework import fields, relations
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.settings import api_settings
-from sqlalchemy.orm.interfaces import MANYTOONE
+from sqlalchemy.orm.interfaces import MANYTOONE, ONETOMANY
 from sqlalchemy.sql import sqltypes
 
 from .field_mapping import get_url_kwargs
@@ -486,14 +486,17 @@ class ModelSerializer(BaseSerializer):
         Figure out the arguments to be used in the `NestedSerializer` for the relationship
         """
         kwargs = {'is_nested': True}
-        is_fk_nullable = all(
+        if relationship.direction == ONETOMANY:
+            kwargs['required'] = False
+            kwargs['allow_null'] = True
+        elif all(
             [
                 col.nullable
                 for col in chain(relationship._calculated_foreign_keys, relationship._user_defined_foreign_keys)
             ]
-        )
-        if is_fk_nullable:
+        ):
             kwargs['required'] = False
+            kwargs['allow_null'] = True
 
         if relationship.uselist:
             kwargs['many'] = True
@@ -541,16 +544,19 @@ class ModelSerializer(BaseSerializer):
         if pks:
             checked_instance = self.session.query(self.model).get(pks)
 
-        if checked_instance and checked_instance == instance:
+        if checked_instance == instance:
             return instance
 
         if self.allow_create:
             return checked_instance or self.model()
-        else:
-            assert checked_instance is not None, 'No instance of `{}` found with primary keys `{}`'.format(
-                self.model.__name__, pks
-            )
+
+        if self.allow_null:
             return checked_instance
+
+        assert checked_instance is not None, 'No instance of `{}` found with primary keys `{}`'.format(
+            self.model.__name__, pks
+        )
+        return checked_instance
 
     def create(self, validated_data):
         """
@@ -591,7 +597,7 @@ class ModelSerializer(BaseSerializer):
                     child_instance = getattr(instance, field.field_name, None)
                     child_instance = field.get_object(value, child_instance)
 
-                    if field.allow_nested_updates:
+                    if child_instance and field.allow_nested_updates:
                         value = field.perform_update(child_instance, value, errors)
                     else:
                         value = child_instance
