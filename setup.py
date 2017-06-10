@@ -16,14 +16,10 @@ about = {}
 with open(os.path.join(here, 'rest_witchcraft', '__version__.py')) as f:
     exec(f.read(), about)
 
-try:
-    from pypandoc import convert
 
-    def read_md(f):
-        return convert(f, 'rst')
-except ImportError:
-    print('pypandoc not installed.\nUse `pip install pypandoc`.\nExiting.')
-    sys.exit()
+def read(fname):
+    return (open(os.path.join(os.path.dirname(__file__), fname), 'rb').read().decode('utf-8'))
+
 
 if sys.argv[-1] == 'publish':
     twine = shutil.which('twine')
@@ -40,7 +36,7 @@ if sys.argv[-1] == 'publish':
 
 setup(
     author=about['__author__'], author_email=about['__author_email__'], description=about['__description__'],
-    install_requires=project.parsed_pipfile['packages'].keys(), license='MIT', long_description=read_md('README.md'),
+    install_requires=project.parsed_pipfile['packages'].keys(), license='MIT', long_description=read('README.rst'),
     name=project.name, packages=find_packages(exclude=['tests']),
     url='https://github.com/shosca/django-rest-witchcraft', version=about['__version__'],
     keywords='sqlalchemy django rest framework drf rest_framework', classifiers=[
