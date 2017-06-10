@@ -14,6 +14,9 @@ except AttributeError:
 
     @contextlib.contextmanager
     def suppress(*exceptions):
+        """
+        Suppresses given exceptions, a backport from py3 contextlib.suppress
+        """
         try:
             yield
         except exceptions:
@@ -23,17 +26,23 @@ except AttributeError:
 if six.PY2:
 
     def get_args(func):
+        """
+        Returns the names of the positional arguments for composite model inspection
+        """
         return inspect.getargspec(func).args[1:]
 else:
 
     def get_args(func):
+        """
+        Returns the names of the positional arguments for composite model inspection
+        """
         return list(inspect.signature(func).parameters.keys())[1:]
 
 
-_registry = {}
-
-
 class composite_info(object):
+    """
+    A helper class that makes sqlalchemy composite model inspection easier
+    """
     __slots__ = ('prop', 'properties', '_field_names')
 
     def __init__(self, composite):
@@ -91,11 +100,22 @@ class _column_info(object):
         return kwargs
 
 
-def model_info(model):
-    return _registry.setdefault(model, _model_info(model))
+class _model_info_meta(type):
+    _registry = {}
+
+    def __call__(cls, model, *args, **kwargs):
+        if model not in cls._registry:
+            instance = super(_model_info_meta, cls).__call__(model, *args, **kwargs)
+            cls._registry[model] = instance
+
+        return cls._registry[model]
 
 
-class _model_info(object):
+class model_info(six.with_metaclass(_model_info_meta)):
+    """
+    A helper class that makes sqlalchemy model inspection easier
+    """
+
     __slots__ = ('mapper', 'properties', '_field_names', 'model_class', 'composites', 'primary_keys', 'relationships')
 
     def __init__(self, model):
@@ -136,6 +156,9 @@ class _model_info(object):
 
 
 def get_primary_keys(model, kwargs):
+    """
+    Returns the primary key from a dictionary to be used in a sqlalchemy query.get() call
+    """
     info = model_info(model)
     pks = []
 
