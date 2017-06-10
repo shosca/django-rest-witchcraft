@@ -2,8 +2,9 @@ Changelog
 =========
 
 
-(Unreleased)
-------------
+Next version (unreleased yet)
+-----------------------------
+- Docs: update gitchangelog config. [Serkan Hosca]
 - Initial doc setup. [Serkan Hosca]
 
 
@@ -41,14 +42,12 @@ Changelog
 
 0.0.6 (2017-06-05)
 ------------------
-- Bump version. [Serkan Hosca]
 - Add missing dep and add pypi badge. [Serkan Hosca]
 - Add more tests for composite routes. [Serkan Hosca]
 
 
 0.0.5 (2017-06-05)
 ------------------
-- Bump version. [Serkan Hosca]
 - Add route tests. [Serkan Hosca]
 
 
