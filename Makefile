@@ -43,11 +43,22 @@ test:  ## run tests
 check:  ## run all tests
 	tox
 
-release: clean  ## package and upload a release
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+history:  ## generate HISTORY.rst
+	pipenv run gitchangelog > HISTORY.rst
 
-dist: clean  ## builds source and wheel package
+docs: history  ## generate docs
+	$(MAKE) -C docs html
+
+version:
+	@python setup.py --version
+
+tag:  ## tags branch
+	git tag -a $$(python setup.py --version) -m $$(python setup.py --version)
+
+release: dist  ## package and upload a release
+	twine upload dist/*
+
+dist: clean history  ## builds source and wheel package
 	python setup.py sdist
 	python setup.py bdist_wheel
 	ls -l dist

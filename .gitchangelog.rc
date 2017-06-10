@@ -1,0 +1,10 @@
+ignore_regexps = [
+    r'^Merge commit .* into HEAD',
+    r'^Version bump*',
+    r'^Initial commit* into HEAD',
+]
+
+tag_filter_regexp = r'^[0-9]+\.[0-9]+(\.[0-9]+)?$'
+
+unreleased_version_label = "(Unreleased)"
+
