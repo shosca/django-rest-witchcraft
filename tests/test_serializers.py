@@ -284,6 +284,20 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertEqual(kwargs, {'default': True})
 
+    def test_base_serializer_raises_on_create(self):
+
+        serializer = BaseSerializer()
+
+        with self.assertRaises(NotImplementedError):
+            serializer.create({})
+
+    def test_base_serializer_raises_on_update(self):
+
+        serializer = BaseSerializer()
+
+        with self.assertRaises(NotImplementedError):
+            serializer.update(None, {})
+
     def test_get_extra_kwargs_with_no_extra_kwargs(self):
 
         class VehicleSerializer(ModelSerializer):
@@ -705,7 +719,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(vehicle.owner.id, data['owner']['id'])
         self.assertEqual(vehicle.owner.name, 'Test owner')
         self.assertEqual(vehicle.options, data['options'])
-        self.assertIsNone(vehicle.other)
+        self.assertEqual(vehicle.other.advertising_cost, 4321)
 
     def test_patch_update(self):
 
@@ -805,6 +819,50 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(engine.displacement, 2345)
         self.assertEqual(engine.fuel_type, 'petrol')
         self.assertEqual(engine.type_, 'apple')
+
+    def test_composite_serializer_can_use_custom_setter(self):
+
+        class EngineSerializer(CompositeSerializer):
+
+            class Meta:
+                composite = Vehicle.engine
+
+            def set_cylinders(self, instance, field, value):
+                self.called = True
+                instance.cylinders = value
+
+        data = {
+            'cylinders': 2,
+        }
+        engine = Engine(4, 2345, 'apple', 'petrol')
+
+        serializer = EngineSerializer(engine, data=data, partial=True)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        engine = serializer.save()
+
+        self.assertTrue(serializer.called)
+
+    def test_composite_serializer_can_handle_errors_during_update(self):
+
+        class EngineSerializer(CompositeSerializer):
+
+            class Meta:
+                composite = Vehicle.engine
+
+            def set_cylinders(self, instance, field, value):
+                assert False, 'Some error'
+
+        data = {
+            'cylinders': 2,
+        }
+        engine = Engine(4, 2345, 'apple', 'petrol')
+
+        serializer = EngineSerializer(engine, data=data, partial=True)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        with self.assertRaises(ValidationError):
+            engine = serializer.save()
 
     def test_patch_update_to_list_with_empty_list_clears_it(self):
         vehicle = Vehicle(
@@ -953,3 +1011,62 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer.update(vehicle, serializer.validated_data)
         self.assertTrue(serializer._set_name_called)
+
+    def test_get_object_can_get_object(self):
+
+        class OwnerSerializer(ModelSerializer):
+
+            class Meta:
+                model = Owner
+                session = session
+                fields = '__all__'
+
+        serializer = OwnerSerializer()
+
+        instance = serializer.get_object({'id': 1})
+
+        self.assertIsNotNone(instance)
+
+    def test_get_object_raise_when_not_found(self):
+
+        class OwnerSerializer(ModelSerializer):
+
+            class Meta:
+                model = Owner
+                session = session
+                fields = '__all__'
+
+        serializer = OwnerSerializer()
+
+        with self.assertRaises(ValidationError):
+            serializer.get_object({'id': 999})
+
+    def test_get_object_allows_null_when_not_found(self):
+
+        class OwnerSerializer(ModelSerializer):
+
+            class Meta:
+                model = Owner
+                session = session
+                fields = '__all__'
+
+        serializer = OwnerSerializer(allow_null=True)
+
+        instance = serializer.get_object({'id': 999})
+
+        self.assertIsNone(instance)
+
+    def test_get_object_allows_create_when_not_found(self):
+
+        class OwnerSerializer(ModelSerializer):
+
+            class Meta:
+                model = Owner
+                session = session
+                fields = '__all__'
+
+        serializer = OwnerSerializer(allow_create=True)
+
+        instance = serializer.get_object({'id': 999})
+
+        self.assertIsNotNone(instance)

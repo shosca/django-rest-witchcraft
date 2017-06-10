@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
 import copy
-import datetime
-import decimal
 from collections import OrderedDict
 from itertools import chain
 
 from django.core.exceptions import ImproperlyConfigured
-from rest_framework import fields, relations
+from rest_framework import fields
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.settings import api_settings
 from sqlalchemy.orm.interfaces import MANYTOONE, ONETOMANY
-from sqlalchemy.sql import sqltypes
 
-from .field_mapping import get_url_kwargs
-from .fields import BooleanField, EnumField, UriField
+from .field_mapping import get_field_type, get_url_kwargs
+from .fields import UriField
 from .utils import composite_info, get_args, get_primary_keys, model_info
 
 ALL_FIELDS = '__all__'
@@ -22,25 +19,13 @@ ALL_FIELDS = '__all__'
 
 class BaseSerializer(Serializer):
 
-    serializer_field_mapping = {
-        sqltypes.Enum: EnumField,
-        bool: BooleanField,
-        datetime.date: fields.DateField,
-        datetime.datetime: fields.DateTimeField,
-        datetime.time: fields.TimeField,
-        decimal.Decimal: fields.DecimalField,
-        float: fields.FloatField,
-        int: fields.IntegerField,
-        str: fields.CharField,
-    }
     serializer_choice_field = fields.ChoiceField
-    serializer_related_field = relations.PrimaryKeyRelatedField
 
     def build_standard_field(self, field_name, column_info):
         """
         Create regular model fields.
         """
-        field_class = self.get_field_type(column_info)
+        field_class = self.get_field_type(column_info.column)
 
         if not field_class:
             raise KeyError("Could not figure out type for attribute '{}'".format(field_name))
@@ -73,21 +58,11 @@ class BaseSerializer(Serializer):
 
         return field_class(**field_kwargs)
 
-    def get_field_type(self, column_info):
+    def get_field_type(self, column):
         """
-        Returns the field type to be used determined by the sqlalchemy column type or the column type's default
-        python type
+        Returns the field type to be used determined by the sqlalchemy column type or the column type's python type
         """
-        # special case for classic Enum column type
-        if isinstance(column_info.column.type, sqltypes.Enum):
-            if column_info.column.type.enum_class:
-                return EnumField
-            else:
-                return fields.ChoiceField
-
-        return self.serializer_field_mapping.get(
-            column_info.column.type.__class__
-        ) or self.serializer_field_mapping.get(column_info.column.type.python_type)
+        return get_field_type(column)
 
     def include_extra_kwargs(self, kwargs, extra_kwargs=None):
         """
@@ -544,19 +519,16 @@ class ModelSerializer(BaseSerializer):
         if pks:
             checked_instance = self.session.query(self.model).get(pks)
 
-        if checked_instance == instance:
-            return instance
+        if checked_instance is not None:
+            return checked_instance
 
         if self.allow_create:
-            return checked_instance or self.model()
+            return self.model()
 
         if self.allow_null:
             return checked_instance
 
-        assert checked_instance is not None, 'No instance of `{}` found with primary keys `{}`'.format(
-            self.model.__name__, pks
-        )
-        return checked_instance
+        raise ValidationError('No instance of `{}` found with primary keys `{}`'.format(self.model.__name__, pks))
 
     def create(self, validated_data):
         """

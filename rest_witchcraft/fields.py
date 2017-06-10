@@ -29,9 +29,5 @@ class EnumField(fields.ChoiceField):
         return value.name
 
 
-class BooleanField(fields.BooleanField):
-
-    def __init__(self, *args, **kwargs):
-        kwargs.pop('allow_null', None)
-        kwargs.pop('max_length', None)
-        super(BooleanField, self).__init__(*args, **kwargs)
+class CharMappingField(fields.DictField):
+    child = fields.CharField(allow_null=True)
