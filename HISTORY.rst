@@ -2,6 +2,11 @@ Changelog
 =========
 
 
+0.3.1 (2017-06-11)
+-----------------------------
+- Delete tests and coverall config. [Serkan Hosca]
+
+
 0.3.0 (2017-06-11)
 ------------------
 - Fix: nested list serializer flags. [Serkan Hosca]
