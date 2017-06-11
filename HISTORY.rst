@@ -4,6 +4,10 @@ Changelog
 
 Next version (unreleased yet)
 -----------------------------
+- Fix: generic destroy with sqlalchemy. [Serkan Hosca]
+- Fix: Handle autoincrement and nested update with existing instance.
+  [Serkan Hosca]
+- Refactor: model_info changes and added docstrings. [Serkan Hosca]
 - Docs: update gitchangelog config. [Serkan Hosca]
 - Initial doc setup. [Serkan Hosca]
 
