@@ -393,7 +393,7 @@ class ModelSerializer(BaseSerializer):
         Builds a field for the primary key of the model
         """
         field = self.build_standard_field(field_name, column_info)
-        if not self.is_nested and column_info.column.default is not None:
+        if not self.is_nested and (column_info.column.default is not None or column_info.column.autoincrement):
             field.read_only = True
         return field
 
@@ -518,6 +518,8 @@ class ModelSerializer(BaseSerializer):
         checked_instance = None
         if pks:
             checked_instance = self.session.query(self.model).get(pks)
+        else:
+            checked_instance = instance
 
         if checked_instance is not None:
             return checked_instance
@@ -582,7 +584,8 @@ class ModelSerializer(BaseSerializer):
 
                     for item in validated_data.get(field.field_name):
                         # It is possible to perform nested updates on a list of instances only when the primary
-                        # keys are also provided. So we disable the creation of a new instance if the pk is not found.
+                        # keys are also provided. So we disable the creation of
+                        # a new instance if the pk is not found.
                         field.child.allow_create = False
                         child_instance = field.child.get_object(item)
                         if field.child.allow_nested_updates:
