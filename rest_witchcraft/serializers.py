@@ -583,17 +583,14 @@ class ModelSerializer(BaseSerializer):
                     value = []
 
                     for item in validated_data.get(field.field_name):
-                        # It is possible to perform nested updates on a list of instances only when the primary
-                        # keys are also provided. So we disable the creation of
-                        # a new instance if the pk is not found.
-                        field.child.allow_create = False
                         child_instance = field.child.get_object(item)
-                        if field.child.allow_nested_updates:
+                        if child_instance and (field.child.allow_create or field.child.allow_nested_updates):
                             v = field.child.perform_update(child_instance, item, errors)
                         else:
                             v = child_instance
 
-                        value.append(v)
+                        if v:
+                            value.append(v)
 
                 field_setter = getattr(self, 'set_' + field.field_name, None)
                 if field_setter:

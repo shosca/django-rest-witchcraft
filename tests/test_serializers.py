@@ -913,6 +913,32 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(len(vehicle.options), 2)
         self.assertEqual(set([v.id for v in vehicle.options]), set([3, 4]))
 
+    def test_patch_update_to_list_with_new_list_with_allow_create(self):
+        vehicle = Vehicle(
+            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None,
+                                                                     None), owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321), options=session.query(Option).filter(Option.id.in_([1, 2])).all()
+        )
+
+        class VehicleSerializer(ModelSerializer):
+
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = ('options', )
+                extra_kwargs = {'options': {'allow_create': True}}
+
+        data = {'options': [{'name': 'Test'}, {'name': 'Other Test'}]}
+
+        serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        vehicle = serializer.update(vehicle, serializer.validated_data)
+
+        self.assertEqual(len(vehicle.options), 2)
+        self.assertEqual(set([v.name for v in vehicle.options]), set(['Test', 'Other Test']))
+
     def test_patch_update_to_list_with_new_list_with_nested(self):
         vehicle = Vehicle(
             name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None,
@@ -952,7 +978,7 @@ class TestModelSerializer(unittest.TestCase):
                 model = Vehicle
                 session = session
                 fields = ('options', )
-                extra_kwargs = {'options': {'allow_nested_updates': True}}
+                extra_kwargs = {'options': {'allow_null': False}}
 
         data = {'options': [{'id': 1, 'name': 'Test 1'}, {'id': 5, 'name': 'Test 5'}]}
 
