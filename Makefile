@@ -35,6 +35,7 @@ coverage: ## check code coverage quickly with the default Python
 	pipenv run py.test \
 		--cov-report html \
 		--cov-report term \
+		--cov-report term-missing \
 		--cov=rest_witchcraft tests
 
 test:  ## run tests
@@ -46,7 +47,7 @@ check:  ## run all tests
 history:  ## generate HISTORY.rst
 	pipenv run gitchangelog > HISTORY.rst
 
-docs: history  ## generate docs
+docs:  ## generate docs
 	$(MAKE) -C docs html
 
 version:
@@ -58,7 +59,7 @@ tag:  ## tags branch
 release: dist  ## package and upload a release
 	twine upload dist/*
 
-dist: clean history  ## builds source and wheel package
+dist: clean  ## builds source and wheel package
 	python setup.py sdist
 	python setup.py bdist_wheel
 	ls -l dist

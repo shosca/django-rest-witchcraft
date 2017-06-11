@@ -141,6 +141,10 @@ class TestModelRoutes(SimpleTestCase):
              'text': 'router test update 2'},
         )
 
+    def test_delete(self):
+        resp = self.client.delete('/test/2/', content_type='application/json')
+        self.assertEqual(resp.status_code, 204)
+
 
 @override_settings(ROOT_URLCONF='tests.test_routers')
 class TestCompositeRoutes(SimpleTestCase):
@@ -211,6 +215,10 @@ class TestCompositeRoutes(SimpleTestCase):
              'text': 'router test update 2'},
         )
 
+    def test_delete(self):
+        resp = self.client.delete('/testcomposite/1/2/', content_type='application/json')
+        self.assertEqual(resp.status_code, 204)
+
 
 @override_settings(ROOT_URLCONF='tests.test_routers')
 class TestCompositeRoutesWithCustomRegex(SimpleTestCase):
@@ -280,3 +288,7 @@ class TestCompositeRoutesWithCustomRegex(SimpleTestCase):
              'other_id': 2,
              'text': 'router test update 2'},
         )
+
+    def test_delete(self):
+        resp = self.client.delete('/testcompositeregex/1/other/2/', content_type='application/json')
+        self.assertEqual(resp.status_code, 204)

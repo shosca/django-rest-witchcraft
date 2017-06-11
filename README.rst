@@ -1,7 +1,7 @@
 Django REST Witchcraft
 ======================
 
-|Build Status| |Read The Docs| |PyPI version|
+|Build Status| |Read The Docs| |PyPI version| |Coveralls Status|
 
 **SQLAlchemy specific things for django-rest-framework**
 
@@ -221,3 +221,6 @@ Now, our user looks like:
    :target: http://django-rest-witchcraft.readthedocs.io/en/latest/?badge=latest
 .. |PyPI version| image:: https://badge.fury.io/py/django-rest-witchcraft.svg
    :target: https://badge.fury.io/py/django-rest-witchcraft
+.. |Coveralls Status| image:: https://coveralls.io/repos/github/shosca/django-rest-witchcraft/badge.svg?branch=master
+   :target: https://coveralls.io/github/shosca/django-rest-witchcraft?branch=master
+

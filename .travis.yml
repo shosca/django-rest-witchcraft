@@ -8,7 +8,11 @@ python:
 
 install:
   - make init
+  - pip install coveralls
 
 script:
   - make lint
-  - make test
+  - make coverage
+
+after_success:
+  coveralls
