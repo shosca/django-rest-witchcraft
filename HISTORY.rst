@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-Next version (unreleased yet)
------------------------------
+0.3.0 (2017-06-11)
+------------------
 - Fix: nested list serializer flags. [Serkan Hosca]
 - Docs: update. [Serkan Hosca]
 - Fix: generic destroy with sqlalchemy. [Serkan Hosca]
