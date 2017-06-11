@@ -4,6 +4,8 @@ Changelog
 
 Next version (unreleased yet)
 -----------------------------
+- Fix: nested list serializer flags. [Serkan Hosca]
+- Docs: update. [Serkan Hosca]
 - Fix: generic destroy with sqlalchemy. [Serkan Hosca]
 - Fix: Handle autoincrement and nested update with existing instance.
   [Serkan Hosca]
