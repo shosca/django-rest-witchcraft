@@ -34,6 +34,13 @@ class GenericAPIView(generics.GenericAPIView):
 
         return model
 
+    def get_session(self):
+        """
+        Returns the session
+        """
+        queryset = self.get_queryset()
+        return queryset.session
+
     def get_object(self):
         """
         Returns the object the view is displaying.

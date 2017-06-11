@@ -2,6 +2,7 @@
 from rest_framework import mixins, viewsets
 
 from .generics import GenericAPIView
+from .mixins import DestroyModelMixin
 
 
 class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
@@ -18,7 +19,7 @@ class ReadOnlyViewModelViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin,
 
 
 class ModelViewSet(
-    mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin,
+    mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, DestroyModelMixin,
     mixins.ListModelMixin, GenericViewSet
 ):
     """
