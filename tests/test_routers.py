@@ -4,12 +4,9 @@ from __future__ import unicode_literals
 import simplejson as json
 from django.conf.urls import include, url
 from django.test import SimpleTestCase, override_settings
-from rest_framework.test import APIRequestFactory
 from rest_witchcraft import routers, serializers, viewsets
 from sqlalchemy import Column, create_engine, orm, types
 from sqlalchemy.ext.declarative import declarative_base
-
-factory = APIRequestFactory()
 
 engine = create_engine('sqlite://')
 session = orm.scoped_session(orm.sessionmaker(bind=engine))

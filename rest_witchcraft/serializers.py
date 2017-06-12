@@ -21,6 +21,17 @@ class BaseSerializer(Serializer):
 
     serializer_choice_field = fields.ChoiceField
 
+    @property
+    def is_nested(self):
+        if self.parent:
+            if not hasattr(self.parent, 'many'):
+                return True
+
+            if self.parent.many is True and self.parent.parent:
+                return True
+
+        return False
+
     def build_standard_field(self, field_name, column_info):
         """
         Create regular model fields.
@@ -55,6 +66,11 @@ class BaseSerializer(Serializer):
         if not issubclass(field_class, fields.CharField) and not issubclass(field_class, fields.ChoiceField):
             # `allow_blank` is only valid for textual fields.
             field_kwargs.pop('allow_blank', None)
+
+        if issubclass(field_class, fields.NullBooleanField):
+            # 'allow_null' and 'max_length' is not valid kwarg for NullBooleanField
+            for kw in {'allow_null', 'max_length'}:
+                field_kwargs.pop(kw, None)
 
         return field_class(**field_kwargs)
 
@@ -201,13 +217,9 @@ class ModelSerializer(BaseSerializer):
         The main things that we're interested in is the sqlalchemy session, you can provide it thru `Meta.session`,
         `session` kwarg or thru `context`
 
-        `is_nested` is set then this serializer is being nested in another serializer, this controls
-        the automatic primary key field generation.
-
         `allow_nested_updates` is for controlling nested related model updates.
         """
         self.session = kwargs.pop('session', None) or getattr(getattr(self, 'Meta', None), 'session', None)
-        self.is_nested = kwargs.pop('is_nested', False)
         self.allow_nested_updates = kwargs.pop('allow_nested_updates', False)
         self.allow_create = kwargs.pop('allow_create', False)
 
@@ -393,7 +405,7 @@ class ModelSerializer(BaseSerializer):
         Builds a field for the primary key of the model
         """
         field = self.build_standard_field(field_name, column_info)
-        if not self.is_nested and (column_info.column.default is not None or column_info.column.autoincrement):
+        if not self.is_nested and (column_info.column.default is not None or column_info.column.autoincrement is True):
             field.read_only = True
         return field
 
@@ -460,7 +472,7 @@ class ModelSerializer(BaseSerializer):
         """
         Figure out the arguments to be used in the `NestedSerializer` for the relationship
         """
-        kwargs = {'is_nested': True}
+        kwargs = {}
         if relationship.direction == ONETOMANY:
             kwargs['required'] = False
             kwargs['allow_null'] = True
