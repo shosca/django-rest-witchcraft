@@ -7,6 +7,7 @@ djangorestframework = "*"
 six = "*"
 Django = "*"
 SQLAlchemy = "*"
+pipenv = "*"
 
 [dev-packages]
 pytest = "*"

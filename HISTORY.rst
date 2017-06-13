@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+0.3.3 (2017-06-13)
+------------------
+- Fix: Add pipenv for setup. [Serkan Hosca]
+- Docs: fix versioning. [Serkan Hosca]
+
+
 0.3.2 (2017-06-13)
 ------------------
 - Fix: stop passing around is_nested and fix autoincrement value check.
