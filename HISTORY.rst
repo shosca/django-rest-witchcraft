@@ -2,8 +2,14 @@ Changelog
 =========
 
 
+0.3.2 (2017-06-13)
+------------------
+- Fix: stop passing around is_nested and fix autoincrement value check.
+  [Serkan Hosca]
+
+
 0.3.1 (2017-06-11)
------------------------------
+------------------
 - Delete tests and coverall config. [Serkan Hosca]
 
 
