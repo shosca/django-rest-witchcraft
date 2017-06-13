@@ -1,11 +1,16 @@
 # Ignore commits
 ignore_regexps = [
-    r'@minor', r'!minor',
-    r'@cosmetic', r'!cosmetic',
-    r'@refactor', r'!refactor',
-    r'@wip', r'!wip',
+    r'@minor',
+    r'!minor',
+    r'@cosmetic',
+    r'!cosmetic',
+    r'@refactor',
+    r'!refactor',
+    r'@wip',
+    r'!wip',
     r'^Merge commit .* into HEAD',
     r'^Version bump*',
+    r'^Docs: update*',
     r'^Bump version*',
     r'^Update history*',
     r'^Initial commit* into HEAD',
@@ -14,16 +19,16 @@ ignore_regexps = [
 # Detect sections
 section_regexps = [
     ('New features', [
-    r'^[fF]eat(\(.*\)?):.+([^\n]*)$',
+    r'^[fF]eat.*:\s*?([^\n]*)$',
      ]),
     ('Fix', [
-    r'^[Ff]ix(\(\w*\)?):.+([^\n]*)$',
+    r'^[fF]ix:\s*?([^\n]*)$',
      ]),
     ('Refactor', [
-    r'^[Rr]efactor(\(\w*\)?):.+([^\n]*)$',
+    r'^[rR]efactor:\s*?([^\n]*)$',
      ]),
     ('Documentation', [
-    r'^[Dd]ocs?(\(\w*\)?):.+([^\n]*)$',
+    r'^[dD]oc.*:\s*?([^\n]*)$',
      ]),
     ('Other', None ## Match all lines
      ),

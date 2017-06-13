@@ -2,14 +2,31 @@ Changelog
 =========
 
 
+Next version (unreleased yet)
+-----------------------------
+
+Documentation
+~~~~~~~~~~~~~
+- Doc: update gitchangelog config. [Serkan Hosca]
+
+
 0.3.3 (2017-06-13)
 ------------------
+
+Fix
+~~~
 - Fix: Add pipenv for setup. [Serkan Hosca]
+
+Documentation
+~~~~~~~~~~~~~
 - Docs: fix versioning. [Serkan Hosca]
 
 
 0.3.2 (2017-06-13)
 ------------------
+
+Fix
+~~~
 - Fix: stop passing around is_nested and fix autoincrement value check.
   [Serkan Hosca]
 
@@ -21,13 +38,20 @@ Changelog
 
 0.3.0 (2017-06-11)
 ------------------
+
+Fix
+~~~
 - Fix: nested list serializer flags. [Serkan Hosca]
-- Docs: update. [Serkan Hosca]
 - Fix: generic destroy with sqlalchemy. [Serkan Hosca]
 - Fix: Handle autoincrement and nested update with existing instance.
   [Serkan Hosca]
+
+Refactor
+~~~~~~~~
 - Refactor: model_info changes and added docstrings. [Serkan Hosca]
-- Docs: update gitchangelog config. [Serkan Hosca]
+
+Other
+~~~~~
 - Initial doc setup. [Serkan Hosca]
 
 
