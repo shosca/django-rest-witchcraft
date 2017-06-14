@@ -10,10 +10,11 @@ class DefaultRouter(routers.DefaultRouter):
 
         model = getattr(viewset, 'get_model', lambda: None)()
 
-        if model:
-            return model.__name__.lower()
+        assert model is not None, '`base_name` argument not specified, and could not automatically determine the ' \
+            'name from the viewset, as either queryset is is missing or is not a sqlalchemy query, or the ' \
+            'serializer_class is not a sqlalchemy model serializer'
 
-        return super(DefaultRouter, self).get_default_base_name(viewset)
+        return model.__name__.lower()
 
     def get_lookup_regex(self, viewset, lookup_prefix=''):
         """

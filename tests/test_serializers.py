@@ -145,6 +145,7 @@ class TestModelSerializer(unittest.TestCase):
                     Vehicle.owner.key,
                     Vehicle.paint.key,
                     Vehicle.type.key,
+                    Vehicle.is_used.key,
                     'url',
                 ]
             )
@@ -184,7 +185,7 @@ class TestModelSerializer(unittest.TestCase):
             set(
                 [
                     Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.other.key,
-                    Vehicle.owner.key, Vehicle.paint.key, 'url'
+                    Vehicle.owner.key, Vehicle.paint.key, Vehicle.is_used.key, 'url'
                 ]
             )
         )
@@ -538,7 +539,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
 
-        self.assertEqual(len(serializer.fields), 10)
+        self.assertEqual(len(serializer.fields), 11)
         self.assertEqual(
             set(serializer.fields.keys()),
             set(
@@ -552,6 +553,7 @@ class TestModelSerializer(unittest.TestCase):
                     Vehicle.owner.key,
                     Vehicle.paint.key,
                     Vehicle.type.key,
+                    Vehicle.is_used.key,
                     'url',
                 ]
             )

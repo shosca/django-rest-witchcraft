@@ -77,6 +77,33 @@ urlpatterns = [url(r'^', include(router.urls))]
 
 
 @override_settings(ROOT_URLCONF='tests.test_routers')
+class TestDummyDummy(SimpleTestCase):
+
+    def test_assert_when_no_model_found(self):
+
+        class DummyViewSet(UnAuthMixin, viewsets.ModelViewSet):
+            pass
+
+        dummy_router = routers.DefaultRouter()
+
+        with self.assertRaises(AssertionError):
+            dummy_router.register(r'dummy', DummyViewSet)
+
+    def test_get_lookup_regex_without_model(self):
+
+        class DummyViewSet(UnAuthMixin, viewsets.ModelViewSet):
+
+            @classmethod
+            def get_model(cls):
+                return None
+
+        dummy_router = routers.DefaultRouter()
+
+        lookup_regex = dummy_router.get_lookup_regex(DummyViewSet)
+        self.assertEqual(lookup_regex, '(?P<pk>[^/.]+)')
+
+
+@override_settings(ROOT_URLCONF='tests.test_routers')
 class TestModelRoutes(SimpleTestCase):
 
     def setUp(self):

@@ -52,6 +52,7 @@ class Vehicle(Base):
     type = Column(types.Enum(VehicleType), nullable=False)
     created_at = Column(types.DateTime())
     paint = Column(types.Enum(*COLORS))
+    is_used = Column(types.Boolean)
 
     @property
     def lower_name(self):

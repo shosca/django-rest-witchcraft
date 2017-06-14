@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-Next version (unreleased yet)
------------------------------
+0.3.4 (2017-06-14)
+------------------
+
+Refactor
+~~~~~~~~
+- Refactor: better route name handling and nullable boolean field tests.
+  [Serkan Hosca]
 
 Documentation
 ~~~~~~~~~~~~~
