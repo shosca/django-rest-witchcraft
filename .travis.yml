@@ -8,7 +8,7 @@ python:
 
 install:
   - make init
-  - pip install coveralls
+  - pip install coveralls sqlalchemy_utils
 
 script:
   - make lint

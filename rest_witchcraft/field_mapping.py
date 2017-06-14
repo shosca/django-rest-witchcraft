@@ -44,7 +44,7 @@ try:
     serializer_field_mapping[types.IPAddressType] = fields.IPAddressField
     serializer_field_mapping[types.UUIDType] = fields.UUIDField
     serializer_field_mapping[types.URLType] = fields.URLField
-except ImportError:
+except ImportError:  # pragma: no cover
     pass
 
 
