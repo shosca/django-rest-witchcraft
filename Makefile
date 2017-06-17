@@ -28,8 +28,8 @@ clean-pyc:  ## remove Python file artifacts
 clean-test:  ## remove test and coverage artifacts
 	rm -rf .tox/ .coverage htmlcov/
 
-lint:  ## check style with flake8
-	pipenv run flake8
+lint:  ## run pre-commit hooks on all files
+	pipenv run pre-commit run --files $$(git ls-files)
 
 coverage: ## check code coverage quickly with the default Python
 	pipenv run py.test \

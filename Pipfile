@@ -2,13 +2,6 @@
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
-[packages]
-djangorestframework = "*"
-six = "*"
-Django = "*"
-SQLAlchemy = "*"
-pipenv = "*"
-
 [dev-packages]
 pytest = "*"
 pytest-cov = "*"
@@ -19,3 +12,11 @@ Sphinx = "*"
 sphinx-autobuild = "*"
 sphinx_rtd_theme = "*"
 gitchangelog = "*"
+yapf = "*"
+
+[packages]
+djangorestframework = "*"
+six = "*"
+Django = "*"
+SQLAlchemy = "*"
+pipenv = "*"

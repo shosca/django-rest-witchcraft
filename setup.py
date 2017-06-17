@@ -14,7 +14,7 @@ project = Project()
 
 about = {}
 with open(os.path.join(here, 'rest_witchcraft', '__version__.py')) as f:
-    exec(f.read(), about)
+    exec(f.read(), about)  # yapf: disable
 
 
 def read(fname):
