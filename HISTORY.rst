@@ -2,17 +2,22 @@ Changelog
 =========
 
 
+Next version (unreleased yet)
+-----------------------------
+- Update gitchangelog.rc. [Serkan Hosca]
+
+
 0.3.5 (2017-06-18)
 ------------------
 
 Fix
 ~~~
-- Fix: increase coverage. [Serkan Hosca]
+- Increase coverage. [Serkan Hosca]
 
 Refactor
 ~~~~~~~~
-- Refactor: dedup update attribute logic. [Serkan Hosca]
-- Refactor: Run pre-commit as part of build. [Serkan Hosca]
+- Dedup update attribute logic. [Serkan Hosca]
+- Run pre-commit as part of build. [Serkan Hosca]
 
 
 0.3.4 (2017-06-14)
@@ -20,12 +25,12 @@ Refactor
 
 Refactor
 ~~~~~~~~
-- Refactor: better route name handling and nullable boolean field tests.
-  [Serkan Hosca]
+- Better route name handling and nullable boolean field tests. [Serkan
+  Hosca]
 
 Documentation
 ~~~~~~~~~~~~~
-- Doc: update gitchangelog config. [Serkan Hosca]
+- Update gitchangelog config. [Serkan Hosca]
 
 
 0.3.3 (2017-06-13)
@@ -33,11 +38,11 @@ Documentation
 
 Fix
 ~~~
-- Fix: Add pipenv for setup. [Serkan Hosca]
+- Add pipenv for setup. [Serkan Hosca]
 
 Documentation
 ~~~~~~~~~~~~~
-- Docs: fix versioning. [Serkan Hosca]
+- Fix versioning. [Serkan Hosca]
 
 
 0.3.2 (2017-06-13)
@@ -45,7 +50,7 @@ Documentation
 
 Fix
 ~~~
-- Fix: stop passing around is_nested and fix autoincrement value check.
+- Stop passing around is_nested and fix autoincrement value check.
   [Serkan Hosca]
 
 
@@ -59,14 +64,14 @@ Fix
 
 Fix
 ~~~
-- Fix: nested list serializer flags. [Serkan Hosca]
-- Fix: generic destroy with sqlalchemy. [Serkan Hosca]
-- Fix: Handle autoincrement and nested update with existing instance.
-  [Serkan Hosca]
+- Nested list serializer flags. [Serkan Hosca]
+- Generic destroy with sqlalchemy. [Serkan Hosca]
+- Handle autoincrement and nested update with existing instance. [Serkan
+  Hosca]
 
 Refactor
 ~~~~~~~~
-- Refactor: model_info changes and added docstrings. [Serkan Hosca]
+- Model_info changes and added docstrings. [Serkan Hosca]
 
 Other
 ~~~~~

@@ -40,7 +40,7 @@ body_process = (ReSub(r'.*', '') |
 
 # Rewrite subject
 subject_process = (strip |
-    ReSub(r'^(\w+)(\((.*)\):\s?([^\n@]*))(@[a-z]+\s+)*$', r'*\3*: \4') |
+    ReSub(r'^(\w+)\s*:\s*([^\n@]*)(@[a-z]+\s+)*$', r'\2') |
     ReSub(r'^\*\*: ', '') |
     ReSub(r'\) \(', ' ') |
     strip | ucfirst | final_dot)
