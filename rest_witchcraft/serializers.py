@@ -110,6 +110,16 @@ class BaseSerializer(Serializer):
     def update(self, instance, validated_data):
         raise NotImplementedError()
 
+    def update_attribute(self, instance, field, value):
+        """
+        Performs update on the instance for the given field with value
+        """
+        field_setter = getattr(self, 'set_' + field.field_name, None)
+        if field_setter:
+            field_setter(instance, field.source, value)
+        else:
+            setattr(instance, field.source, value)
+
 
 class CompositeSerializer(BaseSerializer):
     """
@@ -182,11 +192,7 @@ class CompositeSerializer(BaseSerializer):
             try:
                 value = validated_data.get(field.field_name)
 
-                field_setter = getattr(self, 'set_' + field.field_name, None)
-                if field_setter:
-                    field_setter(instance, field.field_name, value)
-                else:
-                    setattr(instance, field.field_name, value)
+                self.update_attribute(instance, field, value)
 
             except Exception as e:
                 errors.setdefault(field.field_name, []).append(' '.join(e.args))
@@ -604,11 +610,7 @@ class ModelSerializer(BaseSerializer):
                         if v:
                             value.append(v)
 
-                field_setter = getattr(self, 'set_' + field.field_name, None)
-                if field_setter:
-                    field_setter(instance, field.source, value)
-                else:
-                    setattr(instance, field.source, value)
+                self.update_attribute(instance, field, value)
 
             except Exception as e:
                 errors.setdefault(field.field_name, []).append(' '.join(e.args))
