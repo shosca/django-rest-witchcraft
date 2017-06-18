@@ -2,6 +2,19 @@ Changelog
 =========
 
 
+0.3.5 (2017-06-18)
+------------------
+
+Fix
+~~~
+- Fix: increase coverage. [Serkan Hosca]
+
+Refactor
+~~~~~~~~
+- Refactor: dedup update attribute logic. [Serkan Hosca]
+- Refactor: Run pre-commit as part of build. [Serkan Hosca]
+
+
 0.3.4 (2017-06-14)
 ------------------
 
