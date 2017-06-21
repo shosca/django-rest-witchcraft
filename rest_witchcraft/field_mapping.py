@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+Field mapping from SQLAlchemy type's to DRF fields
+"""
+# -*- coding: utf-8 -*-
 import datetime
 import decimal
 
@@ -18,12 +22,15 @@ def get_detail_view_name(model):
 
 
 def get_url_kwargs(model):
-    field_kwargs = {'read_only': True}
+    """
+    Gets kwargs for the UriField
+    """
+    field_kwargs = {'read_only': True, 'view_name': get_detail_view_name(model)}
 
     return field_kwargs
 
 
-serializer_field_mapping = {
+SERIALIZER_FIELD_MAPPING = {
     # sqlalchemy types
     postgresql.HSTORE: CharMappingField,
 
@@ -41,9 +48,9 @@ serializer_field_mapping = {
 try:
     from sqlalchemy_utils import types
 
-    serializer_field_mapping[types.IPAddressType] = fields.IPAddressField
-    serializer_field_mapping[types.UUIDType] = fields.UUIDField
-    serializer_field_mapping[types.URLType] = fields.URLField
+    SERIALIZER_FIELD_MAPPING[types.IPAddressType] = fields.IPAddressField
+    SERIALIZER_FIELD_MAPPING[types.UUIDType] = fields.UUIDField
+    SERIALIZER_FIELD_MAPPING[types.URLType] = fields.URLField
 except ImportError:  # pragma: no cover
     pass
 
@@ -59,13 +66,14 @@ def get_field_type(column):
         return fields.ChoiceField
 
     if isinstance(column.type, postgresql.ARRAY):
-        child_field = serializer_field_mapping.get(column.type.item_type.__class__
-                                                   ) or serializer_field_mapping.get(column.type.item_type.python_type)
+        child_field = SERIALIZER_FIELD_MAPPING.get(column.type.item_type.__class__
+                                                   ) or SERIALIZER_FIELD_MAPPING.get(column.type.item_type.python_type)
 
         if child_field is None:
             raise KeyError("Could not figure out field for ARRAY item type '{}'".format(column.type.__class__))
 
         class ArrayField(fields.ListField):
+            """Nested array field for PostreSQL's ARRAY type"""
 
             def __init__(self, *args, **kwargs):
                 kwargs['child'] = child_field()
@@ -73,10 +81,10 @@ def get_field_type(column):
 
         return ArrayField
 
-    if column.type.__class__ in serializer_field_mapping:
-        return serializer_field_mapping.get(column.type.__class__)
+    if column.type.__class__ in SERIALIZER_FIELD_MAPPING:
+        return SERIALIZER_FIELD_MAPPING.get(column.type.__class__)
 
     if issubclass(column.type.python_type, bool):
         return fields.NullBooleanField if column.nullable else fields.BooleanField
 
-    return serializer_field_mapping.get(column.type.python_type)
+    return SERIALIZER_FIELD_MAPPING.get(column.type.python_type)

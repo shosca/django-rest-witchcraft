@@ -29,7 +29,7 @@ if six.PY2:
         """
         Returns the names of the positional arguments for composite model inspection
         """
-        return inspect.getargspec(func).args[1:]
+        return inspect.getargspec(func).args[1:]  # pylint:disable=deprecated-pragma
 else:
 
     def get_args(func):
@@ -67,16 +67,13 @@ class composite_info(object):
 class _column_info(object):
     __slots__ = ('property', 'column')
 
-    def __init__(self, property, column):
-        self.property = property
+    def __init__(self, prop, column):
+        self.property = prop
         self.column = column
 
     @property
     def field_kwargs(self):
-        kwargs = {}
-
-        kwargs['label'] = capfirst(self.property.key)
-        kwargs['help_text'] = self.property.doc
+        kwargs = {'label': capfirst(self.property.key), 'help_text': self.property.doc}
 
         with suppress(AttributeError):
             enum_class = self.column.type.enum_class
@@ -100,18 +97,18 @@ class _column_info(object):
         return kwargs
 
 
-class _model_info_meta(type):
+class model_info_meta(type):
     _registry = {}
 
     def __call__(cls, model, *args, **kwargs):
         if model not in cls._registry:
-            instance = super(_model_info_meta, cls).__call__(model, *args, **kwargs)
+            instance = super(model_info_meta, cls).__call__(model, *args, **kwargs)
             cls._registry[model] = instance
 
         return cls._registry[model]
 
 
-class model_info(six.with_metaclass(_model_info_meta)):
+class model_info(six.with_metaclass(model_info_meta)):
     """
     A helper class that makes sqlalchemy model inspection easier
     """
@@ -162,7 +159,7 @@ def get_primary_keys(model, kwargs):
     info = model_info(model)
     pks = []
 
-    for attr, property in info.primary_keys.items():
+    for attr, _ in info.primary_keys.items():
         pk = kwargs.get(attr)
         pks.append(pk)
 

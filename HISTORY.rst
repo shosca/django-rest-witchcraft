@@ -4,6 +4,13 @@ Changelog
 
 Next version (unreleased yet)
 -----------------------------
+
+Refactor
+~~~~~~~~
+- Lots of minor pylint and pycharm linter fixes. [Serkan Hosca]
+
+Other
+~~~~~
 - Update gitchangelog.rc. [Serkan Hosca]
 
 

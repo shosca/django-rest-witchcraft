@@ -53,12 +53,10 @@ class BaseSerializer(Serializer):
             # Some model fields may introduce kwargs that would not be valid
             # for the choice field. We need to strip these out.
             # Eg. models.DecimalField(max_digits=3, decimal_places=1, choices=DECIMAL_CHOICES)
-            valid_kwargs = set(
-                (
-                    'read_only', 'write_only', 'required', 'default', 'initial', 'source', 'label', 'help_text',
-                    'style', 'error_messages', 'validators', 'allow_null', 'allow_blank', 'choices'
-                )
-            )
+            valid_kwargs = {
+                'read_only', 'write_only', 'required', 'default', 'initial', 'source', 'label', 'help_text', 'style',
+                'error_messages', 'validators', 'allow_null', 'allow_blank', 'choices'
+            }
             for key in list(field_kwargs.keys()):
                 if key not in valid_kwargs:
                     field_kwargs.pop(key)
@@ -145,14 +143,14 @@ class CompositeSerializer(BaseSerializer):
         Return the dict of field names -> field instances that should be
         used for `self.fields` when instantiating the serializer.
         """
-        fields = OrderedDict()
+        _fields = OrderedDict()
 
         for field_name, column_info in self._info.properties.items():
             source = self._extra_kwargs.get(field_name, {}).get('source') or field_name
 
-            fields[field_name] = self.build_standard_field(source, column_info)
+            _fields[field_name] = self.build_standard_field(source, column_info)
 
-        return fields
+        return _fields
 
     def get_object(self, validated_data, instance=None):
         if instance:
@@ -268,19 +266,19 @@ class ModelSerializer(BaseSerializer):
         field_names = self.get_field_names(declared_fields, info)
 
         # Determine the fields that should be included on the serializer.
-        fields = OrderedDict()
+        _fields = OrderedDict()
 
         for field_name in field_names:
             # If the field is explicitly declared on the class then use that.
             if field_name in declared_fields:
-                fields[field_name] = declared_fields[field_name]
+                _fields[field_name] = declared_fields[field_name]
                 continue
 
             source = self._extra_kwargs.get(field_name, {}).get('source') or field_name
 
-            fields[field_name] = self.build_field(source, info, depth)
+            _fields[field_name] = self.build_field(source, info, depth)
 
-        return fields
+        return _fields
 
     def get_field_names(self, declared_fields, info):
         """
@@ -289,34 +287,34 @@ class ModelSerializer(BaseSerializer):
         set of fields, but also takes into account the `Meta.fields` or
         `Meta.exclude` options if they have been specified.
         """
-        fields = getattr(self.Meta, 'fields', None)
+        _fields = getattr(self.Meta, 'fields', None)
         exclude = getattr(self.Meta, 'exclude', None)
 
-        if fields and fields != ALL_FIELDS and not isinstance(fields, (list, tuple)):
+        if _fields and _fields != ALL_FIELDS and not isinstance(_fields, (list, tuple)):
             raise TypeError(
                 'The `fields` option must be a list or tuple or "__all__". '
-                'Got %s.' % type(fields).__name__
+                'Got %s.' % type(_fields).__name__
             )
 
         if exclude and not isinstance(exclude, (list, tuple)):
             raise TypeError('The `exclude` option must be a list or tuple. Got %s.' % type(exclude).__name__)
 
-        assert not (fields and exclude), (
+        assert not (_fields and exclude), (
             "Cannot set both 'fields' and 'exclude' options on "
             'serializer {serializer_class}.'.format(serializer_class=self.__class__.__name__)
         )
 
-        assert not (fields is None and exclude is None), (
+        assert not (_fields is None and exclude is None), (
             "Creating a ModelSerializer without either the 'fields' attribute "
             "or the 'exclude' attribute has been deprecated since 3.3.0, "
             "and is now disallowed. Add an explicit fields = '__all__' to the "
             '{serializer_class} serializer.'.format(serializer_class=self.__class__.__name__),
         )
 
-        if fields == ALL_FIELDS:
-            fields = None
+        if _fields == ALL_FIELDS:
+            _fields = None
 
-        if fields is not None:
+        if _fields is not None:
             # Ensure that all declared fields have also been included in the
             # `Meta.fields` option.
 
@@ -328,29 +326,29 @@ class ModelSerializer(BaseSerializer):
                 required_field_names -= set(getattr(cls, '_declared_fields', []))
 
             for field_name in required_field_names:
-                assert field_name in fields, (
+                assert field_name in _fields, (
                     "The field '{field_name}' was declared on serializer "
                     '{serializer_class}, but has not been included in the '
                     "'fields' option.".format(field_name=field_name, serializer_class=self.__class__.__name__)
                 )
-            return fields
+            return _fields
 
         # Use the default set of field names if `Meta.fields` is not specified.
-        fields = self.get_default_field_names(declared_fields, info)
+        _fields = self.get_default_field_names(declared_fields, info)
 
         if exclude is not None:
             # If `Meta.exclude` is included, then remove those fields.
             for field_name in exclude:
-                assert field_name in fields, (
+                assert field_name in _fields, (
                     "The field '{field_name}' was included on serializer "
                     "{serializer_class} in the 'exclude' option, but does "
                     'not match any model field.'.format(
                         field_name=field_name, serializer_class=self.__class__.__name__
                     )
                 )
-                fields.remove(field_name)
+                _fields.remove(field_name)
 
-        return fields
+        return _fields
 
     def get_default_field_names(self, declared_fields, info):
         """
@@ -383,12 +381,12 @@ class ModelSerializer(BaseSerializer):
         Return a field or a nested serializer for the field name
         """
         if field_name in info.primary_keys:
-            property = info.primary_keys[field_name]
-            return self.build_primary_key_field(field_name, property)
+            pk = info.primary_keys[field_name]
+            return self.build_primary_key_field(field_name, pk)
 
         elif field_name in info.properties:
-            property = info.properties[field_name]
-            return self.build_standard_field(field_name, property)
+            prop = info.properties[field_name]
+            return self.build_standard_field(field_name, prop)
 
         elif field_name in info.relationships:
             relationship = info.relationships[field_name]
@@ -510,15 +508,15 @@ class ModelSerializer(BaseSerializer):
             if backref_class == info.model_class:
                 backrefs.add(key)
 
-        fields = set(target_model_info.primary_keys.keys())
-        fields.update(target_model_info.properties.keys())
+        _fields = set(target_model_info.primary_keys.keys())
+        _fields.update(target_model_info.properties.keys())
         if depth > 0:
-            fields.update(target_model_info.composites.keys())
-            fields.update(target_model_info.relationships.keys())
+            _fields.update(target_model_info.composites.keys())
+            _fields.update(target_model_info.relationships.keys())
 
-        fields = fields - backrefs
+        _fields = _fields - backrefs
 
-        return tuple([field for field in fields if not field.startswith('_')])
+        return tuple([field for field in _fields if not field.startswith('_')])
 
     def get_primary_keys(self, validated_data):
         """
@@ -595,8 +593,6 @@ class ModelSerializer(BaseSerializer):
                         value = child_instance
 
                 elif isinstance(field, ListSerializer) and isinstance(field.child, BaseSerializer):
-
-                    child_instance = getattr(instance, field.field_name, None)
 
                     value = []
 

@@ -18,7 +18,7 @@ with open(os.path.join(here, 'rest_witchcraft', '__version__.py')) as f:
 
 
 def read(fname):
-    return (open(os.path.join(os.path.dirname(__file__), fname), 'rb').read().decode('utf-8'))
+    return open(os.path.join(os.path.dirname(__file__), fname), 'rb').read().decode('utf-8')
 
 
 if sys.argv[-1] == 'publish':

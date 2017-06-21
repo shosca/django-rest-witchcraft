@@ -133,22 +133,10 @@ class TestModelSerializer(unittest.TestCase):
         info = model_info(Vehicle)
         field_names = serializer.get_default_field_names([], info)
         self.assertEqual(
-            set(field_names),
-            set(
-                [
-                    Vehicle.created_at.key,
-                    Vehicle.engine.key,
-                    Vehicle.id.key,
-                    Vehicle.name.key,
-                    Vehicle.options.key,
-                    Vehicle.other.key,
-                    Vehicle.owner.key,
-                    Vehicle.paint.key,
-                    Vehicle.type.key,
-                    Vehicle.is_used.key,
-                    'url',
-                ]
-            )
+            set(field_names), {
+                Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.options.key,
+                Vehicle.other.key, Vehicle.owner.key, Vehicle.paint.key, Vehicle.type.key, Vehicle.is_used.key, 'url'
+            }
         )
 
     def test_get_field_names_with_include(self):
@@ -163,10 +151,7 @@ class TestModelSerializer(unittest.TestCase):
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
         field_names = serializer.get_field_names([], info)
-        self.assertEqual(set(field_names), set([
-            Vehicle.id.key,
-            Vehicle.name.key,
-        ]))
+        self.assertEqual(set(field_names), {Vehicle.id.key, Vehicle.name.key})
 
     def test_get_field_names_with_exclude(self):
 
@@ -181,13 +166,10 @@ class TestModelSerializer(unittest.TestCase):
         info = model_info(Vehicle)
         field_names = serializer.get_field_names([], info)
         self.assertEqual(
-            set(field_names),
-            set(
-                [
-                    Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.other.key,
-                    Vehicle.owner.key, Vehicle.paint.key, Vehicle.is_used.key, 'url'
-                ]
-            )
+            set(field_names), {
+                Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.other.key,
+                Vehicle.owner.key, Vehicle.paint.key, Vehicle.is_used.key, 'url'
+            }
         )
 
     def test_generate_all_fields(self):
@@ -541,31 +523,19 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertEqual(len(serializer.fields), 11)
         self.assertEqual(
-            set(serializer.fields.keys()),
-            set(
-                [
-                    Vehicle.created_at.key,
-                    Vehicle.engine.key,
-                    Vehicle.id.key,
-                    Vehicle.name.key,
-                    Vehicle.options.key,
-                    Vehicle.other.key,
-                    Vehicle.owner.key,
-                    Vehicle.paint.key,
-                    Vehicle.type.key,
-                    Vehicle.is_used.key,
-                    'url',
-                ]
-            )
+            set(serializer.fields.keys()), {
+                Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.options.key,
+                Vehicle.other.key, Vehicle.owner.key, Vehicle.paint.key, Vehicle.type.key, Vehicle.is_used.key, 'url'
+            }
         )
 
         engine_serializer = serializer.fields['engine']
         self.assertEqual(len(engine_serializer.fields), 4)
-        self.assertEqual(set(engine_serializer.fields.keys()), set(['type_', 'displacement', 'fuel_type', 'cylinders']))
+        self.assertEqual(set(engine_serializer.fields.keys()), {'type_', 'displacement', 'fuel_type', 'cylinders'})
 
         owner_serializer = serializer.fields['owner']
         self.assertEqual(len(owner_serializer.fields), 2)
-        self.assertEqual(set(owner_serializer.fields.keys()), set(['id', 'name']))
+        self.assertEqual(set(owner_serializer.fields.keys()), {'id', 'name'})
 
         options_serializer = serializer.fields['options']
         self.assertTrue(options_serializer.many)
@@ -573,7 +543,7 @@ class TestModelSerializer(unittest.TestCase):
 
         option_serializer = options_serializer.child
         self.assertEqual(len(option_serializer.fields), 2)
-        self.assertEqual(set(option_serializer.fields.keys()), set(['id', 'name']))
+        self.assertEqual(set(option_serializer.fields.keys()), {'id', 'name'})
 
     def test_serializer_zero_depth_invalid_error_message(self):
 
@@ -841,7 +811,7 @@ class TestModelSerializer(unittest.TestCase):
         serializer = EngineSerializer(engine, data=data, partial=True)
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
-        engine = serializer.save()
+        serializer.save()
 
         self.assertTrue(serializer.called)
 
@@ -864,7 +834,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
         with self.assertRaises(ValidationError):
-            engine = serializer.save()
+            serializer.save()
 
     def test_patch_update_to_list_with_empty_list_clears_it(self):
         vehicle = Vehicle(
@@ -913,7 +883,7 @@ class TestModelSerializer(unittest.TestCase):
         vehicle = serializer.update(vehicle, serializer.validated_data)
 
         self.assertEqual(len(vehicle.options), 2)
-        self.assertEqual(set([v.id for v in vehicle.options]), set([3, 4]))
+        self.assertEqual(set([v.id for v in vehicle.options]), {3, 4})
 
     def test_patch_update_to_list_with_new_list_with_allow_create(self):
         vehicle = Vehicle(
@@ -939,7 +909,7 @@ class TestModelSerializer(unittest.TestCase):
         vehicle = serializer.update(vehicle, serializer.validated_data)
 
         self.assertEqual(len(vehicle.options), 2)
-        self.assertEqual(set([v.name for v in vehicle.options]), set(['Test', 'Other Test']))
+        self.assertEqual(set([v.name for v in vehicle.options]), {'Test', 'Other Test'})
 
     def test_patch_update_to_list_with_new_list_with_nested(self):
         vehicle = Vehicle(
