@@ -204,9 +204,8 @@ We can also change the name of our user's group through the user using nested up
         'group': {'name': 'Super User'}
     }, partial=True)
     serializer.is_valid()
-    serializer.save()
 
-    user = serializer.instance
+    user = serializer.save()
 
 Now, our user looks like:
 
@@ -218,7 +217,9 @@ Now, our user looks like:
     >>> user.group
     Group(id=1, name='Super User')
 
-We can use this serializer in a viewset like::
+We can use this serializer in a viewset like:
+
+.. code:: python
 
     from rest_witchcraft import viewsets
 
@@ -226,7 +227,9 @@ We can use this serializer in a viewset like::
         queryset = User.query
         serializer_class = UserSerializer
 
-And we can register this viewset in our ``urls.py`` like::
+And we can register this viewset in our ``urls.py`` like:
+
+.. code:: python
 
     from rest_witchcraft import routers
 
