@@ -73,7 +73,7 @@ class _column_info(object):
 
     @property
     def field_kwargs(self):
-        kwargs = {'label': capfirst(self.property.key), 'help_text': self.property.doc}
+        kwargs = {'label': capfirst(' '.join(self.property.key.split('_'))), 'help_text': self.property.doc}
 
         with suppress(AttributeError):
             enum_class = self.column.type.enum_class

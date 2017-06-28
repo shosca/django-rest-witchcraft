@@ -25,7 +25,7 @@ class TestModelSerializer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super(TestModelSerializer, cls).setUpClass()
-        session.add(Owner(id=1, name='Test owner'))
+        session.add(Owner(id=1, first_name='Test', last_name='Owner'))
         session.add_all(
             [
                 Option(id=1, name='Option 1'),
@@ -488,7 +488,7 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertIsNotNone(nested_serializer)
         self.assertIsInstance(nested_serializer, ModelSerializer)
-        self.assertEqual(len(nested_serializer.fields), 2)
+        self.assertEqual(len(nested_serializer.fields), 3)
 
     def test_build_one_to_many_relationship_field_with_nested_updates_disabled(self):
 
@@ -506,8 +506,9 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertIsNotNone(nested_serializer)
         self.assertIsInstance(nested_serializer, ModelSerializer)
-        self.assertEqual(len(nested_serializer.fields), 2)
-        self.assertTrue(nested_serializer.fields['name'].read_only)
+        self.assertEqual(len(nested_serializer.fields), 3)
+        self.assertTrue(nested_serializer.fields['first_name'].read_only)
+        self.assertTrue(nested_serializer.fields['last_name'].read_only)
 
     def test_build_serializer_with_depth(self):
 
@@ -534,8 +535,9 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(set(engine_serializer.fields.keys()), {'type_', 'displacement', 'fuel_type', 'cylinders'})
 
         owner_serializer = serializer.fields['owner']
-        self.assertEqual(len(owner_serializer.fields), 2)
-        self.assertEqual(set(owner_serializer.fields.keys()), {'id', 'name'})
+        self.assertEqual(len(owner_serializer.fields), 3)
+        self.assertEqual(set(owner_serializer.fields.keys()), {'id', 'first_name', 'last_name'})
+        self.assertEqual(set(f.label for f in owner_serializer.fields.values()), {'Id', 'First name', 'Last name'})
 
         options_serializer = serializer.fields['options']
         self.assertTrue(options_serializer.many)
@@ -639,7 +641,8 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(vehicle.engine.fuel_type, None)
         self.assertEqual(vehicle.engine.type_, None)
         self.assertEqual(vehicle.owner.id, data['owner']['id'])
-        self.assertEqual(vehicle.owner.name, 'Test owner')
+        self.assertEqual(vehicle.owner.first_name, 'Test')
+        self.assertEqual(vehicle.owner.last_name, 'Owner')
         self.assertEqual(vehicle.options, data['options'])
 
     def test_post_update(self):
@@ -689,7 +692,8 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(vehicle.engine.fuel_type, data['engine']['fuel_type'])
         self.assertEqual(vehicle.engine.type_, data['engine']['type_'])
         self.assertEqual(vehicle.owner.id, data['owner']['id'])
-        self.assertEqual(vehicle.owner.name, 'Test owner')
+        self.assertEqual(vehicle.owner.first_name, 'Test')
+        self.assertEqual(vehicle.owner.last_name, 'Owner')
         self.assertEqual(vehicle.options, data['options'])
         self.assertEqual(vehicle.other.advertising_cost, 4321)
 

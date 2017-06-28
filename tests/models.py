@@ -16,7 +16,8 @@ class Owner(Base):
     __tablename__ = 'owners'
 
     id = Column(types.Integer(), primary_key=True)
-    name = Column(types.String())
+    first_name = Column(types.String())
+    last_name = Column(types.String())
 
 
 class VehicleType(enum.Enum):
