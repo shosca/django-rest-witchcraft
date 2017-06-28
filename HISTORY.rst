@@ -2,8 +2,12 @@ Changelog
 =========
 
 
-Next version (unreleased yet)
------------------------------
+0.4.0 (2017-06-28)
+------------------
+
+Fix
+~~~
+- Field label generation. [Serkan Hosca]
 
 Refactor
 ~~~~~~~~

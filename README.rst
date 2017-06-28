@@ -3,7 +3,11 @@ Django REST Witchcraft
 
 |Build Status| |Read The Docs| |PyPI version| |Coveralls Status|
 
-**SQLAlchemy specific things for django-rest-framework**
+**Django REST Framework integration with SQLAlchemy**
+
+django-rest-witchcraft is an extension for Django REST Framework that adds support for SQLAlchemy. It aims to provide
+a similar development experience to building REST api's with Django REST Framework with Django ORM, except with
+SQLAlchemy.
 
 Installation
 ============
@@ -213,6 +217,27 @@ Now, our user looks like:
 
     >>> user.group
     Group(id=1, name='Super User')
+
+We can use this serializer in a viewset like::
+
+    from rest_witchcraft import viewsets
+
+    class UserViewSet(viewsets.ModelViewSet):
+        queryset = User.query
+        serializer_class = UserSerializer
+
+And we can register this viewset in our ``urls.py`` like::
+
+    from rest_witchcraft import routers
+
+    router = routers.DefaultRouter()
+    router.register(r'users', UserViewSet)
+
+    urlpatterns = [
+        ...
+        url(r'^', include(router.urls)),
+        ...
+    ]
 
 
 .. |Build Status| image:: https://travis-ci.org/shosca/django-rest-witchcraft.svg?branch=master
