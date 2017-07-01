@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a5d6b61de86d26d2a4fc24d9fc0842742461c1c90f6e94e02f43048a519a9759"
+            "sha256": "a5803242200a80378e88dcbc205c996d3f5b85c8bef7133aeee2834dd0f0791d"
         },
         "requires": {},
         "sources": [
@@ -12,17 +12,14 @@
         ]
     },
     "default": {
-        "Django": {
-            "version": "==1.11.2"
-        },
-        "SQLAlchemy": {
-            "version": "==1.1.10"
-        },
         "certifi": {
             "version": "==2017.4.17"
         },
         "chardet": {
             "version": "==3.0.4"
+        },
+        "django": {
+            "version": "==1.11.2"
         },
         "djangorestframework": {
             "version": "==3.6.3"
@@ -57,6 +54,9 @@
         "six": {
             "version": "==1.10.0"
         },
+        "sqlalchemy": {
+            "version": "==1.1.11"
+        },
         "urllib3": {
             "version": "==1.21.1"
         },
@@ -68,24 +68,6 @@
         }
     },
     "develop": {
-        "Babel": {
-            "version": "==2.4.0"
-        },
-        "Jinja2": {
-            "version": "==2.9.6"
-        },
-        "MarkupSafe": {
-            "version": "==1.0"
-        },
-        "PyYAML": {
-            "version": "==3.12"
-        },
-        "Pygments": {
-            "version": "==2.2.0"
-        },
-        "Sphinx": {
-            "version": "==1.6.2"
-        },
         "alabaster": {
             "version": "==0.7.10"
         },
@@ -94,6 +76,9 @@
         },
         "aspy.yaml": {
             "version": "==0.3.0"
+        },
+        "babel": {
+            "version": "==2.4.0"
         },
         "cached-property": {
             "version": "==1.3.0"
@@ -110,6 +95,9 @@
         "docutils": {
             "version": "==0.13.1"
         },
+        "fancycompleter": {
+            "version": "==0.7"
+        },
         "flake8": {
             "version": "==3.3.0"
         },
@@ -122,23 +110,32 @@
         "imagesize": {
             "version": "==0.7.1"
         },
+        "jinja2": {
+            "version": "==2.9.6"
+        },
         "livereload": {
             "version": "==2.5.1"
+        },
+        "markupsafe": {
+            "version": "==1.0"
         },
         "mccabe": {
             "version": "==0.6.1"
         },
         "nodeenv": {
-            "version": "==1.1.2"
+            "version": "==1.1.4"
         },
         "pathtools": {
             "version": "==0.1.2"
         },
+        "pdbpp": {
+            "version": "==0.9.1"
+        },
         "port-for": {
             "version": "==0.3.1"
         },
-        "pre_commit": {
-            "version": "==0.14.2"
+        "pre-commit": {
+            "version": "==0.14.3"
         },
         "py": {
             "version": "==1.4.34"
@@ -149,6 +146,9 @@
         "pyflakes": {
             "version": "==1.5.0"
         },
+        "pygments": {
+            "version": "==2.2.0"
+        },
         "pytest": {
             "version": "==3.1.2"
         },
@@ -158,6 +158,9 @@
         "pytz": {
             "version": "==2017.2"
         },
+        "pyyaml": {
+            "version": "==3.12"
+        },
         "requests": {
             "version": "==2.18.1"
         },
@@ -165,7 +168,7 @@
             "version": "==36.0.1"
         },
         "simplejson": {
-            "version": "==3.10.0"
+            "version": "==3.11.1"
         },
         "six": {
             "version": "==1.10.0"
@@ -173,10 +176,13 @@
         "snowballstemmer": {
             "version": "==1.2.1"
         },
+        "sphinx": {
+            "version": "==1.6.2"
+        },
         "sphinx-autobuild": {
             "version": "==0.6.0"
         },
-        "sphinx_rtd_theme": {
+        "sphinx-rtd-theme": {
             "version": "==0.2.4"
         },
         "sphinxcontrib-websupport": {
@@ -193,6 +199,9 @@
         },
         "watchdog": {
             "version": "==0.8.3"
+        },
+        "wmctrl": {
+            "version": "==0.3"
         },
         "yapf": {
             "version": "==0.16.2"

@@ -2,6 +2,18 @@ Changelog
 =========
 
 
+0.4.1 (2017-07-01)
+------------------
+
+Fix
+~~~
+- Nested model primary key field generation. [Serkan Hosca]
+
+Other
+~~~~~
+- Fix readme. [Serkan Hosca]
+
+
 0.4.0 (2017-06-28)
 ------------------
 

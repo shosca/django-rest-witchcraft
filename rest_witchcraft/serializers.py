@@ -32,15 +32,10 @@ class BaseSerializer(Serializer):
 
         return False
 
-    def build_standard_field(self, field_name, column_info):
+    def build_standard_field_kwargs(self, field_name, field_class, column_info):
         """
-        Create regular model fields.
+        Analyze model column to generate field kwargs.
         """
-        field_class = self.get_field_type(column_info.column)
-
-        if not field_class:
-            raise KeyError("Could not figure out type for attribute '{}'".format(field_name))
-
         field_kwargs = column_info.field_kwargs
 
         # Include any kwargs defined in `Meta.extra_kwargs`
@@ -70,13 +65,30 @@ class BaseSerializer(Serializer):
             for kw in {'allow_null', 'max_length'}:
                 field_kwargs.pop(kw, None)
 
+        return field_kwargs
+
+    def build_standard_field(self, field_name, column_info):
+        """
+        Create regular model fields.
+        """
+        field_class = self.get_field_type(column_info)
+
+        field_kwargs = self.build_standard_field_kwargs(field_name, field_class, column_info)
+
         return field_class(**field_kwargs)
 
-    def get_field_type(self, column):
+    def get_field_type(self, column_info):
         """
         Returns the field type to be used determined by the sqlalchemy column type or the column type's python type
         """
-        return get_field_type(column)
+        field_class = get_field_type(column_info.column)
+
+        if not field_class:
+            raise KeyError(
+                "Could not figure out type for attribute '{}.{}'".format(self.model.__name__, column_info.property.key)
+            )
+
+        return field_class
 
     def include_extra_kwargs(self, kwargs, extra_kwargs=None):
         """
@@ -408,10 +420,21 @@ class ModelSerializer(BaseSerializer):
         """
         Builds a field for the primary key of the model
         """
-        field = self.build_standard_field(field_name, column_info)
-        if not self.is_nested and (column_info.column.default is not None or column_info.column.autoincrement is True):
-            field.read_only = True
-        return field
+        field_class = self.get_field_type(column_info)
+
+        field_kwargs = self.build_standard_field_kwargs(field_name, field_class, column_info)
+
+        if self.is_nested:
+            if self.allow_create or self.allow_null:
+                # since we're allowed to create new instances, pk is not required
+                field_kwargs['required'] = False
+
+        elif column_info.column.default is not None or column_info.column.autoincrement is True:
+            # pk has a default value or its an autoincremented column so the field should be read only
+            field_kwargs.pop('required', None)
+            field_kwargs['read_only'] = True
+
+        return field_class(**field_kwargs)
 
     def build_composite_field(self, field_name, composite):
         """

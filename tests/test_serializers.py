@@ -10,6 +10,7 @@ from rest_framework.serializers import ListSerializer
 from rest_framework.settings import api_settings
 from rest_witchcraft.utils import _column_info
 from sqlalchemy import Column, types
+from sqlalchemy.orm.properties import ColumnProperty
 
 from .models import (  # noqa # isort:skip
     COLORS, Engine, Option, Owner, Vehicle, VehicleOther, VehicleType, session
@@ -352,7 +353,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(field.label, 'Id')
         self.assertFalse(field.allow_null)
         self.assertIsInstance(field, fields.IntegerField)
-        self.assertTrue(field.required)
+        self.assertFalse(field.required)
 
     def test_build_standard_char_field(self):
 
@@ -422,7 +423,10 @@ class TestModelSerializer(unittest.TestCase):
                 fields = ('paint', )
 
         serializer = VehicleSerializer()
-        info = _column_info(None, Column('test', types.JSON()))
+        col = Column('test', types.JSON())
+        prop = ColumnProperty(col)
+        prop.key = col.key
+        info = _column_info(prop, col)
 
         with self.assertRaises(KeyError):
             serializer.build_standard_field('test', info)
