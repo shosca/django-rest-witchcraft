@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+0.4.2 (2017-07-01)
+-----------------------------
+
+Fix
+~~~
+- Handle composite pks when one pk is None. [Serkan Hosca]
+
+
 0.4.1 (2017-07-01)
 ------------------
 
