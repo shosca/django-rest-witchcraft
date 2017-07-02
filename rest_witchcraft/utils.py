@@ -163,4 +163,10 @@ def get_primary_keys(model, kwargs):
         pk = kwargs.get(attr)
         pks.append(pk)
 
-    return next(iter(pks), None) if len(pks) < 2 else tuple(pks)
+    if len(pks) < 2:
+        return next(iter(pks), None)
+
+    if any(pk is None for pk in pks):
+        return None
+
+    return tuple(pks)

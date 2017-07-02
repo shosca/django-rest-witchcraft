@@ -37,9 +37,7 @@ class Engine(object):
         return self.cylinders, self.displacement, self.type_, self.fuel_type
 
     def __repr__(self):
-        return 'Engine(cylinder={},displacement={},displacement_liters={},type="{}",fuel_type="{}"'.format(
-            *self.__composite_values__()
-        )
+        return 'Engine(cylinder={},displacement={},type="{}",fuel_type="{}")'.format(*self.__composite_values__())
 
     def __eq__(self, other):
         return isinstance(other, Engine) and other.__composite_values__() == self.__composite_values__()
