@@ -180,5 +180,3 @@ Other
 - Added initial readme. [Serkan Hosca]
 - Add travis. [Serkan Hosca]
 - Initial commit. [Serkan Hosca]
-
-

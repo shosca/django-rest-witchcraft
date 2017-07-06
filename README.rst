@@ -251,4 +251,3 @@ And we can register this viewset in our ``urls.py`` like:
    :target: https://badge.fury.io/py/django-rest-witchcraft
 .. |Coveralls Status| image:: https://coveralls.io/repos/github/shosca/django-rest-witchcraft/badge.svg?branch=master
    :target: https://coveralls.io/github/shosca/django-rest-witchcraft?branch=master
-

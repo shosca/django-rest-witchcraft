@@ -19,4 +19,3 @@ Submodules
    rest_witchcraft.serializers
    rest_witchcraft.utils
    rest_witchcraft.viewsets
-
