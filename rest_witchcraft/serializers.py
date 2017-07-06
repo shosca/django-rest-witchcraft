@@ -60,7 +60,7 @@ class BaseSerializer(Serializer):
             # `allow_blank` is only valid for textual fields.
             field_kwargs.pop('allow_blank', None)
 
-        if issubclass(field_class, fields.NullBooleanField):
+        if issubclass(field_class, (fields.NullBooleanField, fields.BooleanField)):
             # 'allow_null' and 'max_length' is not valid kwarg for NullBooleanField
             for kw in {'allow_null', 'max_length'}:
                 field_kwargs.pop(kw, None)

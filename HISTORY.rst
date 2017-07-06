@@ -2,8 +2,16 @@ Changelog
 =========
 
 
-0.4.2 (2017-07-01)
+0.4.3 (2017-07-06)
 -----------------------------
+
+Fix
+~~~
+- Allow_null is not allowed in boolean fields. [Serkan Hosca]
+
+
+0.4.2 (2017-07-02)
+------------------
 
 Fix
 ~~~
