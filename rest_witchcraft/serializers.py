@@ -8,7 +8,7 @@ from rest_framework import fields
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.settings import api_settings
-from sqlalchemy.orm.interfaces import MANYTOONE, ONETOMANY
+from sqlalchemy.orm.interfaces import ONETOMANY
 
 from .field_mapping import get_field_type, get_url_kwargs
 from .fields import UriField
@@ -446,7 +446,7 @@ class ModelSerializer(BaseSerializer):
         """
         Builds nested serializer to handle relationshipped model
         """
-        target_model = relationship.argument.class_ if relationship.direction != MANYTOONE else relationship.argument
+        target_model = relationship.mapper.class_
         nested_fields = self.get_nested_relationship_fields(target_model, info, relationship, nested_depth)
 
         field_kwargs = self.get_relationship_kwargs(relationship, nested_depth)
@@ -527,8 +527,7 @@ class ModelSerializer(BaseSerializer):
         # figure out backrefs
         backrefs = set()
         for key, rel in target_model_info.relationships.items():
-            backref_class = rel.argument.class_ if rel.direction != MANYTOONE else rel.argument
-            if backref_class == info.model_class:
+            if rel.mapper.class_ == info.model_class:
                 backrefs.add(key)
 
         _fields = set(target_model_info.primary_keys.keys())
