@@ -2,11 +2,12 @@ Changelog
 =========
 
 
-Next version (unreleased yet)
------------------------------
+0.5.0 (2017-10-03)
+------------------
 
 Refactor
 ~~~~~~~~
+- Make enums use values instead of names. [Serkan Hosca]
 - Use relationship mapper to get target model class. [Serkan Hosca]
 
 Other
@@ -193,5 +194,3 @@ Other
 - Added initial readme. [Serkan Hosca]
 - Add travis. [Serkan Hosca]
 - Initial commit. [Serkan Hosca]
-
-
