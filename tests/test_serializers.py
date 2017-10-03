@@ -579,7 +579,7 @@ class TestModelSerializer(unittest.TestCase):
         data = {
             'name': 'Test vehicle',
             'one': 'Two',
-            'type': 'bus',
+            'type': 'Bus',
             'engine': {
                 'displacement': 1234,
                 'cylinders': 4,
@@ -596,7 +596,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertDictEqual(
             dict(serializer.validated_data), {
                 'name': 'Test vehicle',
-                'type': VehicleType['bus'],
+                'type': VehicleType('Bus'),
                 'engine': {
                     'displacement': Decimal('1234.00'),
                     'cylinders': 4,
@@ -621,7 +621,7 @@ class TestModelSerializer(unittest.TestCase):
         data = {
             'name': 'Test vehicle',
             'one': 'Two',
-            'type': 'bus',
+            'type': 'Bus',
             'engine': {
                 'displacement': 1234,
                 'cylinders': 4,
@@ -639,7 +639,7 @@ class TestModelSerializer(unittest.TestCase):
         vehicle = serializer.save()
 
         self.assertEqual(vehicle.name, data['name'])
-        self.assertEqual(vehicle.type, VehicleType[data['type']])
+        self.assertEqual(vehicle.type, VehicleType(data['type']))
         self.assertEqual(vehicle.engine.cylinders, data['engine']['cylinders'])
         self.assertEqual(vehicle.engine.displacement, data['engine']['displacement'])
         self.assertEqual(vehicle.engine.fuel_type, None)
@@ -667,7 +667,7 @@ class TestModelSerializer(unittest.TestCase):
         data = {
             'name': 'Another test vechicle',
             'one': 'Two',
-            'type': 'car',
+            'type': 'Car',
             'engine': {
                 'displacement': 4321,
                 'cylinders': 2,
@@ -690,7 +690,7 @@ class TestModelSerializer(unittest.TestCase):
         vehicle = serializer.save()
 
         self.assertEqual(vehicle.name, data['name'])
-        self.assertEqual(vehicle.type, VehicleType[data['type']])
+        self.assertEqual(vehicle.type, VehicleType(data['type']))
         self.assertEqual(vehicle.engine.cylinders, data['engine']['cylinders'])
         self.assertEqual(vehicle.engine.displacement, data['engine']['displacement'])
         self.assertEqual(vehicle.engine.fuel_type, data['engine']['fuel_type'])

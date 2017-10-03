@@ -19,7 +19,7 @@ class TestEnumField(SimpleTestCase):
 
         field = EnumField(enum_class=SomeEnum)
 
-        value = field.to_internal_value('test2')
+        value = field.to_internal_value(2)
 
         self.assertEqual(value, SomeEnum.test2)
 
@@ -36,7 +36,7 @@ class TestEnumField(SimpleTestCase):
 
         value = field.to_representation(SomeEnum.test1)
 
-        self.assertEqual(value, 'test1')
+        self.assertEqual(value, 1)
 
     def test_to_representation_handles_none(self):
 

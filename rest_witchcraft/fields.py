@@ -31,15 +31,15 @@ class EnumField(fields.ChoiceField):
 
     def to_internal_value(self, data):
         try:
-            return self.enum_class[data]
-        except KeyError:
+            return self.enum_class(data)
+        except (KeyError, ValueError):
             self.fail('invalid_choice', input=data)
 
     def to_representation(self, value):
         if not value:
             return None
 
-        return value.name
+        return value.value
 
 
 class CharMappingField(fields.DictField):

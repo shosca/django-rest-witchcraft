@@ -21,8 +21,8 @@ class Owner(Base):
 
 
 class VehicleType(enum.Enum):
-    bus = 1
-    car = 2
+    bus = 'Bus'
+    car = 'Car'
 
 
 class Engine(object):

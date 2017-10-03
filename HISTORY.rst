@@ -2,8 +2,21 @@ Changelog
 =========
 
 
-0.4.3 (2017-07-06)
+Next version (unreleased yet)
 -----------------------------
+
+Refactor
+~~~~~~~~
+- Use relationship mapper to get target model class. [Serkan Hosca]
+
+Other
+~~~~~
+- Add LICENSE. [Serkan Hosca]
+- Pipfile lock. [Serkan Hosca]
+
+
+0.4.3 (2017-07-06)
+------------------
 
 Fix
 ~~~
@@ -180,3 +193,5 @@ Other
 - Added initial readme. [Serkan Hosca]
 - Add travis. [Serkan Hosca]
 - Initial commit. [Serkan Hosca]
+
+
