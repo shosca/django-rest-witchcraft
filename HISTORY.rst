@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+0.5.1 (2017-10-04)
+------------------
+
+Refactor
+~~~~~~~~
+- Handle session passing around. [Serkan Hosca]
+
+
 0.5.0 (2017-10-03)
 ------------------
 

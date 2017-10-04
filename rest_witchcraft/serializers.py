@@ -235,21 +235,33 @@ class ModelSerializer(BaseSerializer):
 
         `allow_nested_updates` is for controlling nested related model updates.
         """
-        self.session = kwargs.pop('session', None) or getattr(getattr(self, 'Meta', None), 'session', None)
+        self._session = kwargs.pop('session', None) or getattr(getattr(self, 'Meta', None), 'session', None)
         self.allow_nested_updates = kwargs.pop('allow_nested_updates', False)
         self.allow_create = kwargs.pop('allow_create', False)
 
         super(ModelSerializer, self).__init__(*args, **kwargs)
 
-        self.session = self.session or self.context.get('session')
+        self._extra_kwargs = self.get_extra_kwargs()
 
-        assert self.session is not None, (
+    @property
+    def session(self):
+        if not self._session:
+
+            self._session = self.context.get('session')
+
+        assert self._session is not None, (
             'Creating a ModelSerializer without the session attribute in Meta, as a keyword argument or without'
             'a session in the serializer context'
         )
 
-        self.model = self.Meta.model
-        self._extra_kwargs = self.get_extra_kwargs()
+        return self._session
+
+    @property
+    def model(self):
+        assert hasattr(
+            self.Meta, 'model'
+        ), ('Class {serializer_class} missing "Meta.model" attribute'.format(serializer_class=self.__class__.__name__))
+        return self.Meta.model
 
     def get_fields(self):
         """
@@ -262,10 +274,6 @@ class ModelSerializer(BaseSerializer):
         assert hasattr(
             self, 'Meta'
         ), ('Class {serializer_class} missing "Meta" attribute'.format(serializer_class=self.__class__.__name__))
-
-        assert hasattr(
-            self.Meta, 'model'
-        ), ('Class {serializer_class} missing "Meta.model" attribute'.format(serializer_class=self.__class__.__name__))
 
         declared_fields = copy.deepcopy(self._declared_fields)
         info = model_info(getattr(self.Meta, 'model'))
@@ -468,7 +476,7 @@ class ModelSerializer(BaseSerializer):
 
             class Meta:
                 model = target_model
-                session = self.Meta.session
+                session = self.session
                 depth = max(0, nested_depth - 1)
                 fields = nested_fields
                 extra_kwargs = nested_extra_kwargs
