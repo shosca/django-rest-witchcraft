@@ -46,7 +46,7 @@ class TestModelSerializer(unittest.TestCase):
         class VehicleSerializer(ModelSerializer):
             pass
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(AttributeError):
             VehicleSerializer()
 
     def test_cannot_initialize_without_a_session(self):
@@ -57,7 +57,8 @@ class TestModelSerializer(unittest.TestCase):
                 pass
 
         with self.assertRaises(AssertionError):
-            VehicleSerializer()
+            serializer = VehicleSerializer()
+            serializer.session
 
     def test_cannot_initialize_without_a_model_with_session_meta(self):
 
@@ -66,8 +67,9 @@ class TestModelSerializer(unittest.TestCase):
             class Meta(object):
                 session = session
 
-        with self.assertRaises(AttributeError):
-            VehicleSerializer()
+        with self.assertRaises(AssertionError):
+            serializer = VehicleSerializer()
+            serializer.model
 
     def test_cannot_initialize_without_a_model_with_session_kwarg(self):
 
@@ -76,8 +78,9 @@ class TestModelSerializer(unittest.TestCase):
             class Meta(object):
                 pass
 
-        with self.assertRaises(AttributeError):
-            VehicleSerializer(session=session)
+        with self.assertRaises(AssertionError):
+            serializer = VehicleSerializer(session=session)
+            serializer.model
 
     def test_get_fields_sets_url_field_name_when_missing(self):
 
@@ -513,6 +516,64 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(len(nested_serializer.fields), 3)
         self.assertTrue(nested_serializer.fields['first_name'].read_only)
         self.assertTrue(nested_serializer.fields['last_name'].read_only)
+
+    def test_generated_nested_serializer_get_session_from_parent(self):
+
+        class VehicleSerializer(ModelSerializer):
+
+            class Meta:
+                model = Vehicle
+                fields = '__all__'
+                depth = 3
+
+        serializer = VehicleSerializer(context={'session': session})
+
+        owner_serializer = serializer.fields['owner']
+
+        self.assertEqual(owner_serializer.session, session)
+
+    def test_declared_nested_serializer_get_session_from_context(self):
+
+        class OwnerSerializer(ModelSerializer):
+
+            class Meta:
+                model = Owner
+                fields = '__all__'
+
+        class VehicleSerializer(ModelSerializer):
+            Owner = OwnerSerializer()
+
+            class Meta:
+                model = Vehicle
+                fields = '__all__'
+
+        serializer = VehicleSerializer(context={'session': session})
+
+        owner_serializer = serializer.fields['owner']
+
+        self.assertEqual(owner_serializer.session, session)
+
+    def test_declared_nested_serializer_get_session_from_root_meta(self):
+
+        class OwnerSerializer(ModelSerializer):
+
+            class Meta:
+                model = Owner
+                fields = '__all__'
+
+        class VehicleSerializer(ModelSerializer):
+            Owner = OwnerSerializer()
+
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = '__all__'
+
+        serializer = VehicleSerializer()
+
+        owner_serializer = serializer.fields['owner']
+
+        self.assertEqual(owner_serializer.session, session)
 
     def test_build_serializer_with_depth(self):
 
