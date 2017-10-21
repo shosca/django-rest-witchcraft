@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
+import re
 from collections import OrderedDict
 from itertools import chain
 
@@ -15,6 +16,7 @@ from .fields import UriField
 from .utils import composite_info, get_args, get_primary_keys, model_info
 
 ALL_FIELDS = '__all__'
+REGEX_TYPE = type(re.compile(''))
 
 
 class BaseSerializer(Serializer):
@@ -209,6 +211,19 @@ class CompositeSerializer(BaseSerializer):
 
         return instance
 
+    def __deepcopy__(self, memo=None):
+        """
+        When cloning fields we instantiate using the arguments it was
+        originally created with, rather than copying the complete state.
+        """
+        # Treat regexes, validators and session as immutable.
+        args = [copy.deepcopy(item) if not isinstance(item, REGEX_TYPE) else item for item in self._args]
+        kwargs = {
+            key: (copy.deepcopy(value) if (key not in ('validators', 'regex', 'composite')) else value)
+            for key, value in self._kwargs.items()
+        }
+        return self.__class__(*args, **kwargs)
+
 
 class ModelSerializer(BaseSerializer):
     """
@@ -242,6 +257,19 @@ class ModelSerializer(BaseSerializer):
         super(ModelSerializer, self).__init__(*args, **kwargs)
 
         self._extra_kwargs = self.get_extra_kwargs()
+
+    def __deepcopy__(self, memo=None):
+        """
+        When cloning fields we instantiate using the arguments it was
+        originally created with, rather than copying the complete state.
+        """
+        # Treat regexes, validators and session as immutable.
+        args = [copy.deepcopy(item) if not isinstance(item, REGEX_TYPE) else item for item in self._args]
+        kwargs = {
+            key: (copy.deepcopy(value) if (key not in ('validators', 'regex', 'session')) else value)
+            for key, value in self._kwargs.items()
+        }
+        return self.__class__(*args, **kwargs)
 
     @property
     def session(self):

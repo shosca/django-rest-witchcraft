@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 import unittest
 from collections import OrderedDict
 from decimal import Decimal
@@ -449,6 +450,19 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertIsInstance(field, CompositeSerializer)
         self.assertEqual(len(field.fields), 4)
+
+    def test_deepcopy_composite_field(self):
+
+        class EngineSerializer(CompositeSerializer):
+            pass
+
+        serializer = EngineSerializer(composite=Vehicle.engine)
+
+        clone = copy.deepcopy(serializer)
+
+        self.assertNotEqual(id(serializer), id(clone))
+        self.assertEqual(serializer._args, clone._args)
+        self.assertDictEqual(serializer._kwargs, clone._kwargs)
 
     def test_build_property_field(self):
 

@@ -23,7 +23,7 @@
   - id: yapf
 
 - repo: git://github.com/FalconSocial/pre-commit-python-sorter
-  sha: 1.0.4
+  sha: 'master'
   hooks:
   - id: python-import-sorter
     args: ['--silent-overwrite']

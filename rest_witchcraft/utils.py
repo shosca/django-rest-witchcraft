@@ -39,7 +39,18 @@ else:
         return list(inspect.signature(func).parameters.keys())[1:]
 
 
-class composite_info(object):
+class model_info_meta(type):
+    _registry = {}
+
+    def __call__(cls, model, *args, **kwargs):
+        if model not in cls._registry:
+            instance = super(model_info_meta, cls).__call__(model, *args, **kwargs)
+            cls._registry[model] = instance
+
+        return cls._registry[model]
+
+
+class composite_info(six.with_metaclass(model_info_meta)):
     """
     A helper class that makes sqlalchemy composite model inspection easier
     """
@@ -95,17 +106,6 @@ class _column_info(object):
         kwargs['allow_null'] = self.column.nullable
 
         return kwargs
-
-
-class model_info_meta(type):
-    _registry = {}
-
-    def __call__(cls, model, *args, **kwargs):
-        if model not in cls._registry:
-            instance = super(model_info_meta, cls).__call__(model, *args, **kwargs)
-            cls._registry[model] = instance
-
-        return cls._registry[model]
 
 
 class model_info(six.with_metaclass(model_info_meta)):
