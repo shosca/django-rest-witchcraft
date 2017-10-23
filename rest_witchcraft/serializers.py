@@ -606,13 +606,28 @@ class ModelSerializer(BaseSerializer):
 
         raise ValidationError('No instance of `{}` found with primary keys `{}`'.format(self.model.__name__, pks))
 
+    def save(self, **kwargs):
+        """
+        Save and return a list of object instances.
+        """
+        with self.session.no_autoflush:
+            self.instance = super().save(**kwargs)
+
+        self.perform_flush()
+        return self.instance
+
+    def perform_flush(self):
+        """
+        Perform session flush changes
+        """
+        self.session.flush()
+
     def create(self, validated_data):
         """
         Creates a model instance using validated_data
         """
         instance = self.update(self.Meta.model(), validated_data)
         self.session.add(instance)
-        self.session.flush()
         return instance
 
     def update(self, instance, validated_data):
@@ -620,13 +635,11 @@ class ModelSerializer(BaseSerializer):
         Updates an existing model instance using validated_data with suspended autoflush
         """
         errors = {}
-        with self.session.no_autoflush:
-            instance = self.perform_update(instance, validated_data, errors)
+        instance = self.perform_update(instance, validated_data, errors)
 
         if errors:
             raise ValidationError(errors)
 
-        self.session.flush()
         return instance
 
     def perform_update(self, instance, validated_data, errors):

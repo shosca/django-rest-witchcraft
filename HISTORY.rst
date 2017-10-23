@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+0.5.3 (2017-10-23)
+------------------
+
+Refactor
+~~~~~~~~
+- Separate out session flush. [Serkan Hosca]
+
+
 0.5.2 (2017-10-21)
 ------------------
 
