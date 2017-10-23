@@ -611,7 +611,7 @@ class ModelSerializer(BaseSerializer):
         Save and return a list of object instances.
         """
         with self.session.no_autoflush:
-            self.instance = super().save(**kwargs)
+            self.instance = super(ModelSerializer, self).save(**kwargs)
 
         self.perform_flush()
         return self.instance
