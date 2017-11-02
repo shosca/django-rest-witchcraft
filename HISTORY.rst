@@ -2,6 +2,18 @@ Changelog
 =========
 
 
+0.5.5 (2017-11-02)
+------------------
+
+Fix
+~~~
+- Declared fields. [Serkan Hosca]
+
+Other
+~~~~~
+- Merge pull request #2 from shosca/fix-declared-fields. [Serkan Hosca]
+
+
 0.5.4 (2017-10-23)
 ------------------
 
