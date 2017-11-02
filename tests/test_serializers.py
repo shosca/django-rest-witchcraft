@@ -136,7 +136,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        field_names = serializer.get_default_field_names([], info)
+        field_names = serializer.get_default_field_names({}, info)
         self.assertEqual(
             set(field_names), {
                 Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.options.key,
@@ -169,7 +169,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        field_names = serializer.get_field_names([], info)
+        field_names = serializer.get_field_names({}, info)
         self.assertEqual(
             set(field_names), {
                 Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.other.key,
