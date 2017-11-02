@@ -1,6 +1,9 @@
 [style]
 based_on_style = pep8
 
+#  Allow splits before the dictionary value
+ALLOW_SPLIT_BEFORE_DICT_VALUE=False
+
 ALIGN_CLOSING_BRACKET_WITH_VISUAL_INDENT=True
 #  Align closing bracket with visual indentation
 
@@ -57,6 +60,8 @@ INDENT_DICTIONARY_VALUE=False
 #        'key2': value1 +
 #                value2,
 #    }
+
+EACH_DICT_ENTRY_ON_SEPARATE_LINE=True
 
 INDENT_WIDTH=4
 #  The number of columns to use for indentation.
