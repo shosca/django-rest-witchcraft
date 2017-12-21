@@ -33,6 +33,7 @@ def get_url_kwargs(model):
 SERIALIZER_FIELD_MAPPING = {
     # sqlalchemy types
     postgresql.HSTORE: CharMappingField,
+    sqltypes.Enum: EnumField,
 
     # python types
     datetime.date: fields.DateField,
@@ -59,10 +60,7 @@ def get_field_type(column):
     """
     Returns the field type to be used determined by the sqlalchemy column type or the column type's python type
     """
-    if isinstance(column.type, sqltypes.Enum):
-        if column.type.enum_class:
-            return EnumField
-
+    if isinstance(column.type, sqltypes.Enum) and not column.type.enum_class:
         return fields.ChoiceField
 
     if isinstance(column.type, postgresql.ARRAY):
