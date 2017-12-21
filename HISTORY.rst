@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+0.5.6 (2017-12-21)
+------------------
+- Merge pull request #3 from nickswiss/enum-mapping. [Serkan Hosca]
+- Adding enums to field mapping dict. [Nick Arnold]
+
+
 0.5.5 (2017-11-02)
 ------------------
 
@@ -11,6 +17,7 @@ Fix
 
 Other
 ~~~~~
+- 0.5.5. [Serkan Hosca]
 - Merge pull request #2 from shosca/fix-declared-fields. [Serkan Hosca]
 
 
