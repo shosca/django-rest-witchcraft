@@ -324,7 +324,7 @@ class ModelSerializer(BaseSerializer):
 
             source = self._extra_kwargs.get(field_name, {}).get('source') or field_name
 
-            _fields[field_name] = self.build_field(source, info, depth)
+            _fields[field_name] = self.build_field(source, info, self.model, depth)
 
         return _fields
 
@@ -424,7 +424,7 @@ class ModelSerializer(BaseSerializer):
 
         return extra_kwargs
 
-    def build_field(self, field_name, info, nested_depth):
+    def build_field(self, field_name, info, model_class, nested_depth):
         """
         Return a field or a nested serializer for the field name
         """

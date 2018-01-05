@@ -351,7 +351,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        field = serializer.build_field(Vehicle.id.key, info, 0)
+        field = serializer.build_field(Vehicle.id.key, info, Vehicle, 0)
 
         self.assertEqual(field.help_text, Vehicle.id.doc)
         self.assertEqual(field.label, 'Id')
@@ -370,7 +370,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        field = serializer.build_field(Vehicle.name.key, info, 0)
+        field = serializer.build_field(Vehicle.name.key, info, Vehicle, 0)
 
         self.assertEqual(field.help_text, Vehicle.name.doc)
         self.assertEqual(field.label, 'Name')
@@ -389,7 +389,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        field = serializer.build_field(Vehicle.type.key, info, 0)
+        field = serializer.build_field(Vehicle.type.key, info, Vehicle, 0)
 
         self.assertEqual(field.help_text, Vehicle.type.doc)
         self.assertEqual(field.label, 'Type')
@@ -408,7 +408,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        field = serializer.build_field(Vehicle.paint.key, info, 0)
+        field = serializer.build_field(Vehicle.paint.key, info, Vehicle, 0)
 
         self.assertEqual(field.help_text, Vehicle.paint.doc)
         self.assertEqual(field.label, 'Paint')
@@ -446,7 +446,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        field = serializer.build_field(Vehicle.engine.key, info, 0)
+        field = serializer.build_field(Vehicle.engine.key, info, Vehicle, 0)
 
         self.assertIsInstance(field, CompositeSerializer)
         self.assertEqual(len(field.fields), 4)
@@ -475,7 +475,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        field = serializer.build_field('lower_name', info, 0)
+        field = serializer.build_field('lower_name', info, Vehicle, 0)
 
         self.assertIsInstance(field, fields.ReadOnlyField)
 
@@ -492,7 +492,7 @@ class TestModelSerializer(unittest.TestCase):
         info = model_info(Vehicle)
 
         with self.assertRaises(ImproperlyConfigured):
-            serializer.build_field('abcde', info, 0)
+            serializer.build_field('abcde', info, Vehicle, 0)
 
     def test_build_one_to_many_relationship_field(self):
 
@@ -505,7 +505,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        nested_serializer = serializer.build_field(Vehicle.owner.key, info, 0)
+        nested_serializer = serializer.build_field(Vehicle.owner.key, info, Vehicle, 0)
 
         self.assertIsNotNone(nested_serializer)
         self.assertIsInstance(nested_serializer, ModelSerializer)
@@ -523,7 +523,7 @@ class TestModelSerializer(unittest.TestCase):
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        nested_serializer = serializer.build_field(Vehicle.owner.key, info, 0)
+        nested_serializer = serializer.build_field(Vehicle.owner.key, info, Vehicle, 0)
 
         self.assertIsNotNone(nested_serializer)
         self.assertIsInstance(nested_serializer, ModelSerializer)
