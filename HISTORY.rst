@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+0.6.0 (2018-01-05)
+------------------
+- Version 0.6.0. [Serkan Hosca]
+- Merge pull request #5 from shosca/build-field-signature. [Serkan
+  Hosca]
+- Add model_class to build_field. [Serkan Hosca]
+
+
 0.5.6 (2017-12-21)
 ------------------
 - Merge pull request #3 from nickswiss/enum-mapping. [Serkan Hosca]
