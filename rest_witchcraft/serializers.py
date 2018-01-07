@@ -437,7 +437,6 @@ class ModelSerializer(BaseSerializer):
             return self.build_standard_field(field_name, prop)
 
         elif field_name in info.relationships:
-            relationship = info.relationships[field_name]
             return self.build_nested_field(field_name, info, nested_depth)
 
         elif field_name in info.composites:
