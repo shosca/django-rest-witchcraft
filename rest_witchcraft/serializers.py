@@ -437,8 +437,7 @@ class ModelSerializer(BaseSerializer):
             return self.build_standard_field(field_name, prop)
 
         elif field_name in info.relationships:
-            relationship = info.relationships[field_name]
-            return self.build_nested_field(field_name, info, relationship, nested_depth)
+            return self.build_nested_field(field_name, info, nested_depth)
 
         elif field_name in info.composites:
             composite = info.composites[field_name]
@@ -478,12 +477,14 @@ class ModelSerializer(BaseSerializer):
         """
         return CompositeSerializer(composite=composite)
 
-    def build_nested_field(self, field_name, info, relationship, nested_depth):
+    def build_nested_field(self, field_name, relation_info, nested_depth):
         """
         Builds nested serializer to handle relationshipped model
         """
+        relationship = relation_info.relationships[field_name]
         target_model = relationship.mapper.class_
-        nested_fields = self.get_nested_relationship_fields(target_model, info, relationship, nested_depth)
+
+        nested_fields = self.get_nested_relationship_fields(target_model, relation_info, relationship, nested_depth)
 
         field_kwargs = self.get_relationship_kwargs(relationship, nested_depth)
         field_kwargs = self.include_extra_kwargs(field_kwargs, self._extra_kwargs.get(field_name))
