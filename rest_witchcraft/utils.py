@@ -151,6 +151,10 @@ class model_info(six.with_metaclass(model_info_meta)):
 
         return self._field_names
 
+    @property
+    def related_model(self):
+        return self.mapper.class_
+
 
 def get_primary_keys(model, kwargs):
     """
