@@ -2,7 +2,6 @@
 import copy
 import re
 from collections import OrderedDict
-from itertools import chain
 
 from django.core.exceptions import ImproperlyConfigured
 from rest_framework import fields
@@ -437,8 +436,8 @@ class ModelSerializer(BaseSerializer):
             return self.build_standard_field(field_name, prop)
 
         elif field_name in info.relationships:
-            relationship = info.relationships[field_name]
-            return self.build_nested_field(field_name, info, relationship, nested_depth)
+            relation_info = info.relationships[field_name]
+            return self.build_nested_field(field_name, relation_info, nested_depth)
 
         elif field_name in info.composites:
             composite = info.composites[field_name]
@@ -478,14 +477,14 @@ class ModelSerializer(BaseSerializer):
         """
         return CompositeSerializer(composite=composite)
 
-    def build_nested_field(self, field_name, info, relationship, nested_depth):
+    def build_nested_field(self, field_name, relation_info, nested_depth):
         """
         Builds nested serializer to handle relationshipped model
         """
-        target_model = relationship.mapper.class_
-        nested_fields = self.get_nested_relationship_fields(target_model, info, relationship, nested_depth)
+        target_model = relation_info.related_model
+        nested_fields = self.get_nested_relationship_fields(relation_info, nested_depth)
 
-        field_kwargs = self.get_relationship_kwargs(relationship, nested_depth)
+        field_kwargs = self.get_relationship_kwargs(relation_info, nested_depth)
         field_kwargs = self.include_extra_kwargs(field_kwargs, self._extra_kwargs.get(field_name))
         nested_extra_kwargs = {}
 
@@ -531,39 +530,34 @@ class ModelSerializer(BaseSerializer):
             'Field name `%s` is not valid for model `%s`.' % (field_name, info.model_class.__name__)
         )
 
-    def get_relationship_kwargs(self, relationship, depth):
+    def get_relationship_kwargs(self, relation_info, depth):
         """
         Figure out the arguments to be used in the `NestedSerializer` for the relationship
         """
         kwargs = {}
-        if relationship.direction == ONETOMANY:
+        if relation_info.direction == ONETOMANY:
             kwargs['required'] = False
             kwargs['allow_null'] = True
-        elif all(
-            [
-                col.nullable
-                for col in chain(relationship._calculated_foreign_keys, relationship._user_defined_foreign_keys)
-            ]
-        ):
+        elif all([col.nullable for col in relation_info.foreign_keys]):
             kwargs['required'] = False
             kwargs['allow_null'] = True
 
-        if relationship.uselist:
+        if relation_info.uselist:
             kwargs['many'] = True
             kwargs['required'] = False
 
         return kwargs
 
-    def get_nested_relationship_fields(self, target_model, info, relationship, depth):
+    def get_nested_relationship_fields(self, relation_info, depth):
         """
         Get the field names for the nested serializer
         """
-        target_model_info = model_info(target_model)
+        target_model_info = model_info(relation_info.related_model)
 
         # figure out backrefs
         backrefs = set()
         for key, rel in target_model_info.relationships.items():
-            if rel.mapper.class_ == info.model_class:
+            if rel.related_model == self.model:
                 backrefs.add(key)
 
         _fields = set(target_model_info.primary_keys.keys())
