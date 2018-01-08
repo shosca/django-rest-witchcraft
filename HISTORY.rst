@@ -2,6 +2,19 @@ Changelog
 =========
 
 
+0.6.1 (2018-01-08)
+------------------
+
+Fix
+~~~
+- Adjust build_nested_field signature. [Serkan Hosca]
+
+Other
+~~~~~
+- Version 0.6.1. [Serkan Hosca]
+- Merge pull request #7 from shosca/relation-info. [Serkan Hosca]
+
+
 0.6.0 (2018-01-05)
 ------------------
 - Version 0.6.0. [Serkan Hosca]
