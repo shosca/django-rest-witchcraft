@@ -108,6 +108,33 @@ class _column_info(object):
         return kwargs
 
 
+class relation_info(object):
+    """
+    A helper class that makes sqlalchemy relationship property inspection easier
+    """
+
+    __slots__ = ('relationship', )
+
+    def __init__(self, relationship):
+        self.relationship = relationship
+
+    @property
+    def related_model(self):
+        return self.relationship.mapper.class_
+
+    @property
+    def direction(self):
+        return self.relationship.direction
+
+    @property
+    def foreign_keys(self):
+        return chain(self.relationship._calculated_foreign_keys, self.relationship._user_defined_foreign_keys)
+
+    @property
+    def uselist(self):
+        return self.relationship.uselist
+
+
 class model_info(six.with_metaclass(model_info_meta)):
     """
     A helper class that makes sqlalchemy model inspection easier
@@ -137,7 +164,7 @@ class model_info(six.with_metaclass(model_info_meta)):
             self.composites[composite.key] = composite_info(getattr(model, composite.key))
 
         for relationship in self.mapper.relationships:
-            self.relationships[relationship.key] = relationship
+            self.relationships[relationship.key] = relation_info(relationship)
 
     @property
     def field_names(self):
