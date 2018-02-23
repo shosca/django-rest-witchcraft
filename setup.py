@@ -6,11 +6,7 @@ import sys
 
 from setuptools import find_packages, setup
 
-from pipenv.project import Project
-
 here = os.path.abspath(os.path.dirname(__file__))
-
-project = Project()
 
 about = {}
 with open(os.path.join(here, 'rest_witchcraft', '__version__.py')) as f:
@@ -36,10 +32,15 @@ if sys.argv[-1] == 'publish':
 
 setup(
     author=about['__author__'], author_email=about['__author_email__'], description=about['__description__'],
-    install_requires=project.parsed_pipfile['packages'].keys(), license='MIT', long_description=read('README.rst'),
-    name=project.name, packages=find_packages(exclude=['tests']),
-    url='https://github.com/shosca/django-rest-witchcraft', version=about['__version__'],
-    keywords='sqlalchemy django rest framework drf rest_framework', classifiers=[
+    install_requires=[
+        'djangorestframework',
+        'six',
+        'Django<2;python_version<"3"',
+        'Django',
+        'SQLAlchemy',
+    ], license='MIT', long_description=read('README.rst'), name='django-rest-witchcraft',
+    packages=find_packages(exclude=['tests']), url='https://github.com/shosca/django-rest-witchcraft',
+    version=about['__version__'], keywords='sqlalchemy django rest framework drf rest_framework', classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',
         'Framework :: Django :: 1.11',
