@@ -17,11 +17,6 @@
   - id: flake8
   - id: trailing-whitespace
 
-- repo: git://github.com/pre-commit/mirrors-yapf
-  sha: 'master'
-  hooks:
-  - id: yapf
-
 - repo: git://github.com/FalconSocial/pre-commit-python-sorter
   sha: 'master'
   hooks:

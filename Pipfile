@@ -1,23 +1,24 @@
 [[source]]
+
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 
+
 [dev-packages]
+
 pytest = "*"
 pytest-cov = "*"
-flake8 = "*"
+"flake8" = "*"
 simplejson = "*"
 sphinx-autobuild = "*"
 gitchangelog = "*"
 yapf = "*"
 pdbpp = "*"
-pre_commit = "*"
-Sphinx = "*"
-sphinx_rtd_theme = "*"
+pre-commit = "*"
+sphinx = "*"
+sphinx-rtd-theme = "*"
+
 
 [packages]
-djangorestframework = "*"
-six = "*"
-pipenv = "*"
-Django = "*"
-SQLAlchemy = "*"
+
+"e1839a8" = {path = ".", editable = true}
