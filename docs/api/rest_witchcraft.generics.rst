@@ -1,5 +1,5 @@
-rest\_witchcraft\.generics module
-=================================
+rest\_witchcraft.generics module
+================================
 
 .. automodule:: rest_witchcraft.generics
     :members:

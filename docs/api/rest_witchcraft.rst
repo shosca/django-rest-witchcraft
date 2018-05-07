@@ -17,5 +17,4 @@ Submodules
    rest_witchcraft.mixins
    rest_witchcraft.routers
    rest_witchcraft.serializers
-   rest_witchcraft.utils
    rest_witchcraft.viewsets

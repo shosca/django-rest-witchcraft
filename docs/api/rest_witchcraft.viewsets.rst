@@ -1,5 +1,5 @@
-rest\_witchcraft\.viewsets module
-=================================
+rest\_witchcraft.viewsets module
+================================
 
 .. automodule:: rest_witchcraft.viewsets
     :members:

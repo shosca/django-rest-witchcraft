@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
-import sqlalchemy as sqa
-from django.test import SimpleTestCase
 from rest_framework import fields
 from rest_witchcraft import field_mapping
 from rest_witchcraft.fields import CharMappingField, EnumField
+
+import sqlalchemy as sqa
 from sqlalchemy.dialects import postgresql
+
+from django.test import SimpleTestCase
 
 
 class TestModelViewName(SimpleTestCase):
@@ -15,7 +17,7 @@ class TestModelViewName(SimpleTestCase):
 
         name = field_mapping.get_detail_view_name(EnumField)
 
-        self.assertEqual(name, 'enumfields-detail')
+        self.assertEqual(name, "enumfields-detail")
 
 
 class TestGetFieldType(SimpleTestCase):

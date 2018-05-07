@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import re
 from collections import OrderedDict
 
-from django.core.exceptions import ImproperlyConfigured
 from rest_framework import fields
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.settings import api_settings
+
 from sqlalchemy.orm.interfaces import ONETOMANY
+
+from django.core.exceptions import ImproperlyConfigured
+
+from django_sorcery.db.meta import composite_info, model_info
+from django_sorcery.db.models import get_primary_keys
+from django_sorcery.utils import get_args
 
 from .field_mapping import get_field_type, get_url_kwargs
 from .fields import UriField
-from .utils import composite_info, get_args, get_primary_keys, model_info
 
-ALL_FIELDS = '__all__'
-REGEX_TYPE = type(re.compile(''))
+
+ALL_FIELDS = "__all__"
+REGEX_TYPE = type(re.compile(""))
 
 
 class BaseSerializer(Serializer):
@@ -25,7 +32,7 @@ class BaseSerializer(Serializer):
     @property
     def is_nested(self):
         if self.parent:
-            if not hasattr(self.parent, 'many'):
+            if not hasattr(self.parent, "many"):
                 return True
 
             if self.parent.many is True and self.parent.parent:
@@ -38,11 +45,12 @@ class BaseSerializer(Serializer):
         Analyze model column to generate field kwargs.
         """
         field_kwargs = column_info.field_kwargs
+        field_kwargs["allow_null"] = not field_kwargs.get("required", True)
 
         # Include any kwargs defined in `Meta.extra_kwargs`
         field_kwargs = self.include_extra_kwargs(field_kwargs, self._extra_kwargs.get(field_name))
 
-        if 'choices' in field_kwargs:
+        if "choices" in field_kwargs:
             # Fields with choices get coerced into `ChoiceField`
             # instead of using their regular typed field.
             field_class = self.serializer_choice_field
@@ -50,8 +58,20 @@ class BaseSerializer(Serializer):
             # for the choice field. We need to strip these out.
             # Eg. models.DecimalField(max_digits=3, decimal_places=1, choices=DECIMAL_CHOICES)
             valid_kwargs = {
-                'read_only', 'write_only', 'required', 'default', 'initial', 'source', 'label', 'help_text', 'style',
-                'error_messages', 'validators', 'allow_null', 'allow_blank', 'choices'
+                "read_only",
+                "write_only",
+                "required",
+                "default",
+                "initial",
+                "source",
+                "label",
+                "help_text",
+                "style",
+                "error_messages",
+                "validators",
+                "allow_null",
+                "allow_blank",
+                "choices",
             }
             for key in list(field_kwargs.keys()):
                 if key not in valid_kwargs:
@@ -59,11 +79,11 @@ class BaseSerializer(Serializer):
 
         if not issubclass(field_class, fields.CharField) and not issubclass(field_class, fields.ChoiceField):
             # `allow_blank` is only valid for textual fields.
-            field_kwargs.pop('allow_blank', None)
+            field_kwargs.pop("allow_blank", None)
 
         if issubclass(field_class, (fields.NullBooleanField, fields.BooleanField)):
             # 'allow_null' and 'max_length' is not valid kwarg for NullBooleanField
-            for kw in {'allow_null', 'max_length'}:
+            for kw in {"allow_null", "max_length"}:
                 field_kwargs.pop(kw, None)
 
         return field_kwargs
@@ -97,19 +117,27 @@ class BaseSerializer(Serializer):
         possibly removing any incompatible existing keyword arguments.
         """
         extra_kwargs = extra_kwargs or {}
-        if extra_kwargs.get('read_only', False):
+        if extra_kwargs.get("read_only", False):
             for attr in [
-                'required', 'default', 'allow_blank', 'allow_null', 'min_length', 'max_length', 'min_value',
-                'max_value', 'validators', 'queryset'
+                "required",
+                "default",
+                "allow_blank",
+                "allow_null",
+                "min_length",
+                "max_length",
+                "min_value",
+                "max_value",
+                "validators",
+                "queryset",
             ]:
                 kwargs.pop(attr, None)
 
-        if extra_kwargs.get('default') and kwargs.get('required') is False:
-            kwargs.pop('required')
+        if extra_kwargs.get("default") and kwargs.get("required") is False:
+            kwargs.pop("required")
 
-        if extra_kwargs.get('read_only', kwargs.get('read_only', False)):
+        if extra_kwargs.get("read_only", kwargs.get("read_only", False)):
             # Read only fields should always omit the 'required' argument.
-            extra_kwargs.pop('required', None)
+            extra_kwargs.pop("required", None)
 
         kwargs.update(extra_kwargs)
 
@@ -125,7 +153,7 @@ class BaseSerializer(Serializer):
         """
         Performs update on the instance for the given field with value
         """
-        field_setter = getattr(self, 'set_' + field.field_name, None)
+        field_setter = getattr(self, "set_" + field.field_name, None)
         if field_setter:
             field_setter(instance, field.source, value)
         else:
@@ -138,9 +166,9 @@ class CompositeSerializer(BaseSerializer):
     """
 
     def __init__(self, *args, **kwargs):
-        composite_attr = kwargs.pop('composite', None) or getattr(getattr(self, 'Meta', None), 'composite', None)
+        composite_attr = kwargs.pop("composite", None) or getattr(getattr(self, "Meta", None), "composite", None)
         self._info = composite_info(composite_attr)
-        self.source = kwargs.pop('source', None)
+        self.source = kwargs.pop("source", None)
 
         super(CompositeSerializer, self).__init__(*args, **kwargs)
         self.composite_class = self._info.prop.composite_class
@@ -159,7 +187,7 @@ class CompositeSerializer(BaseSerializer):
         _fields = OrderedDict()
 
         for field_name, column_info in self._info.properties.items():
-            source = self._extra_kwargs.get(field_name, {}).get('source') or field_name
+            source = self._extra_kwargs.get(field_name, {}).get("source") or field_name
 
             _fields[field_name] = self.build_standard_field(source, column_info)
 
@@ -206,7 +234,7 @@ class CompositeSerializer(BaseSerializer):
                 self.update_attribute(instance, field, value)
 
             except Exception as e:
-                errors.setdefault(field.field_name, []).append(' '.join(e.args))
+                errors.setdefault(field.field_name, []).append(" ".join(e.args))
 
         return instance
 
@@ -218,7 +246,7 @@ class CompositeSerializer(BaseSerializer):
         # Treat regexes, validators and session as immutable.
         args = [copy.deepcopy(item) if not isinstance(item, REGEX_TYPE) else item for item in self._args]
         kwargs = {
-            key: (copy.deepcopy(value) if (key not in ('validators', 'regex', 'composite')) else value)
+            key: (copy.deepcopy(value) if (key not in ("validators", "regex", "composite")) else value)
             for key, value in self._kwargs.items()
         }
         return self.__class__(*args, **kwargs)
@@ -249,9 +277,9 @@ class ModelSerializer(BaseSerializer):
 
         `allow_nested_updates` is for controlling nested related model updates.
         """
-        self._session = kwargs.pop('session', None) or getattr(getattr(self, 'Meta', None), 'session', None)
-        self.allow_nested_updates = kwargs.pop('allow_nested_updates', False)
-        self.allow_create = kwargs.pop('allow_create', False)
+        self._session = kwargs.pop("session", None) or getattr(getattr(self, "Meta", None), "session", None)
+        self.allow_nested_updates = kwargs.pop("allow_nested_updates", False)
+        self.allow_create = kwargs.pop("allow_create", False)
 
         super(ModelSerializer, self).__init__(*args, **kwargs)
 
@@ -265,7 +293,7 @@ class ModelSerializer(BaseSerializer):
         # Treat regexes, validators and session as immutable.
         args = [copy.deepcopy(item) if not isinstance(item, REGEX_TYPE) else item for item in self._args]
         kwargs = {
-            key: (copy.deepcopy(value) if (key not in ('validators', 'regex', 'session')) else value)
+            key: (copy.deepcopy(value) if (key not in ("validators", "regex", "session")) else value)
             for key, value in self._kwargs.items()
         }
         return self.__class__(*args, **kwargs)
@@ -274,20 +302,20 @@ class ModelSerializer(BaseSerializer):
     def session(self):
         if not self._session:
 
-            self._session = self.context.get('session')
+            self._session = self.context.get("session")
 
         assert self._session is not None, (
-            'Creating a ModelSerializer without the session attribute in Meta, as a keyword argument or without'
-            'a session in the serializer context'
+            "Creating a ModelSerializer without the session attribute in Meta, as a keyword argument or without"
+            "a session in the serializer context"
         )
 
         return self._session
 
     @property
     def model(self):
-        assert hasattr(
-            self.Meta, 'model'
-        ), ('Class {serializer_class} missing "Meta.model" attribute'.format(serializer_class=self.__class__.__name__))
+        assert hasattr(self.Meta, "model"), 'Class {serializer_class} missing "Meta.model" attribute'.format(
+            serializer_class=self.__class__.__name__
+        )
         return self.Meta.model
 
     def get_fields(self):
@@ -298,13 +326,13 @@ class ModelSerializer(BaseSerializer):
         if self.url_field_name is None:
             self.url_field_name = api_settings.URL_FIELD_NAME
 
-        assert hasattr(
-            self, 'Meta'
-        ), ('Class {serializer_class} missing "Meta" attribute'.format(serializer_class=self.__class__.__name__))
+        assert hasattr(self, "Meta"), 'Class {serializer_class} missing "Meta" attribute'.format(
+            serializer_class=self.__class__.__name__
+        )
 
         declared_fields = copy.deepcopy(self._declared_fields)
-        info = model_info(getattr(self.Meta, 'model'))
-        depth = getattr(self.Meta, 'depth', 0)
+        info = model_info(getattr(self.Meta, "model"))
+        depth = getattr(self.Meta, "depth", 0)
 
         if depth is not None:
             assert depth >= 0, "'depth' may not be negative."
@@ -321,7 +349,7 @@ class ModelSerializer(BaseSerializer):
                 _fields[field_name] = declared_fields[field_name]
                 continue
 
-            source = self._extra_kwargs.get(field_name, {}).get('source') or field_name
+            source = self._extra_kwargs.get(field_name, {}).get("source") or field_name
 
             _fields[field_name] = self.build_field(source, info, self.model, depth)
 
@@ -334,28 +362,27 @@ class ModelSerializer(BaseSerializer):
         set of fields, but also takes into account the `Meta.fields` or
         `Meta.exclude` options if they have been specified.
         """
-        _fields = getattr(self.Meta, 'fields', None)
-        exclude = getattr(self.Meta, 'exclude', None)
+        _fields = getattr(self.Meta, "fields", None)
+        exclude = getattr(self.Meta, "exclude", None)
 
         if _fields and _fields != ALL_FIELDS and not isinstance(_fields, (list, tuple)):
             raise TypeError(
-                'The `fields` option must be a list or tuple or "__all__". '
-                'Got %s.' % type(_fields).__name__
+                'The `fields` option must be a list or tuple or "__all__". ' "Got %s." % type(_fields).__name__
             )
 
         if exclude and not isinstance(exclude, (list, tuple)):
-            raise TypeError('The `exclude` option must be a list or tuple. Got %s.' % type(exclude).__name__)
+            raise TypeError("The `exclude` option must be a list or tuple. Got %s." % type(exclude).__name__)
 
         assert not (_fields and exclude), (
             "Cannot set both 'fields' and 'exclude' options on "
-            'serializer {serializer_class}.'.format(serializer_class=self.__class__.__name__)
+            "serializer {serializer_class}.".format(serializer_class=self.__class__.__name__)
         )
 
         assert not (_fields is None and exclude is None), (
             "Creating a ModelSerializer without either the 'fields' attribute "
             "or the 'exclude' attribute has been deprecated since 3.3.0, "
             "and is now disallowed. Add an explicit fields = '__all__' to the "
-            '{serializer_class} serializer.'.format(serializer_class=self.__class__.__name__),
+            "{serializer_class} serializer.".format(serializer_class=self.__class__.__name__),
         )
 
         if _fields == ALL_FIELDS:
@@ -370,12 +397,12 @@ class ModelSerializer(BaseSerializer):
             # a subset of fields.
             required_field_names = set(declared_fields)
             for cls in self.__class__.__bases__:
-                required_field_names -= set(getattr(cls, '_declared_fields', []))
+                required_field_names -= set(getattr(cls, "_declared_fields", []))
 
             for field_name in required_field_names:
                 assert field_name in _fields, (
                     "The field '{field_name}' was declared on serializer "
-                    '{serializer_class}, but has not been included in the '
+                    "{serializer_class}, but has not been included in the "
                     "'fields' option.".format(field_name=field_name, serializer_class=self.__class__.__name__)
                 )
             return _fields
@@ -389,9 +416,7 @@ class ModelSerializer(BaseSerializer):
                 assert field_name in _fields, (
                     "The field '{field_name}' was included on serializer "
                     "{serializer_class} in the 'exclude' option, but does "
-                    'not match any model field.'.format(
-                        field_name=field_name, serializer_class=self.__class__.__name__
-                    )
+                    "not match any model field.".format(field_name=field_name, serializer_class=self.__class__.__name__)
                 )
                 _fields.remove(field_name)
 
@@ -407,18 +432,19 @@ class ModelSerializer(BaseSerializer):
         """
         Return a dictionary mapping field names to a dictionary of additional keyword arguments.
         """
-        extra_kwargs = copy.deepcopy(getattr(self.Meta, 'extra_kwargs', {})) or {}
+        extra_kwargs = copy.deepcopy(getattr(self.Meta, "extra_kwargs", {})) or {}
 
-        read_only_fields = getattr(self.Meta, 'read_only_fields', None)
+        read_only_fields = getattr(self.Meta, "read_only_fields", None)
         if read_only_fields is not None:
             if not isinstance(read_only_fields, (list, tuple)):
                 raise TypeError(
-                    'The `read_only_fields` option must be a list or tuple. '
-                    'Got %s.' % type(read_only_fields).__name__
+                    "The `read_only_fields` option must be a list or tuple. "
+                    "Got %s." % type(read_only_fields).__name__
                 )
+
             for field_name in read_only_fields:
                 kwargs = extra_kwargs.get(field_name, {})
-                kwargs['read_only'] = True
+                kwargs["read_only"] = True
                 extra_kwargs[field_name] = kwargs
 
         return extra_kwargs
@@ -462,12 +488,12 @@ class ModelSerializer(BaseSerializer):
         if self.is_nested:
             if self.allow_create or self.allow_null:
                 # since we're allowed to create new instances, pk is not required
-                field_kwargs['required'] = False
+                field_kwargs["required"] = False
 
         elif column_info.column.default is not None or column_info.column.autoincrement is True:
             # pk has a default value or its an autoincremented column so the field should be read only
-            field_kwargs.pop('required', None)
-            field_kwargs['read_only'] = True
+            field_kwargs.pop("required", None)
+            field_kwargs["read_only"] = True
 
         return field_class(**field_kwargs)
 
@@ -489,15 +515,15 @@ class ModelSerializer(BaseSerializer):
         nested_extra_kwargs = {}
 
         nested_info = model_info(target_model)
-        if not field_kwargs.get('required', True):
+        if not field_kwargs.get("required", True):
             for nested_field in nested_info.primary_keys:
-                nested_extra_kwargs.setdefault(nested_field, {}).setdefault('required', False)
+                nested_extra_kwargs.setdefault(nested_field, {}).setdefault("required", False)
 
-        if not field_kwargs.get('allow_nested_updates', True):
+        if not field_kwargs.get("allow_nested_updates", True):
             nested_depth = 0
             for nested_field in nested_info.properties:
-                nested_extra_kwargs.setdefault(nested_field, {}).setdefault('read_only', True)
-                nested_extra_kwargs.setdefault(nested_field, {}).pop('required', None)
+                nested_extra_kwargs.setdefault(nested_field, {}).setdefault("read_only", True)
+                nested_extra_kwargs.setdefault(nested_field, {}).pop("required", None)
 
         class NestedSerializer(ModelSerializer):
 
@@ -508,7 +534,7 @@ class ModelSerializer(BaseSerializer):
                 fields = nested_fields
                 extra_kwargs = nested_extra_kwargs
 
-        return type(target_model.__name__ + 'Serializer', (NestedSerializer, ), {})(**field_kwargs)
+        return type(str(target_model.__name__ + "Serializer"), (NestedSerializer,), {})(**field_kwargs)
 
     def build_property_field(self, field_name, info):
         return fields.ReadOnlyField()
@@ -527,7 +553,7 @@ class ModelSerializer(BaseSerializer):
         Raise an error on any unknown fields.
         """
         raise ImproperlyConfigured(
-            'Field name `%s` is not valid for model `%s`.' % (field_name, info.model_class.__name__)
+            "Field name `%s` is not valid for model `%s`." % (field_name, info.model_class.__name__)
         )
 
     def get_relationship_kwargs(self, relation_info, depth):
@@ -536,15 +562,15 @@ class ModelSerializer(BaseSerializer):
         """
         kwargs = {}
         if relation_info.direction == ONETOMANY:
-            kwargs['required'] = False
-            kwargs['allow_null'] = True
+            kwargs["required"] = False
+            kwargs["allow_null"] = True
         elif all([col.nullable for col in relation_info.foreign_keys]):
-            kwargs['required'] = False
-            kwargs['allow_null'] = True
+            kwargs["required"] = False
+            kwargs["allow_null"] = True
 
         if relation_info.uselist:
-            kwargs['many'] = True
-            kwargs['required'] = False
+            kwargs["many"] = True
+            kwargs["required"] = False
 
         return kwargs
 
@@ -568,7 +594,7 @@ class ModelSerializer(BaseSerializer):
 
         _fields = _fields - backrefs
 
-        return tuple([field for field in _fields if not field.startswith('_')])
+        return tuple([field for field in _fields if not field.startswith("_")])
 
     def get_primary_keys(self, validated_data):
         """
@@ -598,7 +624,7 @@ class ModelSerializer(BaseSerializer):
         if self.allow_null:
             return checked_instance
 
-        raise ValidationError('No instance of `{}` found with primary keys `{}`'.format(self.model.__name__, pks))
+        raise ValidationError("No instance of `{}` found with primary keys `{}`".format(self.model.__name__, pks))
 
     def save(self, **kwargs):
         """
@@ -674,6 +700,6 @@ class ModelSerializer(BaseSerializer):
                 self.update_attribute(instance, field, value)
 
             except Exception as e:
-                errors.setdefault(field.field_name, []).append(' '.join(e.args))
+                errors.setdefault(field.field_name, []).append(" ".join(e.args))
 
         return instance

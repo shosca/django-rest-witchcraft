@@ -47,3 +47,4 @@ docs/_build
 # IDEs
 /.idea
 .venv
+.pytest_cache

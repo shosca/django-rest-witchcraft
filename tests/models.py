@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, print_function, unicode_literals
 import enum
 
 from sqlalchemy import Column, ForeignKey, Sequence, create_engine, orm, types
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine('sqlite://')
+
+engine = create_engine("sqlite://")
 session = orm.scoped_session(orm.sessionmaker(bind=engine))
 
 Base = declarative_base()
 
-COLORS = ['red', 'green', 'blue', 'silver']
+COLORS = ["red", "green", "blue", "silver"]
 
 
 class Owner(Base):
-    __tablename__ = 'owners'
+    __tablename__ = "owners"
 
     id = Column(types.Integer(), primary_key=True)
     first_name = Column(types.String())
@@ -21,8 +23,8 @@ class Owner(Base):
 
 
 class VehicleType(enum.Enum):
-    bus = 'Bus'
-    car = 'Car'
+    bus = "Bus"
+    car = "Car"
 
 
 class Engine(object):
@@ -44,10 +46,10 @@ class Engine(object):
 
 
 class Vehicle(Base):
-    __tablename__ = 'vehicles'
+    __tablename__ = "vehicles"
 
-    id = Column(types.Integer(), Sequence('seq_id'), primary_key=True, doc='The primary key')
-    name = Column(types.String(), doc='The name of the vehicle')
+    id = Column(types.Integer(), Sequence("seq_id"), primary_key=True, doc="The primary key")
+    name = Column(types.String(), doc="The name of the vehicle")
     type = Column(types.Enum(VehicleType), nullable=False)
     created_at = Column(types.DateTime())
     paint = Column(types.Enum(*COLORS))
@@ -57,20 +59,20 @@ class Vehicle(Base):
     def lower_name(self):
         return self.name.lower()
 
-    _engine_cylinders = Column('engine_cylinders', types.BigInteger())
-    _engine_displacement = Column('engine_displacement', types.Numeric(asdecimal=True, precision=10, scale=2))
-    _engine_type = Column('engine_type', types.String(length=25))
-    _engine_fuel_type = Column('engine_fuel_type', types.String(length=10))
+    _engine_cylinders = Column("engine_cylinders", types.BigInteger())
+    _engine_displacement = Column("engine_displacement", types.Numeric(asdecimal=True, precision=10, scale=2))
+    _engine_type = Column("engine_type", types.String(length=25))
+    _engine_fuel_type = Column("engine_fuel_type", types.String(length=10))
     engine = orm.composite(Engine, _engine_cylinders, _engine_displacement, _engine_type, _engine_fuel_type)
 
-    _owner_id = Column('owner_id', types.Integer(), ForeignKey(Owner.id))
-    owner = orm.relationship(Owner, backref='vehicles')
+    _owner_id = Column("owner_id", types.Integer(), ForeignKey(Owner.id))
+    owner = orm.relationship(Owner, backref="vehicles")
 
 
 class VehicleOther(Base):
-    __tablename__ = 'vehicle_other'
+    __tablename__ = "vehicle_other"
 
-    id = Column(types.Integer(), primary_key=True, doc='The primary key')
+    id = Column(types.Integer(), primary_key=True, doc="The primary key")
 
     advertising_cost = Column(types.BigInteger())
     base_invoice = Column(types.BigInteger())
@@ -88,16 +90,16 @@ class VehicleOther(Base):
     vehicle_msrp = Column(types.BigInteger())
 
     _vehicle_id = Column(types.Integer(), ForeignKey(Vehicle.id))
-    vehicle = orm.relationship(Vehicle, backref=orm.backref('other', uselist=False), uselist=False)
+    vehicle = orm.relationship(Vehicle, backref=orm.backref("other", uselist=False), uselist=False)
 
 
 class Option(Base):
-    __tablename__ = 'options'
+    __tablename__ = "options"
     id = Column(types.Integer(), primary_key=True)
     name = Column(types.String())
 
     _vehicle_id = Column(types.Integer(), ForeignKey(Vehicle.id))
-    vehicle = orm.relationship(Vehicle, backref='options')
+    vehicle = orm.relationship(Vehicle, backref="options")
 
 
 Base.metadata.create_all(engine)

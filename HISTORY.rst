@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.6.2 (2018-02-23)
+Next version (unreleased yet)
 -----------------------------
+- Add sorcery as dependency. [Serkan Hosca]
+
+
+0.6.2 (2018-02-23)
+------------------
+- Merge pull request #8 from shosca/packaging. [Serkan Hosca]
 - Fix packaging. [Serkan Hosca]
 
 
@@ -271,3 +277,5 @@ Other
 - Added initial readme. [Serkan Hosca]
 - Add travis. [Serkan Hosca]
 - Initial commit. [Serkan Hosca]
+
+

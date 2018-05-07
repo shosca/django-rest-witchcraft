@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
-from django.http import Http404
+from __future__ import absolute_import, print_function, unicode_literals
+
 from rest_framework import generics
+
 from sqlalchemy.exc import InvalidRequestError
 
-from .utils import get_primary_keys, suppress
+from django.http import Http404
+
+from django_sorcery.db.models import get_primary_keys
+from django_sorcery.utils import suppress
 
 
 class GenericAPIView(generics.GenericAPIView):
@@ -29,7 +34,7 @@ class GenericAPIView(generics.GenericAPIView):
 
         assert model is not None, (
             "Couldn't figure out the model for {viewset} attribute, either provide a"
-            'queryset or a serializer with a Meta.model'.format(viewset=cls.__name__)
+            "queryset or a serializer with a Meta.model".format(viewset=cls.__name__)
         )
 
         return model
@@ -53,6 +58,6 @@ class GenericAPIView(generics.GenericAPIView):
         obj = queryset.get(get_primary_keys(model, self.kwargs))
 
         if not obj:
-            raise Http404('No %s matches the given query.' % model.__name__)
+            raise Http404("No %s matches the given query." % model.__name__)
 
         return obj
