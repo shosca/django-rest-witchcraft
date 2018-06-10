@@ -11,14 +11,13 @@
   - id: check-xml
   - id: check-yaml
   - id: debug-statements
-  - id: double-quote-string-fixer
-  - id: end-of-file-fixer
   - id: fix-encoding-pragma
   - id: flake8
   - id: trailing-whitespace
 
-- repo: git://github.com/FalconSocial/pre-commit-python-sorter
-  sha: 'master'
+- repo: https://github.com/ambv/black
+  rev: stable
   hooks:
-  - id: python-import-sorter
-    args: ['--silent-overwrite']
+  - id: black
+    args: [--line-length=120, --safe]
+    python_version: python3.6

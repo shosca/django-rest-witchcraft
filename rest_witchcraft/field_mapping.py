@@ -3,10 +3,12 @@
 Field mapping from SQLAlchemy type's to DRF fields
 """
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 import decimal
 
 from rest_framework import fields
+
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import sqltypes
 
@@ -18,14 +20,14 @@ def get_detail_view_name(model):
     Given a model class, return the view name to use for URL relationships
     that rever to instances of the model.
     """
-    return '{}s-detail'.format(model.__name__.lower())
+    return "{}s-detail".format(model.__name__.lower())
 
 
 def get_url_kwargs(model):
     """
     Gets kwargs for the UriField
     """
-    field_kwargs = {'read_only': True, 'view_name': get_detail_view_name(model)}
+    field_kwargs = {"read_only": True, "view_name": get_detail_view_name(model)}
 
     return field_kwargs
 
@@ -34,7 +36,6 @@ SERIALIZER_FIELD_MAPPING = {
     # sqlalchemy types
     postgresql.HSTORE: CharMappingField,
     sqltypes.Enum: EnumField,
-
     # python types
     datetime.date: fields.DateField,
     datetime.datetime: fields.DateTimeField,
@@ -64,8 +65,9 @@ def get_field_type(column):
         return fields.ChoiceField
 
     if isinstance(column.type, postgresql.ARRAY):
-        child_field = SERIALIZER_FIELD_MAPPING.get(column.type.item_type.__class__
-                                                   ) or SERIALIZER_FIELD_MAPPING.get(column.type.item_type.python_type)
+        child_field = SERIALIZER_FIELD_MAPPING.get(column.type.item_type.__class__) or SERIALIZER_FIELD_MAPPING.get(
+            column.type.item_type.python_type
+        )
 
         if child_field is None:
             raise KeyError("Could not figure out field for ARRAY item type '{}'".format(column.type.__class__))
@@ -74,7 +76,7 @@ def get_field_type(column):
             """Nested array field for PostreSQL's ARRAY type"""
 
             def __init__(self, *args, **kwargs):
-                kwargs['child'] = child_field()
+                kwargs["child"] = child_field()
                 super(ArrayField, self).__init__(*args, **kwargs)
 
         return ArrayField

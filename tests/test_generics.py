@@ -1,23 +1,26 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
-from django.http import Http404
-from django.test import SimpleTestCase
 from rest_framework.test import APIRequestFactory
 from rest_witchcraft import serializers, viewsets
+
 from sqlalchemy import Column, create_engine, orm, types
 from sqlalchemy.ext.declarative import declarative_base
 
+from django.http import Http404
+from django.test import SimpleTestCase
+
+
 factory = APIRequestFactory()
 
-engine = create_engine('sqlite://')
+engine = create_engine("sqlite://")
 session = orm.scoped_session(orm.sessionmaker(bind=engine))
 Base = declarative_base()
 Base.query = session.query_property()
 
 
 class RouterTestModel(Base):
-    __tablename__ = 'routertest'
+    __tablename__ = "routertest"
     id = Column(types.Integer(), default=3, primary_key=True)
     text = Column(types.String(length=200))
 
@@ -30,7 +33,7 @@ class RouterTestModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = RouterTestModel
         session = session
-        fields = '__all__'
+        fields = "__all__"
 
 
 class TestModelRoutes(SimpleTestCase):
@@ -69,7 +72,7 @@ class TestModelRoutes(SimpleTestCase):
             serializer_class = RouterTestModelSerializer
 
         viewset = RouterTestViewSet()
-        viewset.kwargs = {'id': 1}
+        viewset.kwargs = {"id": 1}
 
         with self.assertRaises(Http404):
             viewset.get_object()

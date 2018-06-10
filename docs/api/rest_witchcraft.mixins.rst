@@ -1,5 +1,5 @@
-rest\_witchcraft\.mixins module
-===============================
+rest\_witchcraft.mixins module
+==============================
 
 .. automodule:: rest_witchcraft.mixins
     :members:

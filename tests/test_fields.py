@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
+from __future__ import absolute_import, print_function, unicode_literals
 from enum import Enum
 
-from django.test import SimpleTestCase
 from rest_framework.exceptions import ValidationError
 from rest_witchcraft.fields import EnumField
+
+from django.test import SimpleTestCase
 
 
 class SomeEnum(Enum):
@@ -28,7 +28,7 @@ class TestEnumField(SimpleTestCase):
         field = EnumField(enum_class=SomeEnum)
 
         with self.assertRaises(ValidationError):
-            field.to_internal_value('test3')
+            field.to_internal_value("test3")
 
     def test_to_representation_works(self):
 

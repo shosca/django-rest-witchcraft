@@ -1,5 +1,5 @@
-rest\_witchcraft\.fields module
-===============================
+rest\_witchcraft.fields module
+==============================
 
 .. automodule:: rest_witchcraft.fields
     :members:

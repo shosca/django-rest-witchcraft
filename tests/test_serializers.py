@@ -1,25 +1,24 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import unittest
 from collections import OrderedDict
 from decimal import Decimal
 
-from django.core.exceptions import ImproperlyConfigured
 from rest_framework import fields
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ListSerializer
 from rest_framework.settings import api_settings
-from rest_witchcraft.utils import _column_info
+from rest_witchcraft.serializers import BaseSerializer, CompositeSerializer, ModelSerializer
+
 from sqlalchemy import Column, types
 from sqlalchemy.orm.properties import ColumnProperty
 
-from .models import (  # noqa # isort:skip
-    COLORS, Engine, Option, Owner, Vehicle, VehicleOther, VehicleType, session
-)
+from django.core.exceptions import ImproperlyConfigured
 
-from rest_witchcraft.serializers import (  # noqa # isort:skip
-    BaseSerializer, CompositeSerializer,
-    ModelSerializer, model_info)
+from django_sorcery.db.meta import column_info, model_info
+
+from .models import COLORS, Engine, Option, Owner, Vehicle, VehicleOther, VehicleType, session
 
 
 class TestModelSerializer(unittest.TestCase):
@@ -27,13 +26,13 @@ class TestModelSerializer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super(TestModelSerializer, cls).setUpClass()
-        session.add(Owner(id=1, first_name='Test', last_name='Owner'))
+        session.add(Owner(id=1, first_name="Test", last_name="Owner"))
         session.add_all(
             [
-                Option(id=1, name='Option 1'),
-                Option(id=2, name='Option 2'),
-                Option(id=3, name='Option 3'),
-                Option(id=4, name='Option 4'),
+                Option(id=1, name="Option 1"),
+                Option(id=2, name="Option 2"),
+                Option(id=3, name="Option 3"),
+                Option(id=4, name="Option 4"),
             ]
         )
         session.commit()
@@ -90,7 +89,7 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                exclude = ('name', )
+                exclude = ("name",)
 
         serializer = VehicleSerializer()
         serializer.get_fields()
@@ -104,7 +103,7 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = 'name'
+                fields = "name"
 
         serializer = VehicleSerializer()
 
@@ -118,7 +117,7 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                exclude = 'name'
+                exclude = "name"
 
         serializer = VehicleSerializer()
 
@@ -132,16 +131,26 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('id', 'name')
+                fields = ("id", "name")
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
         field_names = serializer.get_default_field_names({}, info)
         self.assertEqual(
-            set(field_names), {
-                Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.options.key,
-                Vehicle.other.key, Vehicle.owner.key, Vehicle.paint.key, Vehicle.type.key, Vehicle.is_used.key, 'url'
-            }
+            set(field_names),
+            {
+                Vehicle.created_at.key,
+                Vehicle.engine.key,
+                Vehicle.id.key,
+                Vehicle.name.key,
+                Vehicle.options.key,
+                Vehicle.other.key,
+                Vehicle.owner.key,
+                Vehicle.paint.key,
+                Vehicle.type.key,
+                Vehicle.is_used.key,
+                "url",
+            },
         )
 
     def test_get_field_names_with_include(self):
@@ -151,7 +160,7 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('id', 'name')
+                fields = ("id", "name")
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
@@ -165,16 +174,24 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                exclude = ('type', 'options')
+                exclude = ("type", "options")
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
         field_names = serializer.get_field_names({}, info)
         self.assertEqual(
-            set(field_names), {
-                Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.other.key,
-                Vehicle.owner.key, Vehicle.paint.key, Vehicle.is_used.key, 'url'
-            }
+            set(field_names),
+            {
+                Vehicle.created_at.key,
+                Vehicle.engine.key,
+                Vehicle.id.key,
+                Vehicle.name.key,
+                Vehicle.other.key,
+                Vehicle.owner.key,
+                Vehicle.paint.key,
+                Vehicle.is_used.key,
+                "url",
+            },
         )
 
     def test_generate_all_fields(self):
@@ -184,7 +201,7 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer()
         generated_fields = serializer.get_fields()
@@ -199,17 +216,17 @@ class TestModelSerializer(unittest.TestCase):
     def test_declared_field(self):
 
         class VehicleSerializer(ModelSerializer):
-            name = fields.ChoiceField(choices=['a', 'b'])
+            name = fields.ChoiceField(choices=["a", "b"])
 
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer()
         generated_fields = serializer.get_fields()
 
-        self.assertIsInstance(generated_fields['name'], fields.ChoiceField)
+        self.assertIsInstance(generated_fields["name"], fields.ChoiceField)
 
     def test_get_field_names_includes_all_required_fields(self):
 
@@ -218,13 +235,13 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('id', 'name')
+                fields = ("id", "name")
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
 
         with self.assertRaises(AssertionError):
-            serializer.get_field_names(['type'], info)
+            serializer.get_field_names(["type"], info)
 
     def test_include_extra_kwargs(self):
 
@@ -242,35 +259,33 @@ class TestModelSerializer(unittest.TestCase):
         serializer = BaseSerializer()
 
         kwargs = {
-            'allow_blank': True,
-            'allow_null': True,
-            'default': True,
-            'max_length': 255,
-            'max_value': 255,
-            'min_length': 0,
-            'min_value': 0,
-            'queryset': None,
-            'required': True,
-            'validators': None,
+            "allow_blank": True,
+            "allow_null": True,
+            "default": True,
+            "max_length": 255,
+            "max_value": 255,
+            "min_length": 0,
+            "min_value": 0,
+            "queryset": None,
+            "required": True,
+            "validators": None,
         }
-        extra_kwargs = {'read_only': True}
+        extra_kwargs = {"read_only": True}
 
         kwargs = serializer.include_extra_kwargs(kwargs, extra_kwargs)
 
-        self.assertEqual(kwargs, {'read_only': True})
+        self.assertEqual(kwargs, {"read_only": True})
 
     def test_include_extra_kwargs_filter_required_when_default_provided(self):
 
         serializer = BaseSerializer()
 
-        kwargs = {
-            'required': False,
-        }
-        extra_kwargs = {'default': True}
+        kwargs = {"required": False}
+        extra_kwargs = {"default": True}
 
         kwargs = serializer.include_extra_kwargs(kwargs, extra_kwargs)
 
-        self.assertEqual(kwargs, {'default': True})
+        self.assertEqual(kwargs, {"default": True})
 
     def test_base_serializer_raises_on_create(self):
 
@@ -293,7 +308,7 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('id', 'name')
+                fields = ("id", "name")
 
         serializer = VehicleSerializer()
         extra_kwargs = serializer.get_extra_kwargs()
@@ -306,12 +321,12 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('id', 'name')
-                extra_kwargs = {'name': {'read_only': True}}
+                fields = ("id", "name")
+                extra_kwargs = {"name": {"read_only": True}}
 
         serializer = VehicleSerializer()
         extra_kwargs = serializer.get_extra_kwargs()
-        self.assertEqual(extra_kwargs, {'name': {'read_only': True}})
+        self.assertEqual(extra_kwargs, {"name": {"read_only": True}})
 
     def test_get_extra_kwargs_with_read_only_fields(self):
 
@@ -320,12 +335,12 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('id', 'name')
-                read_only_fields = ('id', 'name')
+                fields = ("id", "name")
+                read_only_fields = ("id", "name")
 
         serializer = VehicleSerializer()
         extra_kwargs = serializer.get_extra_kwargs()
-        self.assertEqual(extra_kwargs, {'id': {'read_only': True}, 'name': {'read_only': True}})
+        self.assertEqual(extra_kwargs, {"id": {"read_only": True}, "name": {"read_only": True}})
 
     def test_get_extra_kwargs_with_read_only_fields_as_string(self):
 
@@ -334,8 +349,8 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('id', 'name')
-                read_only_fields = 'id'
+                fields = ("id", "name")
+                read_only_fields = "id"
 
         with self.assertRaises(TypeError):
             VehicleSerializer()
@@ -347,14 +362,14 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
         field = serializer.build_field(Vehicle.id.key, info, Vehicle, 0)
 
         self.assertEqual(field.help_text, Vehicle.id.doc)
-        self.assertEqual(field.label, 'Id')
+        self.assertEqual(field.label, "Id")
         self.assertFalse(field.allow_null)
         self.assertIsInstance(field, fields.IntegerField)
         self.assertFalse(field.required)
@@ -366,14 +381,14 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
         field = serializer.build_field(Vehicle.name.key, info, Vehicle, 0)
 
         self.assertEqual(field.help_text, Vehicle.name.doc)
-        self.assertEqual(field.label, 'Name')
+        self.assertEqual(field.label, "Name")
         self.assertFalse(field.required)
         self.assertIsInstance(field, fields.CharField)
         self.assertTrue(field.allow_null)
@@ -385,14 +400,14 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('type', )
+                fields = ("type",)
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
         field = serializer.build_field(Vehicle.type.key, info, Vehicle, 0)
 
         self.assertEqual(field.help_text, Vehicle.type.doc)
-        self.assertEqual(field.label, 'Type')
+        self.assertEqual(field.label, "Type")
         self.assertTrue(field.required)
         self.assertIsInstance(field, fields.ChoiceField)
         self.assertFalse(field.allow_null)
@@ -404,14 +419,14 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('paint', )
+                fields = ("paint",)
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
         field = serializer.build_field(Vehicle.paint.key, info, Vehicle, 0)
 
         self.assertEqual(field.help_text, Vehicle.paint.doc)
-        self.assertEqual(field.label, 'Paint')
+        self.assertEqual(field.label, "Paint")
         self.assertFalse(field.required)
         self.assertIsInstance(field, fields.ChoiceField)
         self.assertEqual(field.choices, OrderedDict([(color, color) for color in COLORS]))
@@ -424,16 +439,16 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('paint', )
+                fields = ("paint",)
 
         serializer = VehicleSerializer()
-        col = Column('test', types.JSON())
+        col = Column("test", types.JSON())
         prop = ColumnProperty(col)
         prop.key = col.key
-        info = _column_info(prop, col)
+        info = column_info(prop, col)
 
         with self.assertRaises(KeyError):
-            serializer.build_standard_field('test', info)
+            serializer.build_standard_field("test", info)
 
     def test_build_composite_field(self):
 
@@ -442,7 +457,7 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
@@ -471,11 +486,11 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
-        field = serializer.build_field('lower_name', info, Vehicle, 0)
+        field = serializer.build_field("lower_name", info, Vehicle, 0)
 
         self.assertIsInstance(field, fields.ReadOnlyField)
 
@@ -486,13 +501,13 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
 
         with self.assertRaises(ImproperlyConfigured):
-            serializer.build_field('abcde', info, Vehicle, 0)
+            serializer.build_field("abcde", info, Vehicle, 0)
 
     def test_build_one_to_many_relationship_field(self):
 
@@ -501,7 +516,7 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
@@ -518,8 +533,8 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
-                extra_kwargs = {'owner': {'allow_nested_updates': False}}
+                fields = "__all__"
+                extra_kwargs = {"owner": {"allow_nested_updates": False}}
 
         serializer = VehicleSerializer()
         info = model_info(Vehicle)
@@ -528,8 +543,8 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsNotNone(nested_serializer)
         self.assertIsInstance(nested_serializer, ModelSerializer)
         self.assertEqual(len(nested_serializer.fields), 3)
-        self.assertTrue(nested_serializer.fields['first_name'].read_only)
-        self.assertTrue(nested_serializer.fields['last_name'].read_only)
+        self.assertTrue(nested_serializer.fields["first_name"].read_only)
+        self.assertTrue(nested_serializer.fields["last_name"].read_only)
 
     def test_generated_nested_serializer_get_session_from_parent(self):
 
@@ -537,12 +552,12 @@ class TestModelSerializer(unittest.TestCase):
 
             class Meta:
                 model = Vehicle
-                fields = '__all__'
+                fields = "__all__"
                 depth = 3
 
-        serializer = VehicleSerializer(context={'session': session})
+        serializer = VehicleSerializer(context={"session": session})
 
-        owner_serializer = serializer.fields['owner']
+        owner_serializer = serializer.fields["owner"]
 
         self.assertEqual(owner_serializer.session, session)
 
@@ -552,18 +567,18 @@ class TestModelSerializer(unittest.TestCase):
 
             class Meta:
                 model = Owner
-                fields = '__all__'
+                fields = "__all__"
 
         class VehicleSerializer(ModelSerializer):
             Owner = OwnerSerializer()
 
             class Meta:
                 model = Vehicle
-                fields = '__all__'
+                fields = "__all__"
 
-        serializer = VehicleSerializer(context={'session': session})
+        serializer = VehicleSerializer(context={"session": session})
 
-        owner_serializer = serializer.fields['owner']
+        owner_serializer = serializer.fields["owner"]
 
         self.assertEqual(owner_serializer.session, session)
 
@@ -573,7 +588,7 @@ class TestModelSerializer(unittest.TestCase):
 
             class Meta:
                 model = Owner
-                fields = '__all__'
+                fields = "__all__"
 
         class VehicleSerializer(ModelSerializer):
             Owner = OwnerSerializer()
@@ -581,11 +596,11 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer()
 
-        owner_serializer = serializer.fields['owner']
+        owner_serializer = serializer.fields["owner"]
 
         self.assertEqual(owner_serializer.session, session)
 
@@ -596,35 +611,45 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
                 depth = 3
 
         serializer = VehicleSerializer()
 
         self.assertEqual(len(serializer.fields), 11)
         self.assertEqual(
-            set(serializer.fields.keys()), {
-                Vehicle.created_at.key, Vehicle.engine.key, Vehicle.id.key, Vehicle.name.key, Vehicle.options.key,
-                Vehicle.other.key, Vehicle.owner.key, Vehicle.paint.key, Vehicle.type.key, Vehicle.is_used.key, 'url'
-            }
+            set(serializer.fields.keys()),
+            {
+                Vehicle.created_at.key,
+                Vehicle.engine.key,
+                Vehicle.id.key,
+                Vehicle.name.key,
+                Vehicle.options.key,
+                Vehicle.other.key,
+                Vehicle.owner.key,
+                Vehicle.paint.key,
+                Vehicle.type.key,
+                Vehicle.is_used.key,
+                "url",
+            },
         )
 
-        engine_serializer = serializer.fields['engine']
+        engine_serializer = serializer.fields["engine"]
         self.assertEqual(len(engine_serializer.fields), 4)
-        self.assertEqual(set(engine_serializer.fields.keys()), {'type_', 'displacement', 'fuel_type', 'cylinders'})
+        self.assertEqual(set(engine_serializer.fields.keys()), {"type_", "displacement", "fuel_type", "cylinders"})
 
-        owner_serializer = serializer.fields['owner']
+        owner_serializer = serializer.fields["owner"]
         self.assertEqual(len(owner_serializer.fields), 3)
-        self.assertEqual(set(owner_serializer.fields.keys()), {'id', 'first_name', 'last_name'})
-        self.assertEqual(set(f.label for f in owner_serializer.fields.values()), {'Id', 'First name', 'Last name'})
+        self.assertEqual(set(owner_serializer.fields.keys()), {"id", "first_name", "last_name"})
+        self.assertEqual(set(f.label for f in owner_serializer.fields.values()), {"Id", "First name", "Last name"})
 
-        options_serializer = serializer.fields['options']
+        options_serializer = serializer.fields["options"]
         self.assertTrue(options_serializer.many)
         self.assertIsInstance(options_serializer, ListSerializer)
 
         option_serializer = options_serializer.child
         self.assertEqual(len(option_serializer.fields), 2)
-        self.assertEqual(set(option_serializer.fields.keys()), {'id', 'name'})
+        self.assertEqual(set(option_serializer.fields.keys()), {"id", "name"})
 
     def test_serializer_zero_depth_invalid_error_message(self):
 
@@ -633,13 +658,13 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = VehicleSerializer(data={})
 
         self.assertFalse(serializer.is_valid())
 
-        self.assertDictEqual(dict(serializer.errors), {'type': ['This field is required.']})
+        self.assertDictEqual(dict(serializer.errors), {"type": ["This field is required."]})
 
     def test_serializer_zero_depth_post_basic_validation(self):
 
@@ -648,39 +673,30 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
-                extra_kwargs = {'other': {'required': False}}
+                fields = "__all__"
+                extra_kwargs = {"other": {"required": False}}
 
         data = {
-            'name': 'Test vehicle',
-            'one': 'Two',
-            'type': 'Bus',
-            'engine': {
-                'displacement': 1234,
-                'cylinders': 4,
-            },
-            'owner': {
-                'id': 1
-            },
-            'options': [],
+            "name": "Test vehicle",
+            "one": "Two",
+            "type": "Bus",
+            "engine": {"displacement": 1234, "cylinders": 4},
+            "owner": {"id": 1},
+            "options": [],
         }
         serializer = VehicleSerializer(data=data)
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
 
         self.assertDictEqual(
-            dict(serializer.validated_data), {
-                'name': 'Test vehicle',
-                'type': VehicleType('Bus'),
-                'engine': {
-                    'displacement': Decimal('1234.00'),
-                    'cylinders': 4,
-                },
-                'owner': {
-                    'id': 1
-                },
-                'options': []
-            }
+            dict(serializer.validated_data),
+            {
+                "name": "Test vehicle",
+                "type": VehicleType("Bus"),
+                "engine": {"displacement": Decimal("1234.00"), "cylinders": 4},
+                "owner": {"id": 1},
+                "options": [],
+            },
         )
 
     def test_serializer_create(self):
@@ -690,21 +706,16 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
-                extra_kwargs = {'other': {'required': False, 'allow_create': False}}
+                fields = "__all__"
+                extra_kwargs = {"other": {"required": False, "allow_create": False}}
 
         data = {
-            'name': 'Test vehicle',
-            'one': 'Two',
-            'type': 'Bus',
-            'engine': {
-                'displacement': 1234,
-                'cylinders': 4,
-            },
-            'owner': {
-                'id': 1
-            },
-            'options': []
+            "name": "Test vehicle",
+            "one": "Two",
+            "type": "Bus",
+            "engine": {"displacement": 1234, "cylinders": 4},
+            "owner": {"id": 1},
+            "options": [],
         }
 
         serializer = VehicleSerializer(data=data)
@@ -713,22 +724,24 @@ class TestModelSerializer(unittest.TestCase):
 
         vehicle = serializer.save()
 
-        self.assertEqual(vehicle.name, data['name'])
-        self.assertEqual(vehicle.type, VehicleType(data['type']))
-        self.assertEqual(vehicle.engine.cylinders, data['engine']['cylinders'])
-        self.assertEqual(vehicle.engine.displacement, data['engine']['displacement'])
+        self.assertEqual(vehicle.name, data["name"])
+        self.assertEqual(vehicle.type, VehicleType(data["type"]))
+        self.assertEqual(vehicle.engine.cylinders, data["engine"]["cylinders"])
+        self.assertEqual(vehicle.engine.displacement, data["engine"]["displacement"])
         self.assertEqual(vehicle.engine.fuel_type, None)
         self.assertEqual(vehicle.engine.type_, None)
-        self.assertEqual(vehicle.owner.id, data['owner']['id'])
-        self.assertEqual(vehicle.owner.first_name, 'Test')
-        self.assertEqual(vehicle.owner.last_name, 'Owner')
-        self.assertEqual(vehicle.options, data['options'])
+        self.assertEqual(vehicle.owner.id, data["owner"]["id"])
+        self.assertEqual(vehicle.owner.first_name, "Test")
+        self.assertEqual(vehicle.owner.last_name, "Owner")
+        self.assertEqual(vehicle.options, data["options"])
 
     def test_post_update(self):
 
         vehicle = Vehicle(
-            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None, None),
-            owner=session.query(Owner).get(1)
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
         )
 
         class VehicleSerializer(ModelSerializer):
@@ -736,26 +749,17 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
-                extra_kwargs = {'other': {'required': False, 'allow_create': True, 'allow_nested_updates': True}}
+                fields = "__all__"
+                extra_kwargs = {"other": {"required": False, "allow_create": True, "allow_nested_updates": True}}
 
         data = {
-            'name': 'Another test vechicle',
-            'one': 'Two',
-            'type': 'Car',
-            'engine': {
-                'displacement': 4321,
-                'cylinders': 2,
-                'type_': 'banana',
-                'fuel_type': 'petrol',
-            },
-            'owner': {
-                'id': 1
-            },
-            'options': [],
-            'other': {
-                'advertising_cost': 4321
-            }
+            "name": "Another test vechicle",
+            "one": "Two",
+            "type": "Car",
+            "engine": {"displacement": 4321, "cylinders": 2, "type_": "banana", "fuel_type": "petrol"},
+            "owner": {"id": 1},
+            "options": [],
+            "other": {"advertising_cost": 4321},
         }
 
         serializer = VehicleSerializer(instance=vehicle, data=data)
@@ -764,23 +768,26 @@ class TestModelSerializer(unittest.TestCase):
 
         vehicle = serializer.save()
 
-        self.assertEqual(vehicle.name, data['name'])
-        self.assertEqual(vehicle.type, VehicleType(data['type']))
-        self.assertEqual(vehicle.engine.cylinders, data['engine']['cylinders'])
-        self.assertEqual(vehicle.engine.displacement, data['engine']['displacement'])
-        self.assertEqual(vehicle.engine.fuel_type, data['engine']['fuel_type'])
-        self.assertEqual(vehicle.engine.type_, data['engine']['type_'])
-        self.assertEqual(vehicle.owner.id, data['owner']['id'])
-        self.assertEqual(vehicle.owner.first_name, 'Test')
-        self.assertEqual(vehicle.owner.last_name, 'Owner')
-        self.assertEqual(vehicle.options, data['options'])
+        self.assertEqual(vehicle.name, data["name"])
+        self.assertEqual(vehicle.type, VehicleType(data["type"]))
+        self.assertEqual(vehicle.engine.cylinders, data["engine"]["cylinders"])
+        self.assertEqual(vehicle.engine.displacement, data["engine"]["displacement"])
+        self.assertEqual(vehicle.engine.fuel_type, data["engine"]["fuel_type"])
+        self.assertEqual(vehicle.engine.type_, data["engine"]["type_"])
+        self.assertEqual(vehicle.owner.id, data["owner"]["id"])
+        self.assertEqual(vehicle.owner.first_name, "Test")
+        self.assertEqual(vehicle.owner.last_name, "Owner")
+        self.assertEqual(vehicle.options, data["options"])
         self.assertEqual(vehicle.other.advertising_cost, 4321)
 
     def test_patch_update(self):
 
         vehicle = Vehicle(
-            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None, None),
-            owner=session.query(Owner).get(1), other=VehicleOther(advertising_cost=4321)
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
         )
 
         class VehicleSerializer(ModelSerializer):
@@ -788,10 +795,10 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = '__all__'
-                extra_kwargs = {'other': {'required': False, 'allow_create': True, 'allow_nested_updates': True}}
+                fields = "__all__"
+                extra_kwargs = {"other": {"required": False, "allow_create": True, "allow_nested_updates": True}}
 
-        data = {'other': {'advertising_cost': 1234}}
+        data = {"other": {"advertising_cost": 1234}}
 
         serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
 
@@ -799,7 +806,7 @@ class TestModelSerializer(unittest.TestCase):
 
         vehicle = serializer.save()
 
-        self.assertEqual(vehicle.other.advertising_cost, data['other']['advertising_cost'])
+        self.assertEqual(vehicle.other.advertising_cost, data["other"]["advertising_cost"])
 
     def test_composite_serializer_can_create(self):
 
@@ -808,12 +815,7 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 composite = Vehicle.engine
 
-        data = {
-            'cylinders': 2,
-            'displacement': 1234,
-            'fuel_type': 'petrol',
-            'type_': 'banana',
-        }
+        data = {"cylinders": 2, "displacement": 1234, "fuel_type": "petrol", "type_": "banana"}
 
         serializer = EngineSerializer(data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -823,8 +825,8 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsInstance(engine, Engine)
         self.assertEqual(engine.cylinders, 2)
         self.assertEqual(engine.displacement, 1234)
-        self.assertEqual(engine.fuel_type, 'petrol')
-        self.assertEqual(engine.type_, 'banana')
+        self.assertEqual(engine.fuel_type, "petrol")
+        self.assertEqual(engine.type_, "banana")
 
     def test_composite_serializer_can_update(self):
 
@@ -833,13 +835,8 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 composite = Vehicle.engine
 
-        data = {
-            'cylinders': 2,
-            'displacement': 1234,
-            'fuel_type': 'diesel',
-            'type_': 'banana',
-        }
-        engine = Engine(4, 2345, 'apple', 'petrol')
+        data = {"cylinders": 2, "displacement": 1234, "fuel_type": "diesel", "type_": "banana"}
+        engine = Engine(4, 2345, "apple", "petrol")
 
         serializer = EngineSerializer(engine, data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -849,8 +846,8 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsInstance(engine, Engine)
         self.assertEqual(engine.cylinders, 2)
         self.assertEqual(engine.displacement, 1234)
-        self.assertEqual(engine.fuel_type, 'diesel')
-        self.assertEqual(engine.type_, 'banana')
+        self.assertEqual(engine.fuel_type, "diesel")
+        self.assertEqual(engine.type_, "banana")
 
     def test_composite_serializer_can_update_patch(self):
 
@@ -859,10 +856,8 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 composite = Vehicle.engine
 
-        data = {
-            'cylinders': 2,
-        }
-        engine = Engine(4, 2345, 'apple', 'petrol')
+        data = {"cylinders": 2}
+        engine = Engine(4, 2345, "apple", "petrol")
 
         serializer = EngineSerializer(engine, data=data, partial=True)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -872,8 +867,8 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsInstance(engine, Engine)
         self.assertEqual(engine.cylinders, 2)
         self.assertEqual(engine.displacement, 2345)
-        self.assertEqual(engine.fuel_type, 'petrol')
-        self.assertEqual(engine.type_, 'apple')
+        self.assertEqual(engine.fuel_type, "petrol")
+        self.assertEqual(engine.type_, "apple")
 
     def test_composite_serializer_can_use_custom_setter(self):
 
@@ -886,10 +881,8 @@ class TestModelSerializer(unittest.TestCase):
                 self.called = True
                 instance.cylinders = value
 
-        data = {
-            'cylinders': 2,
-        }
-        engine = Engine(4, 2345, 'apple', 'petrol')
+        data = {"cylinders": 2}
+        engine = Engine(4, 2345, "apple", "petrol")
 
         serializer = EngineSerializer(engine, data=data, partial=True)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -906,12 +899,10 @@ class TestModelSerializer(unittest.TestCase):
                 composite = Vehicle.engine
 
             def set_cylinders(self, instance, field, value):
-                assert False, 'Some error'
+                assert False, "Some error"
 
-        data = {
-            'cylinders': 2,
-        }
-        engine = Engine(4, 2345, 'apple', 'petrol')
+        data = {"cylinders": 2}
+        engine = Engine(4, 2345, "apple", "petrol")
 
         serializer = EngineSerializer(engine, data=data, partial=True)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -921,9 +912,12 @@ class TestModelSerializer(unittest.TestCase):
 
     def test_patch_update_to_list_with_empty_list_clears_it(self):
         vehicle = Vehicle(
-            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None,
-                                                                     None), owner=session.query(Owner).get(1),
-            other=VehicleOther(advertising_cost=4321), options=session.query(Option).all()
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+            options=session.query(Option).all(),
         )
 
         class VehicleSerializer(ModelSerializer):
@@ -931,9 +925,9 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('options', )
+                fields = ("options",)
 
-        data = {'options': []}
+        data = {"options": []}
 
         serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
 
@@ -945,9 +939,12 @@ class TestModelSerializer(unittest.TestCase):
 
     def test_patch_update_to_list_with_new_list(self):
         vehicle = Vehicle(
-            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None,
-                                                                     None), owner=session.query(Owner).get(1),
-            other=VehicleOther(advertising_cost=4321), options=session.query(Option).filter(Option.id.in_([1, 2])).all()
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+            options=session.query(Option).filter(Option.id.in_([1, 2])).all(),
         )
 
         class VehicleSerializer(ModelSerializer):
@@ -955,9 +952,9 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('options', )
+                fields = ("options",)
 
-        data = {'options': [{'id': 3}, {'id': 4}]}
+        data = {"options": [{"id": 3}, {"id": 4}]}
 
         serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
 
@@ -970,9 +967,12 @@ class TestModelSerializer(unittest.TestCase):
 
     def test_patch_update_to_list_with_new_list_with_allow_create(self):
         vehicle = Vehicle(
-            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None,
-                                                                     None), owner=session.query(Owner).get(1),
-            other=VehicleOther(advertising_cost=4321), options=session.query(Option).filter(Option.id.in_([1, 2])).all()
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+            options=session.query(Option).filter(Option.id.in_([1, 2])).all(),
         )
 
         class VehicleSerializer(ModelSerializer):
@@ -980,10 +980,10 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('options', )
-                extra_kwargs = {'options': {'allow_create': True}}
+                fields = ("options",)
+                extra_kwargs = {"options": {"allow_create": True}}
 
-        data = {'options': [{'name': 'Test'}, {'name': 'Other Test'}]}
+        data = {"options": [{"name": "Test"}, {"name": "Other Test"}]}
 
         serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
 
@@ -992,13 +992,16 @@ class TestModelSerializer(unittest.TestCase):
         vehicle = serializer.update(vehicle, serializer.validated_data)
 
         self.assertEqual(len(vehicle.options), 2)
-        self.assertEqual(set([v.name for v in vehicle.options]), {'Test', 'Other Test'})
+        self.assertEqual(set([v.name for v in vehicle.options]), {"Test", "Other Test"})
 
     def test_patch_update_to_list_with_new_list_with_nested(self):
         vehicle = Vehicle(
-            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None,
-                                                                     None), owner=session.query(Owner).get(1),
-            other=VehicleOther(advertising_cost=4321), options=session.query(Option).filter(Option.id.in_([1, 2])).all()
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+            options=session.query(Option).filter(Option.id.in_([1, 2])).all(),
         )
 
         class VehicleSerializer(ModelSerializer):
@@ -1006,10 +1009,10 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('options', )
-                extra_kwargs = {'options': {'allow_nested_updates': True}}
+                fields = ("options",)
+                extra_kwargs = {"options": {"allow_nested_updates": True}}
 
-        data = {'options': [{'id': 1, 'name': 'Test 1'}, {'id': 2, 'name': 'Test 2'}]}
+        data = {"options": [{"id": 1, "name": "Test 1"}, {"id": 2, "name": "Test 2"}]}
 
         serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
 
@@ -1018,13 +1021,16 @@ class TestModelSerializer(unittest.TestCase):
         vehicle = serializer.update(vehicle, serializer.validated_data)
 
         self.assertEqual([option.id for option in vehicle.options], [1, 2])
-        self.assertEqual([option.name for option in vehicle.options], ['Test 1', 'Test 2'])
+        self.assertEqual([option.name for option in vehicle.options], ["Test 1", "Test 2"])
 
     def test_patch_update_to_list_with_new_list_with_nested_raises_for_a_bad_pk(self):
         vehicle = Vehicle(
-            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None,
-                                                                     None), owner=session.query(Owner).get(1),
-            other=VehicleOther(advertising_cost=4321), options=session.query(Option).filter(Option.id.in_([1, 2])).all()
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+            options=session.query(Option).filter(Option.id.in_([1, 2])).all(),
         )
 
         class VehicleSerializer(ModelSerializer):
@@ -1032,10 +1038,10 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('options', )
-                extra_kwargs = {'options': {'allow_null': False}}
+                fields = ("options",)
+                extra_kwargs = {"options": {"allow_null": False}}
 
-        data = {'options': [{'id': 1, 'name': 'Test 1'}, {'id': 5, 'name': 'Test 5'}]}
+        data = {"options": [{"id": 1, "name": "Test 1"}, {"id": 5, "name": "Test 5"}]}
 
         serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
 
@@ -1046,9 +1052,12 @@ class TestModelSerializer(unittest.TestCase):
 
     def test_update_generates_validation_error_when_required_many_to_one_instance_not_found(self):
         vehicle = Vehicle(
-            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None,
-                                                                     None), owner=session.query(Owner).get(1),
-            other=VehicleOther(advertising_cost=4321), options=session.query(Option).filter(Option.id.in_([1, 2])).all()
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+            options=session.query(Option).filter(Option.id.in_([1, 2])).all(),
         )
 
         class VehicleSerializer(ModelSerializer):
@@ -1056,10 +1065,10 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('owner', )
-                extra_kwargs = {'owner': {'allow_null': False}}
+                fields = ("owner",)
+                extra_kwargs = {"owner": {"allow_null": False}}
 
-        data = {'owner': {'id': 1234}}
+        data = {"owner": {"id": 1234}}
 
         serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -1074,18 +1083,21 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Vehicle
                 session = session
-                fields = ('name', )
+                fields = ("name",)
 
             def set_name(self, instance, field, value):
                 self._set_name_called = True
 
         vehicle = Vehicle(
-            name='Test vehicle', type=VehicleType.bus, engine=Engine(4, 1234, None,
-                                                                     None), owner=session.query(Owner).get(1),
-            other=VehicleOther(advertising_cost=4321), options=session.query(Option).filter(Option.id.in_([1, 2])).all()
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+            options=session.query(Option).filter(Option.id.in_([1, 2])).all(),
         )
 
-        data = {'name': 'Bob Loblaw'}
+        data = {"name": "Bob Loblaw"}
 
         serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
         self.assertTrue(serializer.is_valid(), serializer.errors)
@@ -1100,11 +1112,11 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Owner
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = OwnerSerializer()
 
-        instance = serializer.get_object({'id': 1})
+        instance = serializer.get_object({"id": 1})
 
         self.assertIsNotNone(instance)
 
@@ -1115,12 +1127,12 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Owner
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = OwnerSerializer()
 
         with self.assertRaises(ValidationError):
-            serializer.get_object({'id': 999})
+            serializer.get_object({"id": 999})
 
     def test_get_object_allows_null_when_not_found(self):
 
@@ -1129,11 +1141,11 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Owner
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = OwnerSerializer(allow_null=True)
 
-        instance = serializer.get_object({'id': 999})
+        instance = serializer.get_object({"id": 999})
 
         self.assertIsNone(instance)
 
@@ -1144,10 +1156,10 @@ class TestModelSerializer(unittest.TestCase):
             class Meta:
                 model = Owner
                 session = session
-                fields = '__all__'
+                fields = "__all__"
 
         serializer = OwnerSerializer(allow_create=True)
 
-        instance = serializer.get_object({'id': 999})
+        instance = serializer.get_object({"id": 999})
 
         self.assertIsNotNone(instance)

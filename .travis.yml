@@ -7,11 +7,10 @@ python:
   - "3.6"
 
 install:
-  - make init
-  - pip install coveralls sqlalchemy_utils
+  - pip install pipenv coveralls sqlalchemy_utils
+  - pipenv install -d --system --skip-lock
 
 script:
-  - make lint
   - make coverage
 
 after_success:

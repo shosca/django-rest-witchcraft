@@ -1,5 +1,5 @@
-rest\_witchcraft\.serializers module
-====================================
+rest\_witchcraft.serializers module
+===================================
 
 .. automodule:: rest_witchcraft.serializers
     :members:

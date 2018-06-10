@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, print_function, unicode_literals
+
 from rest_framework import mixins, viewsets
 
 from .generics import GenericAPIView
@@ -19,8 +21,12 @@ class ReadOnlyViewModelViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin,
 
 
 class ModelViewSet(
-    mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, DestroyModelMixin,
-    mixins.ListModelMixin, GenericViewSet
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    DestroyModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet,
 ):
     """
     A viewset that provides default `create()`, `retrieve()`, `update()`, `partial_update()`, `destroy()` and `list()`
