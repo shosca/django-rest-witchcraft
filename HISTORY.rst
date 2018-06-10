@@ -2,8 +2,9 @@ Changelog
 =========
 
 
-Next version (unreleased yet)
+0.7.0 (2018-06-10)
 -----------------------------
+- Merge pull request #9 from shosca/use-sorcery. [Serkan Hosca]
 - Add sorcery as dependency. [Serkan Hosca]
 
 
