@@ -12,6 +12,7 @@ from rest_framework.settings import api_settings
 from sqlalchemy.orm.interfaces import ONETOMANY
 
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.text import capfirst
 
 from django_sorcery.db.meta import composite_info, model_info
 from django_sorcery.db.models import get_primary_keys
@@ -45,6 +46,7 @@ class BaseSerializer(Serializer):
         Analyze model column to generate field kwargs.
         """
         field_kwargs = column_info.field_kwargs
+        field_kwargs["label"] = capfirst(" ".join(field_name.split("_")).strip())
         field_kwargs["allow_null"] = not field_kwargs.get("required", True)
 
         # Include any kwargs defined in `Meta.extra_kwargs`
@@ -172,7 +174,6 @@ class CompositeSerializer(BaseSerializer):
 
         super(CompositeSerializer, self).__init__(*args, **kwargs)
         self.composite_class = self._info.prop.composite_class
-        self.label = self.composite_class.__name__
         self.read_only = False
         self.required = False
         self.default = None
@@ -266,6 +267,7 @@ class ModelSerializer(BaseSerializer):
 
     If the `ModelSerializer` does not generate the set of fields that you need, you can explicitly declare them.
     """
+
     url_field_name = None
     serializer_url_field = UriField
 
@@ -526,7 +528,6 @@ class ModelSerializer(BaseSerializer):
                 nested_extra_kwargs.setdefault(nested_field, {}).pop("required", None)
 
         class NestedSerializer(ModelSerializer):
-
             class Meta:
                 model = target_model
                 session = self.session
