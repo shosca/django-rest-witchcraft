@@ -12,7 +12,6 @@ from django.test import SimpleTestCase
 
 
 class TestModelViewName(SimpleTestCase):
-
     def test_get_detail_view_name(self):
 
         name = field_mapping.get_detail_view_name(EnumField)
@@ -21,7 +20,6 @@ class TestModelViewName(SimpleTestCase):
 
 
 class TestGetFieldType(SimpleTestCase):
-
     def test_get_field_type_can_map_string_column(self):
 
         field = field_mapping.get_field_type(sqa.Column(sqa.String()))
@@ -105,7 +103,6 @@ class TestGetFieldType(SimpleTestCase):
         self.assertIsInstance(field().child, fields.IntegerField)
 
     def test_get_field_type_pg_array_column_raises_when_item_type_not_found(self):
-
         class DummyType(object):
             python_type = None
 

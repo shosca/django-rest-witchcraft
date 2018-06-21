@@ -34,7 +34,6 @@ Base.metadata.create_all(engine)
 
 
 class RouterTestModelSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = RouterTestModel
         session = session
@@ -42,7 +41,6 @@ class RouterTestModelSerializer(serializers.ModelSerializer):
 
 
 class RouterTestCompositeKeyModelSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = RouterTestCompositeKeyModel
         session = session
@@ -50,7 +48,6 @@ class RouterTestCompositeKeyModelSerializer(serializers.ModelSerializer):
 
 
 class UnAuthMixin(object):
-
     def perform_authentication(self, request):
         return None
 
@@ -81,9 +78,7 @@ urlpatterns = [url(r"^", include(router.urls))]
 
 @override_settings(ROOT_URLCONF="tests.test_routers")
 class TestDummyDummy(SimpleTestCase):
-
     def test_assert_when_no_model_found(self):
-
         class DummyViewSet(UnAuthMixin, viewsets.ModelViewSet):
             pass
 
@@ -93,9 +88,7 @@ class TestDummyDummy(SimpleTestCase):
             dummy_router.register(r"dummy", DummyViewSet)
 
     def test_get_lookup_regex_without_model(self):
-
         class DummyViewSet(UnAuthMixin, viewsets.ModelViewSet):
-
             @classmethod
             def get_model(cls):
                 return None
@@ -108,7 +101,6 @@ class TestDummyDummy(SimpleTestCase):
 
 @override_settings(ROOT_URLCONF="tests.test_routers")
 class TestModelRoutes(SimpleTestCase):
-
     def setUp(self):
         session.add_all(
             [RouterTestModel(id=1, text="router test model 1"), RouterTestModel(id=2, text="router test model 2")]
@@ -154,7 +146,6 @@ class TestModelRoutes(SimpleTestCase):
 
 @override_settings(ROOT_URLCONF="tests.test_routers")
 class TestCompositeRoutes(SimpleTestCase):
-
     def setUp(self):
         session.add_all(
             [
@@ -207,7 +198,6 @@ class TestCompositeRoutes(SimpleTestCase):
 
 @override_settings(ROOT_URLCONF="tests.test_routers")
 class TestCompositeRoutesWithCustomRegex(SimpleTestCase):
-
     def setUp(self):
         session.add_all(
             [

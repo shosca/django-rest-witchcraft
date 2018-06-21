@@ -22,7 +22,6 @@ from .models import COLORS, Engine, Option, Owner, Vehicle, VehicleOther, Vehicl
 
 
 class TestModelSerializer(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         super(TestModelSerializer, cls).setUpClass()
@@ -42,7 +41,6 @@ class TestModelSerializer(unittest.TestCase):
         session.rollback()
 
     def test_cannot_initialize_without_a_meta(self):
-
         class VehicleSerializer(ModelSerializer):
             pass
 
@@ -50,9 +48,7 @@ class TestModelSerializer(unittest.TestCase):
             VehicleSerializer()
 
     def test_cannot_initialize_without_a_session(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 pass
 
@@ -61,9 +57,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.session
 
     def test_cannot_initialize_without_a_model_with_session_meta(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta(object):
                 session = session
 
@@ -72,9 +66,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.model
 
     def test_cannot_initialize_without_a_model_with_session_kwarg(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta(object):
                 pass
 
@@ -83,9 +75,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.model
 
     def test_get_fields_sets_url_field_name_when_missing(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -97,9 +87,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(serializer.url_field_name, api_settings.URL_FIELD_NAME)
 
     def test_raises_type_error_if_fields_is_not_a_list_or_tuple(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -111,9 +99,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.get_fields()
 
     def test_raises_type_error_if_exclude_is_not_a_list_or_tuple(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -125,9 +111,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.get_fields()
 
     def test_get_default_field_names_should_get_all_field_names(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -154,9 +138,7 @@ class TestModelSerializer(unittest.TestCase):
         )
 
     def test_get_field_names_with_include(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -168,9 +150,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(set(field_names), {Vehicle.id.key, Vehicle.name.key})
 
     def test_get_field_names_with_exclude(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -195,9 +175,7 @@ class TestModelSerializer(unittest.TestCase):
         )
 
     def test_generate_all_fields(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -214,7 +192,6 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIn(Vehicle.options.key, generated_fields)
 
     def test_declared_field(self):
-
         class VehicleSerializer(ModelSerializer):
             name = fields.ChoiceField(choices=["a", "b"])
 
@@ -229,9 +206,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsInstance(generated_fields["name"], fields.ChoiceField)
 
     def test_get_field_names_includes_all_required_fields(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -302,9 +277,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.update(None, {})
 
     def test_get_extra_kwargs_with_no_extra_kwargs(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -315,9 +288,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(extra_kwargs, {})
 
     def test_get_extra_kwargs_with_extra_kwargs(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -329,9 +300,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(extra_kwargs, {"name": {"read_only": True}})
 
     def test_get_extra_kwargs_with_read_only_fields(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -343,9 +312,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(extra_kwargs, {"id": {"read_only": True}, "name": {"read_only": True}})
 
     def test_get_extra_kwargs_with_read_only_fields_as_string(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -356,9 +323,7 @@ class TestModelSerializer(unittest.TestCase):
             VehicleSerializer()
 
     def test_build_standard_integer_field(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -375,9 +340,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertFalse(field.required)
 
     def test_build_standard_char_field(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -394,9 +357,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertTrue(field.allow_null)
 
     def test_build_enum_field(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -413,9 +374,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertFalse(field.allow_null)
 
     def test_build_choice_field(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -433,9 +392,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertTrue(field.allow_null)
 
     def test_fail_when_a_field_type_not_found(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -451,9 +408,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.build_standard_field("test", info)
 
     def test_build_composite_field(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -467,7 +422,6 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(len(field.fields), 4)
 
     def test_deepcopy_composite_field(self):
-
         class EngineSerializer(CompositeSerializer):
             pass
 
@@ -480,9 +434,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertDictEqual(serializer._kwargs, clone._kwargs)
 
     def test_build_property_field(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -495,9 +447,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsInstance(field, fields.ReadOnlyField)
 
     def test_build_unknows_field(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -510,9 +460,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.build_field("abcde", info, Vehicle, 0)
 
     def test_build_one_to_many_relationship_field(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -527,9 +475,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(len(nested_serializer.fields), 3)
 
     def test_build_one_to_many_relationship_field_with_nested_updates_disabled(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -547,9 +493,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertTrue(nested_serializer.fields["last_name"].read_only)
 
     def test_generated_nested_serializer_get_session_from_parent(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 fields = "__all__"
@@ -562,9 +506,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(owner_serializer.session, session)
 
     def test_declared_nested_serializer_get_session_from_context(self):
-
         class OwnerSerializer(ModelSerializer):
-
             class Meta:
                 model = Owner
                 fields = "__all__"
@@ -583,9 +525,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(owner_serializer.session, session)
 
     def test_declared_nested_serializer_get_session_from_root_meta(self):
-
         class OwnerSerializer(ModelSerializer):
-
             class Meta:
                 model = Owner
                 fields = "__all__"
@@ -605,9 +545,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(owner_serializer.session, session)
 
     def test_build_serializer_with_depth(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -652,9 +590,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(set(option_serializer.fields.keys()), {"id", "name"})
 
     def test_serializer_zero_depth_invalid_error_message(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -667,9 +603,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertDictEqual(dict(serializer.errors), {"type": ["This field is required."]})
 
     def test_serializer_zero_depth_post_basic_validation(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -700,9 +634,7 @@ class TestModelSerializer(unittest.TestCase):
         )
 
     def test_serializer_create(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -745,7 +677,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -791,7 +722,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -889,9 +819,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsNone(vehicle.other)
 
     def test_composite_serializer_can_create(self):
-
         class EngineSerializer(CompositeSerializer):
-
             class Meta:
                 composite = Vehicle.engine
 
@@ -909,9 +837,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(engine.type_, "banana")
 
     def test_composite_serializer_can_update(self):
-
         class EngineSerializer(CompositeSerializer):
-
             class Meta:
                 composite = Vehicle.engine
 
@@ -930,9 +856,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(engine.type_, "banana")
 
     def test_composite_serializer_can_update_patch(self):
-
         class EngineSerializer(CompositeSerializer):
-
             class Meta:
                 composite = Vehicle.engine
 
@@ -951,9 +875,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(engine.type_, "apple")
 
     def test_composite_serializer_can_use_custom_setter(self):
-
         class EngineSerializer(CompositeSerializer):
-
             class Meta:
                 composite = Vehicle.engine
 
@@ -972,9 +894,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertTrue(serializer.called)
 
     def test_composite_serializer_can_handle_errors_during_update(self):
-
         class EngineSerializer(CompositeSerializer):
-
             class Meta:
                 composite = Vehicle.engine
 
@@ -1001,7 +921,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -1028,7 +947,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -1056,7 +974,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -1085,7 +1002,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -1114,7 +1030,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -1141,7 +1056,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -1157,9 +1071,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.update(vehicle, serializer.validated_data)
 
     def test_update_calls_custom_setter(self):
-
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -1186,9 +1098,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertTrue(serializer._set_name_called)
 
     def test_get_object_can_get_object(self):
-
         class OwnerSerializer(ModelSerializer):
-
             class Meta:
                 model = Owner
                 session = session
@@ -1201,9 +1111,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsNotNone(instance)
 
     def test_get_object_raise_when_not_found(self):
-
         class OwnerSerializer(ModelSerializer):
-
             class Meta:
                 model = Owner
                 session = session
@@ -1215,9 +1123,7 @@ class TestModelSerializer(unittest.TestCase):
             serializer.get_object({"id": 999})
 
     def test_get_object_allows_null_when_not_found(self):
-
         class OwnerSerializer(ModelSerializer):
-
             class Meta:
                 model = Owner
                 session = session
@@ -1230,9 +1136,7 @@ class TestModelSerializer(unittest.TestCase):
         self.assertIsNone(instance)
 
     def test_get_object_allows_create_when_not_found(self):
-
         class OwnerSerializer(ModelSerializer):
-
             class Meta:
                 model = Owner
                 session = session

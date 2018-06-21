@@ -5,20 +5,19 @@ Some SQLAlchemy specific field types.
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from rest_framework import fields
+from rest_framework import fields, relations
 
 
-# TODO: Should build a url to the resource
-
-
-class UriField(fields.CharField):
+class UriField(relations.HyperlinkedIdentityField):
     """
     Represents a uri to the resource
     """
 
-    def __init__(self, view_name=None, *args, **kwargs):
-        self.view_name = view_name
-        super(UriField, self).__init__(*args, **kwargs)
+    def get_url(self, obj, view_name, request, format):
+        """
+        Same as basic HyperlinkedIdentityField except return uri vs full url.
+        """
+        return super(UriField, self).get_url(obj, view_name, None, format)
 
 
 class EnumField(fields.ChoiceField):
@@ -51,4 +50,5 @@ class CharMappingField(fields.DictField):
     """
     Used for Postgresql HSTORE columns for storing key-value pairs.
     """
+
     child = fields.CharField(allow_null=True)

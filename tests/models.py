@@ -28,7 +28,6 @@ class VehicleType(enum.Enum):
 
 
 class Engine(object):
-
     def __init__(self, cylinders, displacement, type_, fuel_type):
         self.cylinders = cylinders
         self.displacement = displacement

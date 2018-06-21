@@ -14,7 +14,6 @@ class SomeEnum(Enum):
 
 
 class TestEnumField(SimpleTestCase):
-
     def test_to_internal_value_works(self):
 
         field = EnumField(enum_class=SomeEnum)

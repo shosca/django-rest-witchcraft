@@ -29,7 +29,6 @@ Base.metadata.create_all(engine)
 
 
 class RouterTestModelSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = RouterTestModel
         session = session
@@ -37,9 +36,7 @@ class RouterTestModelSerializer(serializers.ModelSerializer):
 
 
 class TestModelRoutes(SimpleTestCase):
-
     def test_get_model_using_queryset(self):
-
         class RouterTestViewSet(viewsets.ModelViewSet):
             queryset = RouterTestModel.query
             serializer_class = RouterTestModelSerializer
@@ -49,7 +46,6 @@ class TestModelRoutes(SimpleTestCase):
         self.assertEqual(model, RouterTestModel)
 
     def test_get_model_using_serializer(self):
-
         class RouterTestViewSet(viewsets.ModelViewSet):
             serializer_class = RouterTestModelSerializer
 
@@ -58,7 +54,6 @@ class TestModelRoutes(SimpleTestCase):
         self.assertEqual(model, RouterTestModel)
 
     def test_get_model_fails_with_assert_error(self):
-
         class RouterTestViewSet(viewsets.ModelViewSet):
             pass
 
@@ -66,7 +61,6 @@ class TestModelRoutes(SimpleTestCase):
             RouterTestViewSet.get_model()
 
     def test_get_object_raises_404(self):
-
         class RouterTestViewSet(viewsets.ModelViewSet):
             queryset = RouterTestModel.query
             serializer_class = RouterTestModelSerializer
