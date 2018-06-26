@@ -808,6 +808,86 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertEqual(vehicle.other.advertising_cost, data["other"]["advertising_cost"])
 
+    def test_patch_update_nested_set_null(self):
+
+        vehicle = Vehicle(
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+        )
+
+        class VehicleSerializer(ModelSerializer):
+
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = ("other",)
+                extra_kwargs = {"other": {"allow_create": True, "allow_null": True}}
+
+        data = {"other": None}
+
+        serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        vehicle = serializer.save()
+
+        self.assertIsNone(vehicle.other)
+
+    def test_patch_update_nested_set_null_allow_null_false(self):
+
+        vehicle = Vehicle(
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+        )
+
+        class VehicleSerializer(ModelSerializer):
+
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = ("other",)
+                extra_kwargs = {"other": {"allow_create": True, "allow_null": False}}
+
+        data = {"other": None}
+
+        serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
+
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+
+    def test_patch_update_nested_set_null_allow_create_false(self):
+
+        vehicle = Vehicle(
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+        )
+
+        class VehicleSerializer(ModelSerializer):
+
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = ("other",)
+                extra_kwargs = {"other": {"allow_create": False, "allow_null": True}}
+
+        data = {"other": None}
+
+        serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        vehicle = serializer.save()
+
+        self.assertIsNone(vehicle.other)
+
     def test_composite_serializer_can_create(self):
 
         class EngineSerializer(CompositeSerializer):

@@ -615,10 +615,13 @@ class ModelSerializer(BaseSerializer):
         else:
             checked_instance = instance
 
+        if validated_data is None:
+            checked_instance = None
+
         if checked_instance is not None:
             return checked_instance
 
-        if self.allow_create:
+        if validated_data is not None and self.allow_create:
             return self.model()
 
         if self.allow_null:
