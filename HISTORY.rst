@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.7.0 (2018-06-10)
+0.7.1 (2018-06-26)
 -----------------------------
+- Merge pull request #11 from shosca/relation-null-set. [Serkan Hosca]
+- Fix many-to-one or one-to-one relation null set. [Serkan Hosca]
+
+
+0.7.0 (2018-06-10)
+------------------
 - Merge pull request #9 from shosca/use-sorcery. [Serkan Hosca]
 - Add sorcery as dependency. [Serkan Hosca]
 
