@@ -644,7 +644,9 @@ class ModelSerializer(BaseSerializer):
         try:
             self.session.flush()
         except DjangoValidationError as e:
-            raise django_to_drf_validation_error(e)
+            e = django_to_drf_validation_error(e)
+            self._errors = e.detail
+            raise e
 
     def create(self, validated_data):
         """

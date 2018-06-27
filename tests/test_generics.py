@@ -66,7 +66,7 @@ class TestModelRoutes(SimpleTestCase):
             serializer_class = RouterTestModelSerializer
 
         viewset = RouterTestViewSet()
-        viewset.kwargs = {"id": 1}
+        viewset.kwargs = {"pk": 1}
 
         with self.assertRaises(Http404):
             viewset.get_object()

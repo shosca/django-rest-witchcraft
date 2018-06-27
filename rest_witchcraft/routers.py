@@ -35,14 +35,12 @@ class DefaultRouter(routers.DefaultRouter):
             info = model_info(model)
             base_regex = "(?P<{lookup_prefix}{lookup_url_kwarg}>{lookup_value})"
 
-            lookup_items = [
-                (getattr(viewset, "lookup_url_kwarg", None) or getattr(viewset, "lookup_field", "pk"), None)
-            ]
-            if len(list(info.primary_keys.items())) > 1:
-                lookup_items = info.primary_keys.items()
+            lookup_keys = [getattr(viewset, "lookup_url_kwarg", None) or getattr(viewset, "lookup_field", None)]
+            if not lookup_keys[0] or len(list(info.primary_keys.items())) > 1:
+                lookup_keys = list(info.primary_keys)
 
             regexes = []
-            for key, _ in lookup_items:
+            for key in lookup_keys:
                 regexes.append(
                     base_regex.format(lookup_prefix=lookup_prefix, lookup_url_kwarg=key, lookup_value="[^/.]+")
                 )

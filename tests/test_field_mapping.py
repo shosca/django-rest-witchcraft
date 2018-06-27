@@ -16,7 +16,7 @@ class TestModelViewName(SimpleTestCase):
 
         name = field_mapping.get_detail_view_name(EnumField)
 
-        self.assertEqual(name, "enumfields-detail")
+        self.assertEqual(name, "enumfield-detail")
 
 
 class TestGetFieldType(SimpleTestCase):
