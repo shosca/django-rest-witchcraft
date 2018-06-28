@@ -12,6 +12,8 @@ from rest_framework import fields
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import sqltypes
 
+from django_sorcery.db.meta import model_info
+
 from .fields import CharMappingField, EnumField
 
 
@@ -20,14 +22,23 @@ def get_detail_view_name(model):
     Given a model class, return the view name to use for URL relationships
     that rever to instances of the model.
     """
-    return "{}s-detail".format(model.__name__.lower())
+    # TODO split camel case
+    return "{}-detail".format(model.__name__.lower())
 
 
 def get_url_kwargs(model):
     """
     Gets kwargs for the UriField
     """
-    field_kwargs = {"read_only": True, "view_name": get_detail_view_name(model)}
+    info = model_info(model)
+    lookup_field = list(info.primary_keys.keys())[0]
+
+    field_kwargs = {
+        "read_only": True,
+        "view_name": get_detail_view_name(model),
+        "lookup_field": lookup_field,
+        "lookup_url_kwarg": "pk",
+    }
 
     return field_kwargs
 

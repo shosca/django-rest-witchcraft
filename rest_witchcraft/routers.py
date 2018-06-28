@@ -7,7 +7,6 @@ from django_sorcery.db.meta import model_info
 
 
 class DefaultRouter(routers.DefaultRouter):
-
     def get_default_base_name(self, viewset):
 
         model = getattr(viewset, "get_model", lambda: None)()
@@ -36,8 +35,12 @@ class DefaultRouter(routers.DefaultRouter):
             info = model_info(model)
             base_regex = "(?P<{lookup_prefix}{lookup_url_kwarg}>{lookup_value})"
 
+            lookup_keys = [getattr(viewset, "lookup_url_kwarg", None) or getattr(viewset, "lookup_field", None)]
+            if not lookup_keys[0] or len(info.primary_keys) > 1:
+                lookup_keys = list(info.primary_keys)
+
             regexes = []
-            for key, _ in info.primary_keys.items():
+            for key in lookup_keys:
                 regexes.append(
                     base_regex.format(lookup_prefix=lookup_prefix, lookup_url_kwarg=key, lookup_value="[^/.]+")
                 )

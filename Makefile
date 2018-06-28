@@ -41,13 +41,13 @@ coverage: ## check code coverage quickly with the default Python
 		--cov-report term-missing \
 		--cov=$(PACKAGE) tests \
 		--doctest-modules \
-		$(PACKAGE) tests
+		tests $(PACKAGE)
 
 $(FILES):  ## helper target to run coverage tests on a module
 	pipenv run py.test --cov-report term-missing --cov-fail-under 100 --cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
-	pipenv run py.test --doctest-modules $(PACKAGE) tests
+	pipenv run py.test --doctest-modules tests $(PACKAGE)
 
 check:  ## run all tests
 	tox

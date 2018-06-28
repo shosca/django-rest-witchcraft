@@ -11,14 +11,15 @@ from rest_framework.settings import api_settings
 
 from sqlalchemy.orm.interfaces import ONETOMANY
 
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError as DjangoValidationError
+from django.utils.text import capfirst
 
 from django_sorcery.db.meta import composite_info, model_info
 from django_sorcery.db.models import get_primary_keys
-from django_sorcery.utils import get_args
 
 from .field_mapping import get_field_type, get_url_kwargs
 from .fields import UriField
+from .utils import django_to_drf_validation_error
 
 
 ALL_FIELDS = "__all__"
@@ -45,6 +46,7 @@ class BaseSerializer(Serializer):
         Analyze model column to generate field kwargs.
         """
         field_kwargs = column_info.field_kwargs
+        field_kwargs["label"] = capfirst(" ".join(field_name.split("_")).strip())
         field_kwargs["allow_null"] = not field_kwargs.get("required", True)
 
         # Include any kwargs defined in `Meta.extra_kwargs`
@@ -172,7 +174,6 @@ class CompositeSerializer(BaseSerializer):
 
         super(CompositeSerializer, self).__init__(*args, **kwargs)
         self.composite_class = self._info.prop.composite_class
-        self.label = self.composite_class.__name__
         self.read_only = False
         self.required = False
         self.default = None
@@ -199,15 +200,11 @@ class CompositeSerializer(BaseSerializer):
 
         validated_data = validated_data or {}
 
-        composite_args = []
-        for attr in get_args(self.composite_class.__init__):
-            composite_args.append(validated_data.get(attr))
-
+        composite_args = [validated_data.get(i) for i in self._info.properties]
         return self.composite_class(*composite_args)
 
     def create(self, validated_data):
-        composite_args = [validated_data.get(key) for key in self._info.field_names]
-        instance = self.composite_class(*composite_args)
+        instance = self.get_object(validated_data)
         return self.update(instance, validated_data)
 
     def update(self, instance, validated_data):
@@ -266,6 +263,7 @@ class ModelSerializer(BaseSerializer):
 
     If the `ModelSerializer` does not generate the set of fields that you need, you can explicitly declare them.
     """
+
     url_field_name = None
     serializer_url_field = UriField
 
@@ -426,7 +424,7 @@ class ModelSerializer(BaseSerializer):
         """
         Return the default list of field names that will be used if the `Meta.fields` option is not specified.
         """
-        return info.field_names + [api_settings.URL_FIELD_NAME] + list(declared_fields.keys())
+        return info.field_names + [self.url_field_name or api_settings.URL_FIELD_NAME] + list(declared_fields.keys())
 
     def get_extra_kwargs(self):
         """
@@ -525,8 +523,7 @@ class ModelSerializer(BaseSerializer):
                 nested_extra_kwargs.setdefault(nested_field, {}).setdefault("read_only", True)
                 nested_extra_kwargs.setdefault(nested_field, {}).pop("required", None)
 
-        class NestedSerializer(ModelSerializer):
-
+        class NestedSerializer(getattr(self.Meta, "nested_serializer_class", ModelSerializer)):
             class Meta:
                 model = target_model
                 session = self.session
@@ -545,6 +542,7 @@ class ModelSerializer(BaseSerializer):
         """
         field_class = self.serializer_url_field
         field_kwargs = get_url_kwargs(info.model_class)
+        field_kwargs.update(self.get_extra_kwargs().get(self.url_field_name, {}))
 
         return field_class(**field_kwargs)
 
@@ -643,7 +641,12 @@ class ModelSerializer(BaseSerializer):
         """
         Perform session flush changes
         """
-        self.session.flush()
+        try:
+            self.session.flush()
+        except DjangoValidationError as e:
+            e = django_to_drf_validation_error(e)
+            self._errors = e.detail
+            raise e
 
     def create(self, validated_data):
         """

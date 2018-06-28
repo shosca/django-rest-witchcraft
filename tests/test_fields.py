@@ -3,9 +3,11 @@ from __future__ import absolute_import, print_function, unicode_literals
 from enum import Enum
 
 from rest_framework.exceptions import ValidationError
-from rest_witchcraft.fields import EnumField
+from rest_witchcraft.fields import EnumField, HyperlinkedIdentityField
 
 from django.test import SimpleTestCase
+
+from .models import Owner
 
 
 class SomeEnum(Enum):
@@ -14,7 +16,6 @@ class SomeEnum(Enum):
 
 
 class TestEnumField(SimpleTestCase):
-
     def test_to_internal_value_works(self):
 
         field = EnumField(enum_class=SomeEnum)
@@ -45,3 +46,10 @@ class TestEnumField(SimpleTestCase):
         value = field.to_representation(None)
 
         self.assertIsNone(value)
+
+
+class TestHyperlinkedIdentityField(SimpleTestCase):
+    def test_url_not_saved(self):
+        field = HyperlinkedIdentityField(view_name="foo")
+
+        self.assertIsNone(field.get_url(Owner(first_name="Jon", last_name="Snow"), None, None, None))
