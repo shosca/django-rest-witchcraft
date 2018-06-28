@@ -64,6 +64,8 @@ class TestModelRoutes(SimpleTestCase):
         class RouterTestViewSet(viewsets.ModelViewSet):
             queryset = RouterTestModel.query
             serializer_class = RouterTestModelSerializer
+            lookup_field = "id"
+            lookup_url_kwarg = "pk"
 
         viewset = RouterTestViewSet()
         viewset.kwargs = {"pk": 1}

@@ -55,6 +55,8 @@ class UnAuthMixin(object):
 class RouterTestViewSet(UnAuthMixin, viewsets.ModelViewSet):
     queryset = RouterTestModel.query
     serializer_class = RouterTestModelSerializer
+    lookup_field = "id"
+    lookup_url_kwarg = "pk"
 
 
 class RouterTestCompositeViewSet(UnAuthMixin, viewsets.ModelViewSet):
@@ -101,6 +103,8 @@ class TestDummyDummy(SimpleTestCase):
 
 @override_settings(ROOT_URLCONF="tests.test_routers")
 class TestModelRoutes(SimpleTestCase):
+    maxDiff = None
+
     def setUp(self):
         session.add_all(
             [RouterTestModel(id=1, text="router test model 1"), RouterTestModel(id=2, text="router test model 2")]
@@ -113,31 +117,35 @@ class TestModelRoutes(SimpleTestCase):
         resp = self.client.get("/test/")
 
         self.assertEqual(
-            resp.data, [{"id": 1, "text": "router test model 1"}, {"id": 2, "text": "router test model 2"}]
+            resp.data,
+            [
+                {"id": 1, "text": "router test model 1", "url": "/test/1/"},
+                {"id": 2, "text": "router test model 2", "url": "/test/2/"},
+            ],
         )
 
     def test_retrieve(self):
         resp = self.client.get("/test/2/")
 
-        self.assertEqual(resp.data, {"id": 2, "text": "router test model 2"})
+        self.assertEqual(resp.data, {"id": 2, "text": "router test model 2", "url": "/test/2/"})
 
     def test_create(self):
         data = json.dumps({"text": "router test model 3"})
         resp = self.client.post("/test/", data=data, content_type="application/json")
 
-        self.assertEqual(resp.data, {"id": 3, "text": "router test model 3"})
+        self.assertEqual(resp.data, {"id": 3, "text": "router test model 3", "url": "/test/3/"})
 
     def test_update(self):
         data = {"text": "router test update 2"}
         resp = self.client.put("/test/2/", data=json.dumps(data), content_type="application/json")
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data, {"id": 2, "text": "router test update 2"})
+        self.assertEqual(resp.data, {"id": 2, "text": "router test update 2", "url": "/test/2/"})
 
     def test_patch_update(self):
         data = {"text": "router test update 2"}
         resp = self.client.patch("/test/2/", data=json.dumps(data), content_type="application/json")
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data, {"id": 2, "text": "router test update 2"})
+        self.assertEqual(resp.data, {"id": 2, "text": "router test update 2", "url": "/test/2/"})
 
     def test_delete(self):
         resp = self.client.delete("/test/2/", content_type="application/json")
@@ -163,33 +171,43 @@ class TestCompositeRoutes(SimpleTestCase):
         self.assertEqual(
             resp.data,
             [
-                {"id": 1, "other_id": 1, "text": "router composite model 1"},
-                {"id": 1, "other_id": 2, "text": "router composite model 2"},
+                {"id": 1, "other_id": 1, "text": "router composite model 1", "url": "/testcompositeregex/1/other/1/"},
+                {"id": 1, "other_id": 2, "text": "router composite model 2", "url": "/testcompositeregex/1/other/2/"},
             ],
         )
 
     def test_retrieve(self):
         resp = self.client.get("/testcomposite/1/2/")
 
-        self.assertEqual(resp.data, {"id": 1, "other_id": 2, "text": "router composite model 2"})
+        self.assertEqual(
+            resp.data,
+            {"id": 1, "other_id": 2, "text": "router composite model 2", "url": "/testcompositeregex/1/other/2/"},
+        )
 
     def test_create(self):
         data = json.dumps({"text": "composite test model 3"})
         resp = self.client.post("/testcomposite/", data=data, content_type="application/json")
 
-        self.assertEqual(resp.data, {"id": 1, "other_id": 3, "text": "composite test model 3"})
+        self.assertEqual(
+            resp.data,
+            {"id": 1, "other_id": 3, "text": "composite test model 3", "url": "/testcompositeregex/1/other/3/"},
+        )
 
     def test_update(self):
         data = json.dumps({"text": "router test update 2"})
         resp = self.client.put("/testcomposite/1/2/", data=data, content_type="application/json")
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data, {"id": 1, "other_id": 2, "text": "router test update 2"})
+        self.assertEqual(
+            resp.data, {"id": 1, "other_id": 2, "text": "router test update 2", "url": "/testcompositeregex/1/other/2/"}
+        )
 
     def test_patch_update(self):
         data = json.dumps({"text": "router test update 2"})
         resp = self.client.patch("/testcomposite/1/2/", data=data, content_type="application/json")
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data, {"id": 1, "other_id": 2, "text": "router test update 2"})
+        self.assertEqual(
+            resp.data, {"id": 1, "other_id": 2, "text": "router test update 2", "url": "/testcompositeregex/1/other/2/"}
+        )
 
     def test_delete(self):
         resp = self.client.delete("/testcomposite/1/2/", content_type="application/json")
@@ -215,33 +233,43 @@ class TestCompositeRoutesWithCustomRegex(SimpleTestCase):
         self.assertEqual(
             resp.data,
             [
-                {"id": 1, "other_id": 1, "text": "router composite model 1"},
-                {"id": 1, "other_id": 2, "text": "router composite model 2"},
+                {"id": 1, "other_id": 1, "text": "router composite model 1", "url": "/testcompositeregex/1/other/1/"},
+                {"id": 1, "other_id": 2, "text": "router composite model 2", "url": "/testcompositeregex/1/other/2/"},
             ],
         )
 
     def test_retrieve(self):
         resp = self.client.get("/testcompositeregex/1/other/2/")
 
-        self.assertEqual(resp.data, {"id": 1, "other_id": 2, "text": "router composite model 2"})
+        self.assertEqual(
+            resp.data,
+            {"id": 1, "other_id": 2, "text": "router composite model 2", "url": "/testcompositeregex/1/other/2/"},
+        )
 
     def test_create(self):
         data = json.dumps({"text": "composite test model 3"})
         resp = self.client.post("/testcompositeregex/", data=data, content_type="application/json")
 
-        self.assertEqual(resp.data, {"id": 1, "other_id": 3, "text": "composite test model 3"})
+        self.assertEqual(
+            resp.data,
+            {"id": 1, "other_id": 3, "text": "composite test model 3", "url": "/testcompositeregex/1/other/3/"},
+        )
 
     def test_update(self):
         data = json.dumps({"text": "router test update 2"})
         resp = self.client.put("/testcompositeregex/1/other/2/", data=data, content_type="application/json")
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data, {"id": 1, "other_id": 2, "text": "router test update 2"})
+        self.assertEqual(
+            resp.data, {"id": 1, "other_id": 2, "text": "router test update 2", "url": "/testcompositeregex/1/other/2/"}
+        )
 
     def test_patch_update(self):
         data = json.dumps({"text": "router test update 2"})
         resp = self.client.patch("/testcompositeregex/1/other/2/", data=data, content_type="application/json")
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.data, {"id": 1, "other_id": 2, "text": "router test update 2"})
+        self.assertEqual(
+            resp.data, {"id": 1, "other_id": 2, "text": "router test update 2", "url": "/testcompositeregex/1/other/2/"}
+        )
 
     def test_delete(self):
         resp = self.client.delete("/testcompositeregex/1/other/2/", content_type="application/json")

@@ -36,7 +36,7 @@ class DefaultRouter(routers.DefaultRouter):
             base_regex = "(?P<{lookup_prefix}{lookup_url_kwarg}>{lookup_value})"
 
             lookup_keys = [getattr(viewset, "lookup_url_kwarg", None) or getattr(viewset, "lookup_field", None)]
-            if not lookup_keys[0] or len(list(info.primary_keys.items())) > 1:
+            if not lookup_keys[0] or len(info.primary_keys) > 1:
                 lookup_keys = list(info.primary_keys)
 
             regexes = []

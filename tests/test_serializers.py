@@ -667,6 +667,32 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(vehicle.owner.last_name, "Owner")
         self.assertEqual(vehicle.options, data["options"])
 
+    def test_serializer_create_model_validations(self):
+        class VehicleSerializer(ModelSerializer):
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = "__all__"
+                extra_kwargs = {"other": {"required": False, "allow_create": False}}
+
+        data = {
+            "name": "invalid",
+            "one": "Two",
+            "type": "Bus",
+            "engine": {"displacement": 1234, "cylinders": 4},
+            "owner": {"id": 1},
+            "options": [],
+        }
+
+        serializer = VehicleSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        with self.assertRaises(ValidationError) as e:
+            serializer.save()
+
+        self.assertDictEqual(e.exception.detail, {"name": ["invalid vehicle name"]})
+
     def test_post_update(self):
 
         vehicle = Vehicle(
@@ -749,7 +775,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -777,7 +802,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
@@ -801,7 +825,6 @@ class TestModelSerializer(unittest.TestCase):
         )
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session

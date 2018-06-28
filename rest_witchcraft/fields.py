@@ -7,8 +7,26 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from rest_framework import fields, relations
 
+from django_sorcery.db.meta import model_info
 
-class UriField(relations.HyperlinkedIdentityField):
+
+class HyperlinkedIdentityField(relations.HyperlinkedIdentityField):
+    def get_url(self, obj, view_name, request, format):
+        info = model_info(obj.__class__)
+
+        # Unsaved objects will not yet have a valid URL.
+        if not all(getattr(obj, i) for i in info.primary_keys):
+            return None
+
+        if len(info.primary_keys) == 1:
+            kwargs = {self.lookup_url_kwarg: getattr(obj, self.lookup_field)}
+        else:
+            kwargs = {k: getattr(obj, k) for k in info.primary_keys}
+
+        return self.reverse(view_name, kwargs=kwargs, request=request, format=format)
+
+
+class UriField(HyperlinkedIdentityField):
     """
     Represents a uri to the resource
     """

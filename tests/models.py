@@ -2,14 +2,16 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import enum
 
-from sqlalchemy import Column, ForeignKey, Sequence, create_engine, orm, types
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, ForeignKey, Sequence, orm, types
+
+from django.core.exceptions import ValidationError
+
+from django_sorcery.db import databases
 
 
-engine = create_engine("sqlite://")
-session = orm.scoped_session(orm.sessionmaker(bind=engine))
+session = databases.get("sqlite://")
 
-Base = declarative_base()
+Base = session.Model
 
 COLORS = ["red", "green", "blue", "silver"]
 
@@ -67,6 +69,10 @@ class Vehicle(Base):
     _owner_id = Column("owner_id", types.Integer(), ForeignKey(Owner.id))
     owner = orm.relationship(Owner, backref="vehicles")
 
+    def clean_name(self):
+        if self.name == "invalid":
+            raise ValidationError("invalid vehicle name")
+
 
 class VehicleOther(Base):
     __tablename__ = "vehicle_other"
@@ -101,4 +107,4 @@ class Option(Base):
     vehicle = orm.relationship(Vehicle, backref="options")
 
 
-Base.metadata.create_all(engine)
+session.create_all()

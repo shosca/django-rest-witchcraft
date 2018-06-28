@@ -12,6 +12,8 @@ from rest_framework import fields
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import sqltypes
 
+from django_sorcery.db.meta import model_info
+
 from .fields import CharMappingField, EnumField
 
 
@@ -28,7 +30,15 @@ def get_url_kwargs(model):
     """
     Gets kwargs for the UriField
     """
-    field_kwargs = {"read_only": True, "view_name": get_detail_view_name(model)}
+    info = model_info(model)
+    lookup_field = list(info.primary_keys.keys())[0]
+
+    field_kwargs = {
+        "read_only": True,
+        "view_name": get_detail_view_name(model),
+        "lookup_field": lookup_field,
+        "lookup_url_kwarg": "pk",
+    }
 
     return field_kwargs
 
