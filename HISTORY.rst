@@ -2,8 +2,20 @@ Changelog
 =========
 
 
-0.7.1 (2018-06-26)
+0.7.2 (2018-06-28)
 -----------------------------
+- Merge pull request #10 from shosca/composite-labels. [Serkan Hosca]
+- Fixing uri field for multiple pk models. fixed tests. [Miroslav
+  Shubernetskiy]
+- Honoring lookup_field iin querying model in generics.py when single
+  pk. [Miroslav Shubernetskiy]
+- Normalizing django validation errors in apis. [Miroslav Shubernetskiy]
+- Fixing composite serializer field labels to use compose fields vs
+  column names. [Miroslav Shubernetskiy]
+
+
+0.7.1 (2018-06-26)
+------------------
 - Merge pull request #11 from shosca/relation-null-set. [Serkan Hosca]
 - Fix many-to-one or one-to-one relation null set. [Serkan Hosca]
 
