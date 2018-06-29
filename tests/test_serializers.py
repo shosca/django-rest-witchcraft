@@ -764,6 +764,39 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertEqual(vehicle.other.advertising_cost, data["other"]["advertising_cost"])
 
+    def test_patch_update_with_nested_id(self):
+
+        vehicle = Vehicle(
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+            other=VehicleOther(advertising_cost=4321),
+        )
+        session.add(vehicle)
+        session.flush()
+
+        other = vehicle.other
+
+        class VehicleSerializer(ModelSerializer):
+
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = ("other",)
+                extra_kwargs = {"other": {"allow_nested_updates": True}}
+
+        data = {"other": {"id": vehicle.other.id, "advertising_cost": 1234}}
+
+        serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        vehicle = serializer.save()
+
+        self.assertEqual(vehicle.other.advertising_cost, data["other"]["advertising_cost"])
+        self.assertEqual(vehicle.other, other)
+
     def test_patch_update_nested_set_null(self):
 
         vehicle = Vehicle(
