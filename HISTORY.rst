@@ -2,8 +2,20 @@ Changelog
 =========
 
 
-0.7.2 (2018-06-28)
+0.7.3 (2018-07-16)
 -----------------------------
+- Fixing updating model when field.field_name != field.source (#13)
+  [Miroslav Shubernetskiy]
+
+
+
+
+
+- Add nested update test (#12) [Serkan Hosca]
+
+
+0.7.2 (2018-06-28)
+------------------
 - Merge pull request #10 from shosca/composite-labels. [Serkan Hosca]
 - Fixing uri field for multiple pk models. fixed tests. [Miroslav
   Shubernetskiy]
