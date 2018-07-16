@@ -4,6 +4,7 @@ import copy
 import re
 from collections import OrderedDict
 
+import six
 from rest_framework import fields
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ListSerializer, Serializer
@@ -673,15 +674,14 @@ class ModelSerializer(BaseSerializer):
         The main nested update logic implementation using nested fields and serializer
         """
         for field in self._writable_fields:
-            if field.field_name not in validated_data:
+            if field.source not in validated_data:
                 continue
 
             try:
-                value = validated_data.get(field.field_name)
+                value = validated_data.get(field.source)
 
                 if isinstance(field, BaseSerializer):
-
-                    child_instance = getattr(instance, field.field_name, None)
+                    child_instance = getattr(instance, field.source, None)
                     child_instance = field.get_object(value, child_instance)
 
                     if child_instance and field.allow_nested_updates:
@@ -693,7 +693,7 @@ class ModelSerializer(BaseSerializer):
 
                     value = []
 
-                    for item in validated_data.get(field.field_name):
+                    for item in validated_data.get(field.source):
                         child_instance = field.child.get_object(item)
                         if child_instance and (field.child.allow_create or field.child.allow_nested_updates):
                             v = field.child.perform_update(child_instance, item, errors)
@@ -706,6 +706,6 @@ class ModelSerializer(BaseSerializer):
                 self.update_attribute(instance, field, value)
 
             except Exception as e:
-                errors.setdefault(field.field_name, []).append(" ".join(e.args))
+                errors.setdefault(field.field_name, []).append(" ".join(map(six.text_type, e.args)))
 
         return instance

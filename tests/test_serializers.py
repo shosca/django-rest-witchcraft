@@ -667,6 +667,46 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(vehicle.owner.last_name, "Owner")
         self.assertEqual(vehicle.options, data["options"])
 
+    def test_serializer_create_diff_field_source(self):
+        class VehicleSerializer(ModelSerializer):
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = "__all__"
+                extra_kwargs = {"other": {"required": False, "allow_create": False}}
+
+            def get_fields(self):
+                fields = super(VehicleSerializer, self).get_fields()
+                fields["vehicle_type"] = fields.pop("type")
+                fields["vehicle_type"].source = "type"
+                return fields
+
+        data = {
+            "name": "Test vehicle",
+            "one": "Two",
+            "vehicle_type": "Bus",
+            "engine": {"displacement": 1234, "cylinders": 4},
+            "owner": {"id": 1},
+            "options": [],
+        }
+
+        serializer = VehicleSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        vehicle = serializer.save()
+
+        self.assertEqual(vehicle.name, data["name"])
+        self.assertEqual(vehicle.type, VehicleType(data["vehicle_type"]))
+        self.assertEqual(vehicle.engine.cylinders, data["engine"]["cylinders"])
+        self.assertEqual(vehicle.engine.displacement, data["engine"]["displacement"])
+        self.assertEqual(vehicle.engine.fuel_type, None)
+        self.assertEqual(vehicle.engine.type_, None)
+        self.assertEqual(vehicle.owner.id, data["owner"]["id"])
+        self.assertEqual(vehicle.owner.first_name, "Test")
+        self.assertEqual(vehicle.owner.last_name, "Owner")
+        self.assertEqual(vehicle.options, data["options"])
+
     def test_serializer_create_model_validations(self):
         class VehicleSerializer(ModelSerializer):
             class Meta:
@@ -779,7 +819,6 @@ class TestModelSerializer(unittest.TestCase):
         other = vehicle.other
 
         class VehicleSerializer(ModelSerializer):
-
             class Meta:
                 model = Vehicle
                 session = session
