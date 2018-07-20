@@ -46,7 +46,7 @@ class EnumField(fields.ChoiceField):
 
     def __init__(self, **kwargs):
         self.enum_class = kwargs.pop("enum_class")
-        kwargs["choices"] = [(e.name, e.name) for e in self.enum_class]
+        kwargs["choices"] = [(e.value, e.value) for e in self.enum_class]
         kwargs.pop("max_length", None)
         super(EnumField, self).__init__(**kwargs)
 
