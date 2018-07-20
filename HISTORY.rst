@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.3 (2018-07-16)
+0.7.4 (2018-07-20)
 -----------------------------
+- Fixing enum field choices (#14) [Miroslav Shubernetskiy]
+
+
+0.7.3 (2018-07-16)
+------------------
 - Fixing updating model when field.field_name != field.source (#13)
   [Miroslav Shubernetskiy]
 
