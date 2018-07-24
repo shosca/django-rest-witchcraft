@@ -777,6 +777,52 @@ class TestModelSerializer(unittest.TestCase):
         self.assertEqual(vehicle.options, data["options"])
         self.assertEqual(vehicle.other.advertising_cost, 4321)
 
+    def test_post_update_remove_composite(self):
+        vehicle = Vehicle(
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=session.query(Owner).get(1),
+        )
+
+        class VehicleSerializer(ModelSerializer):
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = "__all__"
+                extra_kwargs = {
+                    "other": {"required": False, "allow_create": True, "allow_nested_updates": True},
+                    "engine": {"required": False, "allow_null": True},
+                }
+
+        data = {
+            "name": "Another test vechicle",
+            "one": "Two",
+            "type": "Car",
+            "engine": None,
+            "owner": {"id": 1},
+            "options": [],
+            "other": {"advertising_cost": 4321},
+        }
+
+        serializer = VehicleSerializer(instance=vehicle, data=data)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        vehicle = serializer.save()
+
+        self.assertEqual(vehicle.name, data["name"])
+        self.assertEqual(vehicle.type, VehicleType(data["type"]))
+        self.assertEqual(vehicle.owner.id, data["owner"]["id"])
+        self.assertEqual(vehicle.owner.first_name, "Test")
+        self.assertEqual(vehicle.owner.last_name, "Owner")
+        self.assertEqual(vehicle.options, data["options"])
+        self.assertEqual(vehicle.other.advertising_cost, 4321)
+        self.assertIsNone(vehicle.engine.cylinders)
+        self.assertIsNone(vehicle.engine.displacement)
+        self.assertIsNone(vehicle.engine.fuel_type)
+        self.assertIsNone(vehicle.engine.type_)
+
     def test_patch_update(self):
 
         vehicle = Vehicle(

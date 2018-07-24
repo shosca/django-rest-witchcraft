@@ -196,6 +196,9 @@ class CompositeSerializer(BaseSerializer):
         return _fields
 
     def get_object(self, validated_data, instance=None):
+        if validated_data is None:
+            return
+
         if instance:
             return instance
 
@@ -500,7 +503,9 @@ class ModelSerializer(BaseSerializer):
         """
         Builds a `CompositeSerializer` to handle composite attribute in model
         """
-        return CompositeSerializer(composite=composite)
+        field_kwargs = {"composite": composite}
+        field_kwargs = self.include_extra_kwargs(field_kwargs, self._extra_kwargs.get(field_name))
+        return CompositeSerializer(**field_kwargs)
 
     def build_nested_field(self, field_name, relation_info, nested_depth):
         """
