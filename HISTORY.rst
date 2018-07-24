@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.7.4 (2018-07-20)
+0.7.5 (2018-07-24)
 -----------------------------
+- Correctly removing composite when validated data is None (#15)
+  [Miroslav Shubernetskiy]
+
+
+0.7.4 (2018-07-20)
+------------------
 - Fixing enum field choices (#14) [Miroslav Shubernetskiy]
 
 
