@@ -679,15 +679,17 @@ class ModelSerializer(BaseSerializer):
         The main nested update logic implementation using nested fields and serializer
         """
         for field in self._writable_fields:
-            if field.source not in validated_data:
-                continue
-
             try:
-                value = validated_data.get(field.source)
-
                 if isinstance(field, BaseSerializer):
-                    child_instance = getattr(instance, field.source, None)
-                    child_instance = field.get_object(value, child_instance)
+                    if field.source == "*":
+                        value = validated_data
+                        child_instance = instance
+                    else:
+                        if field.source not in validated_data:
+                            continue
+                        value = validated_data.get(field.source)
+                        child_instance = getattr(instance, field.source, None)
+                        child_instance = field.get_object(value, child_instance)
 
                     if child_instance and field.allow_nested_updates:
                         value = field.perform_update(child_instance, value, errors)
@@ -695,6 +697,8 @@ class ModelSerializer(BaseSerializer):
                         value = child_instance
 
                 elif isinstance(field, ListSerializer) and isinstance(field.child, BaseSerializer):
+                    if field.source not in validated_data:
+                        continue
 
                     value = []
 
@@ -707,6 +711,12 @@ class ModelSerializer(BaseSerializer):
 
                         if v:
                             value.append(v)
+
+                else:
+                    if field.source not in validated_data:
+                        continue
+
+                    value = validated_data.get(field.source)
 
                 self.update_attribute(instance, field, value)
 
