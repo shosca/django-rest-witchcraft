@@ -733,6 +733,47 @@ class TestModelSerializer(unittest.TestCase):
 
         self.assertDictEqual(e.exception.detail, {"name": ["invalid vehicle name"]})
 
+    def test_serializer_create_star_source(self):
+        class BasicSerializer(ModelSerializer):
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = ["name", "type"]
+
+        class VehicleSerializer(ModelSerializer):
+            basic = BasicSerializer(source="*", allow_nested_updates=True)
+
+            class Meta:
+                model = Vehicle
+                session = session
+                exclude = ["name", "type"]
+                extra_kwargs = {"other": {"required": False, "allow_create": False}}
+
+        data = {
+            "basic": {"name": "Test vehicle", "type": "Bus"},
+            "one": "Two",
+            "engine": {"displacement": 1234, "cylinders": 4},
+            "owner": {"id": 1},
+            "options": [],
+        }
+
+        serializer = VehicleSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        vehicle = serializer.save()
+
+        self.assertEqual(vehicle.name, data["basic"]["name"])
+        self.assertEqual(vehicle.type, VehicleType(data["basic"]["type"]))
+        self.assertEqual(vehicle.engine.cylinders, data["engine"]["cylinders"])
+        self.assertEqual(vehicle.engine.displacement, data["engine"]["displacement"])
+        self.assertEqual(vehicle.engine.fuel_type, None)
+        self.assertEqual(vehicle.engine.type_, None)
+        self.assertEqual(vehicle.owner.id, data["owner"]["id"])
+        self.assertEqual(vehicle.owner.first_name, "Test")
+        self.assertEqual(vehicle.owner.last_name, "Owner")
+        self.assertEqual(vehicle.options, data["options"])
+
     def test_post_update(self):
 
         vehicle = Vehicle(
