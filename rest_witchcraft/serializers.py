@@ -881,15 +881,12 @@ class ExpandableModelSerializer(ModelSerializer):
         expands = {
             k: fields.ListField(
                 required=False,
-                child=fields.ChoiceField(
-                    required=False,
-                    choices=[i.path for i in v if i.path not in exclude],
-                    help_text=(
-                        "Query parameter to expand nested fields. "
-                        "Can be provided multiple times to expand multiple fields. "
-                        "Field is automatically expanded whenever it is updated."
-                    ),
+                help_text=(
+                    "Query parameter to expand nested fields. "
+                    "Can be provided multiple times to expand multiple fields. "
+                    "Field is automatically expanded whenever it is updated."
                 ),
+                child=fields.ChoiceField(required=False, choices=[i.path for i in v if i.path not in exclude]),
             )
             for k, v in groupby(
                 cls._cls_expandable_fields([], cls.Meta, cls._declared_fields, ignore), key=lambda i: i.query_key
