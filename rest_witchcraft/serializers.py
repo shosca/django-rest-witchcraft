@@ -874,14 +874,14 @@ class ExpandableModelSerializer(ModelSerializer):
                 yield i
 
     @classmethod
-    def query_serializer(cls, exclude=()):
+    def query_serializer(cls, exclude=(), ignore=()):
         """
         Generate serializer to either validate request querystring or generate documentation
         """
         expands = {
             k: fields.ChoiceField(
                 required=False,
-                choices=[i.path for i in v],
+                choices=[i.path for i in v if i.path not in exclude],
                 help_text=(
                     "Query parameter to expand nested fields. "
                     "Can be provided multiple times to expand multiple fields. "
@@ -889,7 +889,7 @@ class ExpandableModelSerializer(ModelSerializer):
                 ),
             )
             for k, v in groupby(
-                cls._cls_expandable_fields([], cls.Meta, cls._declared_fields, exclude), key=lambda i: i.query_key
+                cls._cls_expandable_fields([], cls.Meta, cls._declared_fields, ignore), key=lambda i: i.query_key
             )
         }
-        return type("QuerySerializer", (serializers.Serializer,), expands) if expands else None
+        return type("QuerySerializer", (serializers.Serializer,), expands)
