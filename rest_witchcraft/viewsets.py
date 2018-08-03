@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 from rest_framework import mixins, viewsets
 
 from .generics import GenericAPIView
-from .mixins import DestroyModelMixin
+from .mixins import DestroyModelMixin, QuerySerializerMixin
 
 
 class GenericViewSet(viewsets.ViewSetMixin, GenericAPIView):
@@ -26,6 +26,7 @@ class ModelViewSet(
     mixins.UpdateModelMixin,
     DestroyModelMixin,
     mixins.ListModelMixin,
+    QuerySerializerMixin,
     GenericViewSet,
 ):
     """

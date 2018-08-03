@@ -879,13 +879,16 @@ class ExpandableModelSerializer(ModelSerializer):
         Generate serializer to either validate request querystring or generate documentation
         """
         expands = {
-            k: fields.ChoiceField(
+            k: fields.ListField(
                 required=False,
-                choices=[i.path for i in v if i.path not in exclude],
-                help_text=(
-                    "Query parameter to expand nested fields. "
-                    "Can be provided multiple times to expand multiple fields. "
-                    "Field is automatically expanded whenever it is updated."
+                child=fields.ChoiceField(
+                    required=False,
+                    choices=[i.path for i in v if i.path not in exclude],
+                    help_text=(
+                        "Query parameter to expand nested fields. "
+                        "Can be provided multiple times to expand multiple fields. "
+                        "Field is automatically expanded whenever it is updated."
+                    ),
                 ),
             )
             for k, v in groupby(
