@@ -2,7 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import re
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 import six
 from rest_framework import fields
@@ -13,6 +13,8 @@ from rest_framework.settings import api_settings
 from sqlalchemy.orm.interfaces import ONETOMANY
 
 from django.core.exceptions import ImproperlyConfigured, ValidationError as DjangoValidationError
+from django.db.models.constants import LOOKUP_SEP
+from django.http import QueryDict
 from django.utils.text import capfirst
 
 from django_sorcery.db.meta import composite_info, model_info
@@ -724,3 +726,115 @@ class ModelSerializer(BaseSerializer):
                 errors.setdefault(field.field_name, []).append(" ".join(map(six.text_type, e.args)))
 
         return instance
+
+
+class ExpandableModelSerializer(ModelSerializer):
+    """
+    Same as ``ModelSerializer`` but allows to conditionally recursively expand specific fields
+
+    Serializer by default renders with all fields collapsed
+    however validates data with expanded fields.
+
+    To expand fields, either:
+
+    * ``request.GET`` should request to expand field by ``?expand=<field>``.
+      Field names can be recursive ``?expand=<field>__<nested_field>``.
+    * One of expandable fields was updated which will cause
+      ``to_representation()`` to render expanded field.
+
+    By default serializer should define "expanded" fields.
+    ``ModelSerializer`` already does it by default for all relations.
+    This allows introspection of not rendered serializer to pick up all fields.
+    This is especially useful when generating schema for the serializer
+    such as for coreapi docs.
+    Collapsed fields are specified in ``Meta.expandable_fields`` where keys
+    are field names and values are replacement field instances.
+
+    In addition expandable query key can be specified via ``Meta.expandable_query_key``.
+
+    For example:
+
+    .. code::
+
+        class BarJustIDSerializer(Serializer):
+            id = serializers.IntegerField(source="bar_id")
+
+            class Meta:
+                model = Bar
+                session = session
+                fields = ["id"]
+
+        class FooSerializer(ExpandableModelSerializer):
+            class Meta:
+                model = Foo
+                session = session
+                exclude = ["bar_id"]
+                expandable_fields = {
+                    "bar": BarJustIDSerializer(source="*", read_only=True)
+                }
+                expandable_query_key = "include"
+    """
+
+    def update_attribute(self, instance, field, value):
+        """
+        Mark which attributes are updated so that during representation
+        of the resource, we can expand those fields even if not explicitly asked for
+
+        Fields are marked on root serializer since child serializers should not
+        contain any state.
+        """
+        try:
+            self.root._updated_fields.setdefault(id(self), []).append(field.field_name)
+        except AttributeError:
+            self.root._updated_fields = {id(self): [field.field_name]}
+
+        return super(ExpandableModelSerializer, self).update_attribute(instance, field, value)
+
+    def to_representation(self, instance):
+        """
+        Switch expandable fields to collapsed fields
+        if not explicitly asked to be expanded or field was updated
+        """
+        expandable_query_key = getattr(self.Meta, "expandable_query_key", "expand")
+
+        for i in self._expandable_fields:
+            if any(
+                [
+                    # if no context provided usually is used by schema generation
+                    self.context is None,
+                    # path explicitly provided in request.GET to be included
+                    i.path in getattr(self.context.get("request"), "GET", QueryDict()).getlist(expandable_query_key),
+                    # field was explicitly updated so we leave it in representation
+                    i.name in getattr(self.root, "_updated_fields", {}).get(id(self), []),
+                ]
+            ):
+                continue
+
+            # no reason to leave full field in representation
+            self.fields[i.name] = i.replacement
+
+        return super(ExpandableModelSerializer, self).to_representation(instance)
+
+    @property
+    def _expandable_fields(self):
+        """
+        Get all defined expandable fields with their path within serializers
+        """
+        components = []
+        root = self.root
+        f = self
+        while f is not root:
+            if f.parent is root and isinstance(f.parent, ListSerializer):
+                break
+            if isinstance(f, ListSerializer):
+                f = f.parent
+            else:
+                components.insert(0, f.field_name)
+                f = f.parent
+
+        nt = namedtuple("ExpandableField", ["name", "parts", "path", "replacement"])
+
+        for name, replacement in getattr(self.Meta, "expandable_fields", {}).items():
+            parts = components + [name]
+            path = LOOKUP_SEP.join(parts)
+            yield nt(name, parts, path, copy.deepcopy(replacement))
