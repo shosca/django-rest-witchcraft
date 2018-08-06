@@ -5,7 +5,10 @@ Some SQLAlchemy specific field types.
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+import six
 from rest_framework import fields, relations
+
+from django.db.models.constants import LOOKUP_SEP
 
 from django_sorcery.db.meta import model_info
 
@@ -70,3 +73,15 @@ class CharMappingField(fields.DictField):
     """
 
     child = fields.CharField(allow_null=True)
+
+
+class ImplicitExpandableListField(fields.ListField):
+    def to_internal_value(self, data):
+        data = super(ImplicitExpandableListField, self).to_internal_value(data)
+        for i in data[:]:
+            parts = i.split(LOOKUP_SEP)
+            data = list(
+                (set(LOOKUP_SEP.join(parts[:i]) for i in six.moves.range(1, len(parts))) & set(self.child.choices))
+                | set(data)
+            )
+        return data

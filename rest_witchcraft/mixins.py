@@ -28,6 +28,14 @@ class QuerySerializerMixin(object):
 
     query_serializer_class = None
 
+    @property
+    def query_serializer(self):
+        return getattr(self, "_query_serializer", None)
+
+    @query_serializer.setter
+    def query_serializer(self, value):
+        self._query_serializer = value
+
     def get_query_serializer_class(self):
         serializer_class = (
             self.query_serializer_class or getattr(self.get_serializer_class(), "query_serializer", lambda: None)()
@@ -43,7 +51,9 @@ class QuerySerializerMixin(object):
             return
         kwargs.setdefault("context", self.get_query_serializer_context())
         kwargs.setdefault("data", dict(self.request.GET.lists()))
-        return serializer_class(*args, **kwargs)
+        self.query_serializer = serializer = serializer_class(*args, **kwargs)
+        serializer.is_valid()
+        return serializer
 
     def check_query(self):
         serializer = self.get_query_serializer()
@@ -59,8 +69,9 @@ class ExpandableQuerySerializerMixin(QuerySerializerMixin):
     def get_queryset(self):
         queryset = super(ExpandableQuerySerializerMixin, self).get_queryset()
 
-        serializer = self.get_query_serializer()
-        serializer.is_valid()
+        serializer = self.query_serializer
+        if serializer is None:
+            return queryset
 
         return self.expand_queryset(queryset, chain(*serializer.validated_data.values()))
 
@@ -93,3 +104,8 @@ class ExpandableQuerySerializerMixin(QuerySerializerMixin):
             )
 
         return queryset
+
+    def get_serializer_context(self):
+        context = super(ExpandableQuerySerializerMixin, self).get_serializer_context()
+        context["query_serializer"] = self.query_serializer
+        return context

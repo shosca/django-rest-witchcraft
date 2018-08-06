@@ -21,7 +21,7 @@ from django_sorcery.db.meta import composite_info, model_info
 from django_sorcery.db.models import get_primary_keys
 
 from .field_mapping import get_field_type, get_url_kwargs
-from .fields import UriField
+from .fields import ImplicitExpandableListField, UriField
 from .utils import django_to_drf_validation_error
 
 
@@ -728,19 +728,6 @@ class ModelSerializer(BaseSerializer):
         return instance
 
 
-class ExpandableQuerySerializer(serializers.Serializer):
-    def __init__(self, *args, **kwargs):
-        super(ExpandableQuerySerializer, self).__init__(*args, **kwargs)
-        if self.implicit_expand:
-            for k, l in list(self.initial_data.items()):
-                for i in l:
-                    parts = i.split(LOOKUP_SEP)
-                    for p in (parts[:i] for i in six.moves.range(1, len(parts))):
-                        path = LOOKUP_SEP.join(p)
-                        if path not in self.initial_data[k]:
-                            self.initial_data[k].append(path)
-
-
 class ExpandableModelSerializer(ModelSerializer):
     """
     Same as ``ModelSerializer`` but allows to conditionally recursively expand specific fields
@@ -825,6 +812,11 @@ class ExpandableModelSerializer(ModelSerializer):
                     self.context is None,
                     # path explicitly provided in request.GET to be included
                     i.path in getattr(self.context.get("request"), "GET", QueryDict()).getlist(expandable_query_key),
+                    # path was implicitly added by query serializer
+                    i.path
+                    in (getattr(self.context.get("query_serializer"), "validated_data", None) or {}).get(
+                        expandable_query_key, ()
+                    ),
                     # field was explicitly updated so we leave it in representation
                     i.name in getattr(self.root, "_updated_fields", {}).get(id(self), []),
                 ]
@@ -892,7 +884,7 @@ class ExpandableModelSerializer(ModelSerializer):
         Generate serializer to either validate request querystring or generate documentation
         """
         attrs = {
-            k: fields.ListField(
+            k: (ImplicitExpandableListField if implicit_expand else fields.ListField)(
                 required=False,
                 help_text=(
                     "Query parameter to expand nested fields. "
@@ -906,4 +898,4 @@ class ExpandableModelSerializer(ModelSerializer):
             )
         }
         attrs["implicit_expand"] = implicit_expand
-        return type("ExpandableQuerySerializer", (ExpandableQuerySerializer,), attrs)
+        return type("ExpandableQuerySerializer", (serializers.Serializer,), attrs)
