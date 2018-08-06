@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
+from itertools import chain
 
+import six
 from rest_framework import mixins
+
+from sqlalchemy import orm
+from sqlalchemy.orm import class_mapper
+
+from django.db.models.constants import LOOKUP_SEP
 
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
@@ -46,3 +53,43 @@ class QuerySerializerMixin(object):
     def initial(self, request, *args, **kwargs):
         super(QuerySerializerMixin, self).initial(request, *args, **kwargs)
         self.check_query()
+
+
+class ExpandableQuerySerializerMixin(QuerySerializerMixin):
+    def get_queryset(self):
+        queryset = super(ExpandableQuerySerializerMixin, self).get_queryset()
+
+        serializer = self.get_query_serializer()
+        serializer.is_valid()
+
+        return self.expand_queryset(queryset, chain(*serializer.validated_data.values()))
+
+    def expand_queryset(self, queryset, values):
+        to_expand = []
+
+        for value in values:
+            to_load = []
+            components = value.split(LOOKUP_SEP)
+
+            model = queryset._entities[0].mapper.class_
+            for c in components:
+                props = {i.key: i for i in class_mapper(model).iterate_properties}
+                try:
+                    _field = getattr(model, c)
+                    field = props[c]
+                    model = field._dependency_processor.mapper.class_
+                except (KeyError, AttributeError):
+                    to_load = []
+                    break
+                else:
+                    to_load.append(_field)
+
+            if to_load:
+                to_expand.append(to_load)
+
+        if to_expand:
+            queryset = queryset.options(
+                *[six.moves.reduce(lambda a, b: a.joinedload(b), expand, orm) for expand in to_expand]
+            )
+
+        return queryset

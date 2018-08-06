@@ -728,6 +728,19 @@ class ModelSerializer(BaseSerializer):
         return instance
 
 
+class ExpandableQuerySerializer(serializers.Serializer):
+    def __init__(self, *args, **kwargs):
+        super(ExpandableQuerySerializer, self).__init__(*args, **kwargs)
+        if self.implicit_expand:
+            for k, l in list(self.initial_data.items()):
+                for i in l:
+                    parts = i.split(LOOKUP_SEP)
+                    for p in (parts[:i] for i in six.moves.range(1, len(parts))):
+                        path = LOOKUP_SEP.join(p)
+                        if path not in self.initial_data[k]:
+                            self.initial_data[k].append(path)
+
+
 class ExpandableModelSerializer(ModelSerializer):
     """
     Same as ``ModelSerializer`` but allows to conditionally recursively expand specific fields
@@ -874,11 +887,11 @@ class ExpandableModelSerializer(ModelSerializer):
                 yield i
 
     @classmethod
-    def query_serializer(cls, exclude=(), ignore=()):
+    def query_serializer(cls, exclude=(), ignore=(), implicit_expand=True):
         """
         Generate serializer to either validate request querystring or generate documentation
         """
-        expands = {
+        attrs = {
             k: fields.ListField(
                 required=False,
                 help_text=(
@@ -892,4 +905,5 @@ class ExpandableModelSerializer(ModelSerializer):
                 cls._cls_expandable_fields([], cls.Meta, cls._declared_fields, ignore), key=lambda i: i.query_key
             )
         }
-        return type("QuerySerializer", (serializers.Serializer,), expands)
+        attrs["implicit_expand"] = implicit_expand
+        return type("ExpandableQuerySerializer", (ExpandableQuerySerializer,), attrs)
