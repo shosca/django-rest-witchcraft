@@ -899,4 +899,4 @@ class ExpandableModelSerializer(ModelSerializer):
             )
         }
         attrs["implicit_expand"] = implicit_expand
-        return type("ExpandableQuerySerializer", (serializers.Serializer,), attrs)
+        return type(str("ExpandableQuerySerializer"), (serializers.Serializer,), attrs)
