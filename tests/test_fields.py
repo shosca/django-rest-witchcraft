@@ -3,7 +3,8 @@ from __future__ import absolute_import, print_function, unicode_literals
 from enum import Enum
 
 from rest_framework.exceptions import ValidationError
-from rest_witchcraft.fields import EnumField, HyperlinkedIdentityField
+from rest_framework.fields import ChoiceField
+from rest_witchcraft.fields import EnumField, HyperlinkedIdentityField, ImplicitExpandableListField
 
 from django.test import SimpleTestCase
 
@@ -59,3 +60,11 @@ class TestHyperlinkedIdentityField(SimpleTestCase):
         field = HyperlinkedIdentityField(view_name="foo")
 
         self.assertIsNone(field.get_url(Owner(first_name="Jon", last_name="Snow"), None, None, None))
+
+
+class TestImplicitExpandableListField(SimpleTestCase):
+    def test_to_internal_value(self):
+        f = ImplicitExpandableListField(child=ChoiceField(choices=["foo", "foo__bar", "bar"]))
+
+        self.assertEqual(f.run_validation(["foo"]), ["foo"])
+        self.assertEqual(set(f.run_validation(["foo__bar"])), {"foo__bar", "foo"})

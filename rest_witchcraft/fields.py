@@ -76,6 +76,11 @@ class CharMappingField(fields.DictField):
 
 
 class ImplicitExpandableListField(fields.ListField):
+    """
+    List field which implicitly expands parent field when child field
+    is expanded assuming parent field is also expandable by being one of the choices.
+    """
+
     def to_internal_value(self, data):
         data = super(ImplicitExpandableListField, self).to_internal_value(data)
         for i in data[:]:

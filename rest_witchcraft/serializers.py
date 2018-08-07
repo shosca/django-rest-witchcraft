@@ -779,8 +779,13 @@ class ExpandableModelSerializer(ModelSerializer):
 
     .. code::
 
-        FooSerializer.query_serializer()
-        FooSerializer.query_serializer(exclude=["bar"])
+        FooSerializer().get_query_serializer_class()
+        FooSerializer().get_query_serializer_class(exclude=["bar"])
+        FooSerializer().get_query_serializer_class(disallow=["bar"])
+
+    :``exclude``: excludes given expand paths. Useful for generating documentation.
+    :``disallow``: leaves the expand field in serializer however removes given paths from valid choices.
+        Useful for validating user input within viewset.
     """
 
     def update_attribute(self, instance, field, value):
@@ -852,34 +857,30 @@ class ExpandableModelSerializer(ModelSerializer):
             path = LOOKUP_SEP.join(parts)
             yield nt(name, parts, path, copy.deepcopy(replacement))
 
-    @classmethod
-    def _cls_expandable_fields(cls, parents, meta, fs, exclude):
+    def _get_all_expandable_fields(self, parents, this, exclude):
         """
         Recursively search for all expandable fields on class
         """
         nt = namedtuple("ExpandableField", ["query_key", "parts", "path"])
 
-        query_key = getattr(meta, "expandable_query_key", "expand")
-        for name in getattr(meta, "expandable_fields", {}):
+        query_key = getattr(getattr(this, "Meta", None), "expandable_query_key", "expand")
+        for name in getattr(getattr(this, "Meta", None), "expandable_fields", {}):
             parts = parents + [name]
             path = LOOKUP_SEP.join(parts)
             if path in exclude:
                 continue
             yield nt(query_key, parts, path)
 
-        for field_name, field in fs.items():
+        for field_name, field in this.fields.items():
             if not isinstance(field, serializers.BaseSerializer):
                 continue
             if isinstance(field, serializers.ListSerializer):
                 field = field.child
 
-            for i in cls._cls_expandable_fields(
-                parents + [field_name], getattr(field, "Meta", None), field.fields, exclude
-            ):
+            for i in self._get_all_expandable_fields(parents=parents + [field_name], this=field, exclude=exclude):
                 yield i
 
-    @classmethod
-    def query_serializer(cls, exclude=(), ignore=(), implicit_expand=True):
+    def get_query_serializer_class(self, exclude=(), disallow=(), implicit_expand=True):
         """
         Generate serializer to either validate request querystring or generate documentation
         """
@@ -891,10 +892,10 @@ class ExpandableModelSerializer(ModelSerializer):
                     "Can be provided multiple times to expand multiple fields. "
                     "Field is automatically expanded whenever it is updated."
                 ),
-                child=fields.ChoiceField(required=False, choices=[i.path for i in v if i.path not in exclude]),
+                child=fields.ChoiceField(required=False, choices=[i.path for i in v if i.path not in disallow]),
             )
             for k, v in groupby(
-                cls._cls_expandable_fields([], cls.Meta, cls._declared_fields, ignore), key=lambda i: i.query_key
+                self._get_all_expandable_fields(parents=[], this=self, exclude=exclude), key=lambda i: i.query_key
             )
         }
         attrs["implicit_expand"] = implicit_expand
