@@ -19,6 +19,7 @@
   sha: master
   hooks:
   - id: importanize
+    language_version: python3
 
 - repo: https://github.com/ambv/black
   rev: stable

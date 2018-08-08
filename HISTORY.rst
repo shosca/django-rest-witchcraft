@@ -2,8 +2,42 @@ Changelog
 =========
 
 
-0.7.5 (2018-07-24)
+0.7.9 (2018-08-08)
 -----------------------------
+- ExpandableModelSerializer (#17) [Miroslav Shubernetskiy]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- Fixing saving serializer with source=* (#16) [Miroslav Shubernetskiy]
+
+
+
+
+
+
+
+0.7.5 (2018-07-24)
+------------------
 - Correctly removing composite when validated data is None (#15)
   [Miroslav Shubernetskiy]
 
