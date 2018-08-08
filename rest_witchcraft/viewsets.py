@@ -26,10 +26,18 @@ class ModelViewSet(
     mixins.UpdateModelMixin,
     DestroyModelMixin,
     mixins.ListModelMixin,
-    ExpandableQuerySerializerMixin,
     GenericViewSet,
 ):
     """
     A viewset that provides default `create()`, `retrieve()`, `update()`, `partial_update()`, `destroy()` and `list()`
     actions.
+    """
+
+
+class ExpandableModelViewSet(ExpandableQuerySerializerMixin, ModelViewSet):
+    """
+    A viewset that provides automatically eagerloadsany subfields that are expanded via querystring.
+
+    For queryset to be expanded, either :py:class:`rest_witchcraft.serializers.ExpandableModelSerializer`
+    needs to be used in ``serializer_class`` or ``query_serializer_class`` can be manually provided.
     """
