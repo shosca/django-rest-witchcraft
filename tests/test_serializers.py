@@ -1,27 +1,42 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 import copy
-import unittest
 from collections import OrderedDict
 from decimal import Decimal
 
 from rest_framework import fields
 from rest_framework.exceptions import ValidationError
-from rest_framework.serializers import ListSerializer
+from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.settings import api_settings
-from rest_witchcraft.serializers import BaseSerializer, CompositeSerializer, ModelSerializer
+from rest_framework.test import APIRequestFactory
+from rest_witchcraft.serializers import BaseSerializer, CompositeSerializer, ExpandableModelSerializer, ModelSerializer
 
 from sqlalchemy import Column, types
 from sqlalchemy.orm.properties import ColumnProperty
 
 from django.core.exceptions import ImproperlyConfigured
+from django.test import SimpleTestCase
 
 from django_sorcery.db.meta import column_info, model_info
 
 from .models import COLORS, Engine, Option, Owner, Vehicle, VehicleOther, VehicleType, session
 
 
-class TestModelSerializer(unittest.TestCase):
+class VehicleOwnerStubSerializer(Serializer):
+    id = fields.IntegerField(source="_owner_id")
+
+
+class VehicleSerializer(ExpandableModelSerializer):
+    class Meta(object):
+        model = Vehicle
+        session = session
+        expandable_fields = {"owner": VehicleOwnerStubSerializer(source="*", read_only=True)}
+        exclude = ["url", "other"]
+        extra_kwargs = {"owner": {"allow_nested_updates": True}}
+        nested_serializer_class = ExpandableModelSerializer
+
+
+class TestModelSerializer(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
         super(TestModelSerializer, cls).setUpClass()
@@ -1329,3 +1344,137 @@ class TestModelSerializer(unittest.TestCase):
         instance = serializer.get_object({"id": 999})
 
         self.assertIsNotNone(instance)
+
+
+class TestExpandableModelSerializer(SimpleTestCase):
+    def setUp(self):
+        super(TestExpandableModelSerializer, self).setUp()
+        self.vehicle = Vehicle(
+            name="Test vehicle",
+            type=VehicleType.bus,
+            engine=Engine(4, 1234, None, None),
+            owner=Owner(first_name="Jon", last_name="Snow"),
+            other=VehicleOther(advertising_cost=4321),
+            options=[Option(name="GPS")],
+        )
+        self.rf = APIRequestFactory()
+        self.maxDiff = None
+
+    def test_to_representation_collapsed(self):
+        s = VehicleSerializer(instance=self.vehicle)
+
+        self.assertEqual(
+            s.data,
+            {
+                "id": None,
+                "name": "Test vehicle",
+                "type": "Bus",
+                "created_at": None,
+                "paint": None,
+                "is_used": None,
+                "engine": {"cylinders": 4, "displacement": "1234.00", "type_": None, "fuel_type": None},
+                "owner": {"id": None},
+                "options": [{"name": "GPS", "id": None}],
+            },
+        )
+
+    def test_to_representation_list_collapsed(self):
+        s = VehicleSerializer(instance=[self.vehicle], many=True)
+
+        self.assertEqual(
+            s.data,
+            [
+                {
+                    "id": None,
+                    "name": "Test vehicle",
+                    "type": "Bus",
+                    "created_at": None,
+                    "paint": None,
+                    "is_used": None,
+                    "engine": {"cylinders": 4, "displacement": "1234.00", "type_": None, "fuel_type": None},
+                    "owner": {"id": None},
+                    "options": [{"name": "GPS", "id": None}],
+                }
+            ],
+        )
+
+    def test_to_representation_request_expanded(self):
+        s = VehicleSerializer(instance=self.vehicle, context={"request": self.rf.get("/", {"expand": "owner"})})
+
+        self.assertEqual(
+            s.data,
+            {
+                "id": None,
+                "name": "Test vehicle",
+                "type": "Bus",
+                "created_at": None,
+                "paint": None,
+                "is_used": None,
+                "engine": {"cylinders": 4, "displacement": "1234.00", "type_": None, "fuel_type": None},
+                "owner": {"id": None, "last_name": "Snow", "first_name": "Jon"},
+                "options": [{"name": "GPS", "id": None}],
+            },
+        )
+
+    def test_to_representation_update_expanded(self):
+        s = VehicleSerializer(
+            instance=self.vehicle,
+            partial=True,
+            data={"owner": {"first_name": "John", "last_name": "Doe"}},
+            allow_nested_updates=True,
+        )
+
+        self.assertTrue(s.is_valid())
+        s.save()
+
+        self.assertEqual(
+            s.data,
+            {
+                "id": None,
+                "name": "Test vehicle",
+                "type": "Bus",
+                "created_at": None,
+                "paint": None,
+                "is_used": None,
+                "engine": {"cylinders": 4, "displacement": "1234.00", "type_": None, "fuel_type": None},
+                "owner": {"id": None, "last_name": "Doe", "first_name": "John"},
+                "options": [{"name": "GPS", "id": None}],
+            },
+        )
+
+    def test_query_serializer(self):
+        s = VehicleSerializer().get_query_serializer_class()()
+
+        self.assertEqual(list(s.fields), ["expand"])
+        self.assertIsInstance(s.fields["expand"], fields.ListField)
+        self.assertIsInstance(s.fields["expand"].child, fields.ChoiceField)
+        self.assertEqual(list(s.fields["expand"].child.choices), ["owner"])
+
+    def test_query_serializer_exclude(self):
+        s = VehicleSerializer().get_query_serializer_class(exclude=["owner"])()
+
+        self.assertEqual(list(s.fields), [])
+
+    def test_query_serializer_disallow(self):
+        s = VehicleSerializer().get_query_serializer_class(disallow=["owner"])()
+
+        self.assertEqual(list(s.fields), ["expand"])
+        self.assertIsInstance(s.fields["expand"], fields.ListField)
+        self.assertIsInstance(s.fields["expand"].child, fields.ChoiceField)
+        self.assertEqual(list(s.fields["expand"].child.choices), [])
+
+    def test_query_serializer_nested(self):
+        class Serializer(ExpandableModelSerializer):
+            vehicles = VehicleSerializer(many=True)
+
+            class Meta(object):
+                model = Owner
+                session = session
+                fields = "__all__"
+
+        s = Serializer().get_query_serializer_class()()
+
+        self.assertEqual(list(s.fields), ["expand"])
+        self.assertIsInstance(s.fields["expand"], fields.ListField)
+        self.assertIsInstance(s.fields["expand"].child, fields.ChoiceField)
+        self.assertEqual(set(s.fields["expand"].child.choices), {"vehicles__owner"})
