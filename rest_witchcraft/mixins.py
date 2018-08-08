@@ -6,9 +6,10 @@ import six
 from rest_framework import mixins
 
 from sqlalchemy import orm
-from sqlalchemy.orm import class_mapper
 
 from django.db.models.constants import LOOKUP_SEP
+
+from django_sorcery.db.meta import model_info
 
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
@@ -97,18 +98,17 @@ class ExpandableQuerySerializerMixin(QuerySerializerMixin):
             to_load = []
             components = value.split(LOOKUP_SEP)
 
-            model = queryset._entities[0].mapper.class_
+            model = queryset._only_entity_zero().class_
             for c in components:
-                props = {i.key: i for i in class_mapper(model).iterate_properties}
+                props = model_info(model).relationships
                 try:
-                    _field = getattr(model, c)
-                    field = props[c]
-                    model = field._dependency_processor.mapper.class_
+                    field = getattr(model, c)
+                    model = props[c].relationship._dependency_processor.mapper.class_
                 except (KeyError, AttributeError):
                     to_load = []
                     break
                 else:
-                    to_load.append(_field)
+                    to_load.append(field)
 
             if to_load:
                 to_expand.append(to_load)
