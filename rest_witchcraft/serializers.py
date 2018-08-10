@@ -273,6 +273,8 @@ class ModelSerializer(BaseSerializer):
     url_field_name = None
     serializer_url_field = UriField
 
+    default_error_messages = {"not_found": "No instance found with primary keys"}
+
     def __init__(self, *args, **kwargs):
         """
         ModelSerializer initializer
@@ -284,6 +286,7 @@ class ModelSerializer(BaseSerializer):
         self._session = kwargs.pop("session", None) or getattr(getattr(self, "Meta", None), "session", None)
         self.allow_nested_updates = kwargs.pop("allow_nested_updates", False)
         self.allow_create = kwargs.pop("allow_create", False)
+        self.partial_by_pk = kwargs.pop("partial_by_pk", False)
         extra_kwargs = kwargs.pop("extra_kwargs", {})
 
         super(ModelSerializer, self).__init__(*args, **kwargs)
@@ -356,7 +359,9 @@ class ModelSerializer(BaseSerializer):
 
             source = self._extra_kwargs.get(field_name, {}).get("source") or field_name
 
-            _fields[field_name] = self.build_field(source, info, self.model, depth)
+            _fields[field_name] = field = self.build_field(source, info, self.model, depth)
+            if self.partial_by_pk and source not in info.primary_keys:
+                field.required = False
 
         return _fields
 
@@ -618,23 +623,20 @@ class ModelSerializer(BaseSerializer):
         instance or raise an error.
         """
         pks = self.get_primary_keys(validated_data)
-        checked_instance = None
         if pks:
-            checked_instance = self.session.query(self.model).get(pks)
-        else:
-            checked_instance = instance
+            return self.session.query(self.model).get(pks) or self.fail("not_found")
 
         if validated_data is None:
-            checked_instance = None
+            instance = None
 
-        if checked_instance is not None:
-            return checked_instance
+        if instance is not None:
+            return instance
 
         if validated_data is not None and self.allow_create:
             return self.model()
 
         if self.allow_null:
-            return checked_instance
+            return instance
 
         raise ValidationError("No instance of `{}` found with primary keys `{}`".format(self.model.__name__, pks))
 

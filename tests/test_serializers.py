@@ -51,6 +51,10 @@ class TestModelSerializer(SimpleTestCase):
         )
         session.commit()
 
+    def setUp(self):
+        super(TestModelSerializer, self).setUp()
+        self.maxDiff = None
+
     def tearDown(self):
         super(TestModelSerializer, self).tearDown()
         session.rollback()
@@ -1319,7 +1323,7 @@ class TestModelSerializer(SimpleTestCase):
         with self.assertRaises(ValidationError):
             serializer.get_object({"id": 999})
 
-    def test_get_object_allows_null_when_not_found(self):
+    def test_get_object_allow_null_raise_when_not_found(self):
         class OwnerSerializer(ModelSerializer):
             class Meta:
                 model = Owner
@@ -1328,9 +1332,8 @@ class TestModelSerializer(SimpleTestCase):
 
         serializer = OwnerSerializer(allow_null=True)
 
-        instance = serializer.get_object({"id": 999})
-
-        self.assertIsNone(instance)
+        with self.assertRaises(ValidationError):
+            serializer.get_object({"id": 999})
 
     def test_get_object_allows_create_when_not_found(self):
         class OwnerSerializer(ModelSerializer):
@@ -1341,9 +1344,8 @@ class TestModelSerializer(SimpleTestCase):
 
         serializer = OwnerSerializer(allow_create=True)
 
-        instance = serializer.get_object({"id": 999})
-
-        self.assertIsNotNone(instance)
+        with self.assertRaises(ValidationError):
+            serializer.get_object({"id": 999})
 
 
 class TestExpandableModelSerializer(SimpleTestCase):
