@@ -2,8 +2,22 @@ Changelog
 =========
 
 
-0.7.9 (2018-08-08)
+0.7.10 (2018-08-13)
 -----------------------------
+- Partial by pk (#19) [Miroslav Shubernetskiy]
+
+
+
+
+
+
+
+- Allowing to overwrite extra_kwargs in Serializer.__init__ (#18)
+  [Miroslav Shubernetskiy]
+
+
+0.7.9 (2018-08-08)
+------------------
 - ExpandableModelSerializer (#17) [Miroslav Shubernetskiy]
 
 
