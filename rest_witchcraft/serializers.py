@@ -284,10 +284,11 @@ class ModelSerializer(BaseSerializer):
         self._session = kwargs.pop("session", None) or getattr(getattr(self, "Meta", None), "session", None)
         self.allow_nested_updates = kwargs.pop("allow_nested_updates", False)
         self.allow_create = kwargs.pop("allow_create", False)
+        extra_kwargs = kwargs.pop("extra_kwargs", {})
 
         super(ModelSerializer, self).__init__(*args, **kwargs)
 
-        self._extra_kwargs = self.get_extra_kwargs()
+        self._extra_kwargs = self.get_extra_kwargs(**extra_kwargs)
 
     def __deepcopy__(self, memo=None):
         """
@@ -432,7 +433,7 @@ class ModelSerializer(BaseSerializer):
         """
         return info.field_names + [self.url_field_name or api_settings.URL_FIELD_NAME] + list(declared_fields.keys())
 
-    def get_extra_kwargs(self):
+    def get_extra_kwargs(self, **additional_kwargs):
         """
         Return a dictionary mapping field names to a dictionary of additional keyword arguments.
         """
@@ -450,6 +451,8 @@ class ModelSerializer(BaseSerializer):
                 kwargs = extra_kwargs.get(field_name, {})
                 kwargs["read_only"] = True
                 extra_kwargs[field_name] = kwargs
+
+        extra_kwargs.update(additional_kwargs)
 
         return extra_kwargs
 
@@ -550,7 +553,7 @@ class ModelSerializer(BaseSerializer):
         """
         field_class = self.serializer_url_field
         field_kwargs = get_url_kwargs(info.model_class)
-        field_kwargs.update(self.get_extra_kwargs().get(self.url_field_name, {}))
+        field_kwargs.update(self._extra_kwargs.get(self.url_field_name, {}))
 
         return field_class(**field_kwargs)
 
