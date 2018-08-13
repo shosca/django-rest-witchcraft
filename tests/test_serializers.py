@@ -51,6 +51,10 @@ class TestModelSerializer(SimpleTestCase):
         )
         session.commit()
 
+    def setUp(self):
+        super(TestModelSerializer, self).setUp()
+        self.maxDiff = None
+
     def tearDown(self):
         super(TestModelSerializer, self).tearDown()
         session.rollback()
@@ -1302,10 +1306,10 @@ class TestModelSerializer(SimpleTestCase):
                 fields = "__all__"
 
         serializer = OwnerSerializer()
-
         instance = serializer.get_object({"id": 1})
 
         self.assertIsNotNone(instance)
+        self.assertIsInstance(instance, Owner)
 
     def test_get_object_raise_when_not_found(self):
         class OwnerSerializer(ModelSerializer):
@@ -1319,7 +1323,21 @@ class TestModelSerializer(SimpleTestCase):
         with self.assertRaises(ValidationError):
             serializer.get_object({"id": 999})
 
-    def test_get_object_allows_null_when_not_found(self):
+    def test_get_object_existing_instance(self):
+        class OwnerSerializer(ModelSerializer):
+            class Meta:
+                model = Owner
+                session = session
+                fields = "__all__"
+
+        existing = Owner()
+        serializer = OwnerSerializer(allow_null=True)
+        instance = serializer.get_object({}, existing)
+
+        self.assertIsNotNone(instance)
+        self.assertIs(instance, existing)
+
+    def test_get_object_allow_null(self):
         class OwnerSerializer(ModelSerializer):
             class Meta:
                 model = Owner
@@ -1328,11 +1346,9 @@ class TestModelSerializer(SimpleTestCase):
 
         serializer = OwnerSerializer(allow_null=True)
 
-        instance = serializer.get_object({"id": 999})
+        self.assertIsNone(serializer.get_object(None, Owner()))
 
-        self.assertIsNone(instance)
-
-    def test_get_object_allows_create_when_not_found(self):
+    def test_get_object_allows_create(self):
         class OwnerSerializer(ModelSerializer):
             class Meta:
                 model = Owner
@@ -1340,10 +1356,36 @@ class TestModelSerializer(SimpleTestCase):
                 fields = "__all__"
 
         serializer = OwnerSerializer(allow_create=True)
-
-        instance = serializer.get_object({"id": 999})
+        instance = serializer.get_object({})
 
         self.assertIsNotNone(instance)
+        self.assertIsInstance(instance, Owner)
+
+    def test_get_object_no_object(self):
+        class OwnerSerializer(ModelSerializer):
+            class Meta:
+                model = Owner
+                session = session
+                fields = "__all__"
+
+        serializer = OwnerSerializer()
+
+        with self.assertRaises(ValidationError):
+            serializer.get_object({})
+
+    def test_to_internal_value_partial_by_pk(self):
+        class OwnerSerializer(ModelSerializer):
+            class Meta:
+                model = Owner
+                session = session
+                fields = "__all__"
+
+        serializer = OwnerSerializer(data={"id": 1}, partial_by_pk=True)
+
+        self.assertTrue(serializer.is_valid())
+        self.assertTrue(serializer.fields["id"].required)
+        self.assertFalse(serializer.fields["first_name"].required)
+        self.assertFalse(serializer.fields["last_name"].required)
 
 
 class TestExpandableModelSerializer(SimpleTestCase):
