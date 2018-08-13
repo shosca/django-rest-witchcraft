@@ -359,9 +359,7 @@ class ModelSerializer(BaseSerializer):
 
             source = self._extra_kwargs.get(field_name, {}).get("source") or field_name
 
-            _fields[field_name] = field = self.build_field(source, info, self.model, depth)
-            if self.partial_by_pk and source not in info.primary_keys:
-                field.required = False
+            _fields[field_name] = self.build_field(source, info, self.model, depth)
 
         return _fields
 
@@ -610,11 +608,39 @@ class ModelSerializer(BaseSerializer):
 
         return tuple([field for field in _fields if not field.startswith("_")])
 
+    def to_internal_value(self, data):
+        """
+        Same as in DRF but also handle ``partial_by_pk`` by making all non-pk fields optional.
+
+        Even though flag name implies it will make serializer partial,
+        that is currently not possible in DRF as partial flag is checked on
+        root serializer within serializer validation loops. As such,
+        individual serializers cannot be marked partial.
+        Therefore when flag is provided and primary key is provided
+        in validated data, we physically mark all other fields
+        as not required to effectively make them partial without
+        using ``partial`` flag itself.
+        """
+        if self.partial_by_pk and self.get_primary_keys(data):
+            info = model_info(getattr(self.Meta, "model"))
+
+            for name, field in self.fields.items():
+                if field.source not in info.primary_keys:
+                    field.required = False
+
+        return super(ModelSerializer, self).to_internal_value(data)
+
     def get_primary_keys(self, validated_data):
         """
         Returns the primary key values from validated_data
         """
-        return get_primary_keys(self.model, validated_data) if validated_data else None
+        return (
+            get_primary_keys(
+                self.model, {getattr(self.fields.get(k), "source", None) or k: v for k, v in validated_data.items()}
+            )
+            if validated_data
+            else None
+        )
 
     def get_object(self, validated_data, instance=None):
         """
@@ -623,22 +649,26 @@ class ModelSerializer(BaseSerializer):
         instance or raise an error.
         """
         pks = self.get_primary_keys(validated_data)
-        if pks:
+        if validated_data and pks:
             return self.session.query(self.model).get(pks) or self.fail("not_found")
 
+        # if validated data is None, it means it was explicitly set as None
+        # in self.initial_data hence we normalize to None
+        # regardless if parent already had this relation set
         if validated_data is None:
             instance = None
 
         if instance is not None:
             return instance
 
-        if validated_data is not None and self.allow_create:
+        elif validated_data is not None and self.allow_create:
             return self.model()
 
-        if self.allow_null:
-            return instance
+        elif self.allow_null:
+            return
 
-        raise ValidationError("No instance of `{}` found with primary keys `{}`".format(self.model.__name__, pks))
+        else:
+            raise self.fail("required")
 
     def save(self, **kwargs):
         """
