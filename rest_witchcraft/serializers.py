@@ -691,11 +691,17 @@ class ModelSerializer(BaseSerializer):
             self._errors = e.detail
             raise e
 
+    def create_model(self):
+        """
+        Hook to allow to customize how model is created in create flow
+        """
+        return self.model()
+
     def create(self, validated_data):
         """
         Creates a model instance using validated_data
         """
-        instance = self.update(self.Meta.model(), validated_data)
+        instance = self.update(self.create_model(), validated_data)
         self.session.add(instance)
         return instance
 
