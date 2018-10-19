@@ -37,9 +37,8 @@ class VehicleSerializer(ExpandableModelSerializer):
 
 
 class TestModelSerializer(SimpleTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(TestModelSerializer, cls).setUpClass()
+    def setUp(self):
+        super(TestModelSerializer, self).setUp()
         session.add(Owner(id=1, first_name="Test", last_name="Owner"))
         session.add_all(
             [
@@ -49,10 +48,7 @@ class TestModelSerializer(SimpleTestCase):
                 Option(id=4, name="Option 4"),
             ]
         )
-        session.commit()
-
-    def setUp(self):
-        super(TestModelSerializer, self).setUp()
+        session.flush()
         self.maxDiff = None
 
     def tearDown(self):
