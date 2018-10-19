@@ -7,7 +7,7 @@ from django_sorcery.db.meta import model_info
 
 
 class DefaultRouter(routers.DefaultRouter):
-    def get_default_base_name(self, viewset):
+    def get_default_basename(self, viewset):
 
         model = getattr(viewset, "get_model", lambda: None)()
 
