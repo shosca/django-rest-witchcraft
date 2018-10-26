@@ -1384,14 +1384,21 @@ class TestModelSerializer(SimpleTestCase):
         self.assertFalse(serializer.fields["last_name"].required)
 
     def test_to_internal_value_partial_by_pk_remove_extra_fields(self):
-        class ParentSerializer(ModelSerializer):
+        class VehicleSerializer(ModelSerializer):
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = "__all__"
+
+        class OwnerSerializer(ModelSerializer):
+            vehicle = VehicleSerializer(partial_by_pk=True)
+
             class Meta:
                 model = Option
                 session = session
                 fields = "__all__"
-                extra_kwargs = {"vehicle": {"partial_by_pk": True}}
 
-        serializer = ParentSerializer(data={"id": 111, "name": "foo", "vehicle": {"id": 1}})
+        serializer = OwnerSerializer(data={"id": 111, "name": "foo", "vehicle": {"id": 1}})
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertEqual(serializer.validated_data["vehicle"], {"id": 1})
