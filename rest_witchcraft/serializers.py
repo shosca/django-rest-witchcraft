@@ -620,15 +620,26 @@ class ModelSerializer(BaseSerializer):
         in validated data, we physically mark all other fields
         as not required to effectively make them partial without
         using ``partial`` flag itself.
+        To make serializer behave more or less like real partial serializer,
+        only passed keys in input data are preserved in validated data.
+        If they are not stripped, it is possible to remove some existing data.
         """
-        if self.partial_by_pk and self.get_primary_keys(data):
-            info = model_info(getattr(self.Meta, "model"))
+        if not self.partial_by_pk or not self.get_primary_keys(data):
+            return super(ModelSerializer, self).to_internal_value(data)
 
-            for name, field in self.fields.items():
-                if field.source not in info.primary_keys:
-                    field.required = False
+        info = model_info(getattr(self.Meta, "model"))
 
-        return super(ModelSerializer, self).to_internal_value(data)
+        for name, field in self.fields.items():
+            if field.source not in info.primary_keys:
+                field.required = False
+
+        passed_keys = set(data)
+        data = super(ModelSerializer, self).to_internal_value(data)
+
+        for k in set(data) - passed_keys:
+            data.pop(k)
+
+        return data
 
     def get_primary_keys(self, validated_data):
         """
@@ -691,11 +702,17 @@ class ModelSerializer(BaseSerializer):
             self._errors = e.detail
             raise e
 
+    def create_model(self, validated_data):
+        """
+        Hook to allow to customize how model is created in create flow
+        """
+        return self.model()
+
     def create(self, validated_data):
         """
         Creates a model instance using validated_data
         """
-        instance = self.update(self.Meta.model(), validated_data)
+        instance = self.update(self.create_model(validated_data), validated_data)
         self.session.add(instance)
         return instance
 

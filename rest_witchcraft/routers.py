@@ -7,7 +7,7 @@ from django_sorcery.db.meta import model_info
 
 
 class DefaultRouter(routers.DefaultRouter):
-    def get_default_basename(self, viewset):
+    def get_default_base_name(self, viewset):
 
         model = getattr(viewset, "get_model", lambda: None)()
 
@@ -18,6 +18,9 @@ class DefaultRouter(routers.DefaultRouter):
         )
 
         return model.__name__.lower()
+
+    # for backwards compatibility DRF<3.9
+    get_default_basename = get_default_base_name
 
     def get_lookup_regex(self, viewset, lookup_prefix=""):
         """
