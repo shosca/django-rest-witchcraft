@@ -2,8 +2,16 @@ Changelog
 =========
 
 
-0.7.10 (2018-08-13)
+0.7.11 (2018-11-01)
 -----------------------------
+- Hook for how model is created (#22) [Miroslav Shubernetskiy]
+- Fix serializer tests (#23) [Serkan Hosca]
+- Relock (#20) [Serkan Hosca]
+- Drop py3.5 build. [Serkan Hosca]
+
+
+0.7.10 (2018-08-13)
+-------------------
 - Partial by pk (#19) [Miroslav Shubernetskiy]
 
 
