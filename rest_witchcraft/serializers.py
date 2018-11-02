@@ -326,6 +326,10 @@ class ModelSerializer(BaseSerializer):
         )
         return self.Meta.model
 
+    @property
+    def queryset(self):
+        return getattr(self.Meta, "queryset", None) or self.Meta.session.query(self.model)
+
     def get_fields(self):
         """
         Return the dict of field names -> field instances that should be
@@ -339,7 +343,7 @@ class ModelSerializer(BaseSerializer):
         )
 
         declared_fields = copy.deepcopy(self._declared_fields)
-        info = model_info(getattr(self.Meta, "model"))
+        info = model_info(self.model)
         depth = getattr(self.Meta, "depth", 0)
 
         if depth is not None:
@@ -627,7 +631,7 @@ class ModelSerializer(BaseSerializer):
         if not self.partial_by_pk or not self.get_primary_keys(data):
             return super(ModelSerializer, self).to_internal_value(data)
 
-        info = model_info(getattr(self.Meta, "model"))
+        info = model_info(self.model)
 
         for name, field in self.fields.items():
             if field.source not in info.primary_keys:
@@ -637,7 +641,8 @@ class ModelSerializer(BaseSerializer):
         data = super(ModelSerializer, self).to_internal_value(data)
 
         for k in set(data) - passed_keys:
-            data.pop(k)
+            if k in self.fields and self.fields[k].get_default() == data[k]:
+                data.pop(k)
 
         return data
 
@@ -647,7 +652,8 @@ class ModelSerializer(BaseSerializer):
         """
         return (
             get_primary_keys(
-                self.model, {getattr(self.fields.get(k), "source", None) or k: v for k, v in validated_data.items()}
+                self.queryset._only_entity_zero().mapper.class_,
+                {getattr(self.fields.get(k), "source", None) or k: v for k, v in validated_data.items()},
             )
             if validated_data
             else None
@@ -661,7 +667,7 @@ class ModelSerializer(BaseSerializer):
         """
         pks = self.get_primary_keys(validated_data)
         if validated_data and pks:
-            return self.session.query(self.model).get(pks) or self.fail("not_found")
+            return self.query_model(pks) or self.fail("not_found")
 
         # if validated data is None, it means it was explicitly set as None
         # in self.initial_data hence we normalize to None
@@ -701,6 +707,13 @@ class ModelSerializer(BaseSerializer):
             e = django_to_drf_validation_error(e)
             self._errors = e.detail
             raise e
+
+    def query_model(self, pks):
+        """
+        Hook to allow to customize how model is queried when serializer is nested and needs
+        to query the model by its primary keys
+        """
+        return self.queryset.get(pks)
 
     def create_model(self, validated_data):
         """
