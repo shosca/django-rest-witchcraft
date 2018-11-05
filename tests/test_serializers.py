@@ -9,6 +9,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.settings import api_settings
 from rest_framework.test import APIRequestFactory
+from rest_witchcraft.fields import HyperlinkedIdentityField
 from rest_witchcraft.serializers import BaseSerializer, CompositeSerializer, ExpandableModelSerializer, ModelSerializer
 
 from sqlalchemy import Column, types
@@ -31,7 +32,7 @@ class VehicleSerializer(ExpandableModelSerializer):
         model = Vehicle
         session = session
         expandable_fields = {"owner": VehicleOwnerStubSerializer(source="*", read_only=True)}
-        exclude = ["url", "other"]
+        exclude = ["other"]
         extra_kwargs = {"owner": {"allow_nested_updates": True}}
         nested_serializer_class = ExpandableModelSerializer
 
@@ -148,7 +149,6 @@ class TestModelSerializer(SimpleTestCase):
                 Vehicle.paint.key,
                 Vehicle.type.key,
                 Vehicle.is_used.key,
-                "url",
             },
         )
 
@@ -185,7 +185,6 @@ class TestModelSerializer(SimpleTestCase):
                 Vehicle.owner.key,
                 Vehicle.paint.key,
                 Vehicle.is_used.key,
-                "url",
             },
         )
 
@@ -422,6 +421,25 @@ class TestModelSerializer(SimpleTestCase):
         with self.assertRaises(KeyError):
             serializer.build_standard_field("test", info)
 
+    def test_build_url_field(self):
+        class VehicleSerializer(ModelSerializer):
+            class Meta:
+                model = Vehicle
+                session = session
+                exclude = ("name",)
+
+            def get_default_field_names(self, declared_fields, info):
+                return super(VehicleSerializer, self).get_default_field_names(declared_fields, info) + ["url"]
+
+        serializer = VehicleSerializer()
+        fields = serializer.get_fields()
+        self.assertIn("url", fields)
+
+        url_field = fields.get("url")
+
+        self.assertIsInstance(url_field, HyperlinkedIdentityField)
+        self.assertEqual(url_field.view_name, "vehicle-detail")
+
     def test_build_composite_field(self):
         class VehicleSerializer(ModelSerializer):
             class Meta:
@@ -569,7 +587,7 @@ class TestModelSerializer(SimpleTestCase):
 
         serializer = VehicleSerializer()
 
-        self.assertEqual(len(serializer.fields), 11)
+        self.assertEqual(len(serializer.fields), 10)
         self.assertEqual(
             set(serializer.fields.keys()),
             {
@@ -583,7 +601,6 @@ class TestModelSerializer(SimpleTestCase):
                 Vehicle.paint.key,
                 Vehicle.type.key,
                 Vehicle.is_used.key,
-                "url",
             },
         )
 

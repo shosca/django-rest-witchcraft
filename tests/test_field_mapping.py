@@ -10,6 +10,8 @@ from sqlalchemy.dialects import postgresql
 
 from django.test import SimpleTestCase
 
+from .models import Owner
+
 
 class TestModelViewName(SimpleTestCase):
     def test_get_detail_view_name(self):
@@ -17,6 +19,14 @@ class TestModelViewName(SimpleTestCase):
         name = field_mapping.get_detail_view_name(EnumField)
 
         self.assertEqual(name, "enumfield-detail")
+
+
+class TestGetUrlKwargs(SimpleTestCase):
+    def test_get_url_kwargs(self):
+        kwargs = field_mapping.get_url_kwargs(Owner)
+        self.assertDictEqual(
+            {"read_only": True, "view_name": "owner-detail", "lookup_field": "id", "lookup_url_kwarg": "pk"}, kwargs
+        )
 
 
 class TestGetFieldType(SimpleTestCase):
