@@ -434,7 +434,7 @@ class ModelSerializer(BaseSerializer):
         """
         Return the default list of field names that will be used if the `Meta.fields` option is not specified.
         """
-        return info.field_names + [self.url_field_name or api_settings.URL_FIELD_NAME] + list(declared_fields.keys())
+        return info.field_names + list(declared_fields.keys())
 
     def get_extra_kwargs(self, **additional_kwargs):
         """
