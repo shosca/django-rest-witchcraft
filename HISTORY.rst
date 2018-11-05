@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.7.11 (2018-11-01)
+0.7.12 (2018-11-05)
 -----------------------------
+- Remove url default field from ModelSerializer (#25) [Serkan Hosca]
+- Update lock. [Serkan Hosca]
+
+
+0.7.11 (2018-11-01)
+-------------------
 - Hook for how model is created (#22) [Miroslav Shubernetskiy]
 - Fix serializer tests (#23) [Serkan Hosca]
 - Relock (#20) [Serkan Hosca]
