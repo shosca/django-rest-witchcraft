@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.12 (2018-11-05)
+0.7.13 (2018-11-06)
 -----------------------------
+- Adding query_model hook (#24) [Miroslav Shubernetskiy]
+
+
+0.7.12 (2018-11-05)
+-------------------
 - Remove url default field from ModelSerializer (#25) [Serkan Hosca]
 - Update lock. [Serkan Hosca]
 
