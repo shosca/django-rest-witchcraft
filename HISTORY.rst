@@ -2,8 +2,19 @@ Changelog
 =========
 
 
-0.7.13 (2018-11-06)
+0.7.14 (2018-11-07)
 -----------------------------
+- Fixing typo referencing session which does not exist (#26) [Miroslav
+  Shubernetskiy]
+
+
+
+
+
+
+
+0.7.13 (2018-11-06)
+-------------------
 - Adding query_model hook (#24) [Miroslav Shubernetskiy]
 
 
