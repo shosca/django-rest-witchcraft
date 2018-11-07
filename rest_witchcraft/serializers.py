@@ -328,7 +328,7 @@ class ModelSerializer(BaseSerializer):
 
     @property
     def queryset(self):
-        return getattr(self.Meta, "queryset", None) or self.Meta.session.query(self.model)
+        return getattr(self.Meta, "queryset", None) or self.session.query(self.model)
 
     def get_fields(self):
         """
