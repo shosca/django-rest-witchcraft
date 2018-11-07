@@ -313,8 +313,9 @@ class ModelSerializer(BaseSerializer):
             self._session = self.context.get("session")
 
         assert self._session is not None, (
-            "Creating a ModelSerializer without the session attribute in Meta, as a keyword argument or without"
-            "a session in the serializer context"
+            "Creating a {}(ModelSerializer) without the session attribute in Meta, "
+            "as a keyword argument or without a session in the serializer context"
+            "".format(self.__class__.__name__)
         )
 
         return self._session
@@ -328,7 +329,7 @@ class ModelSerializer(BaseSerializer):
 
     @property
     def queryset(self):
-        return getattr(self.Meta, "queryset", None) or self.Meta.session.query(self.model)
+        return getattr(self.Meta, "queryset", None) or self.session.query(self.model)
 
     def get_fields(self):
         """
