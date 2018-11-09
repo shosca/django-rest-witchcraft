@@ -2,7 +2,6 @@
 language: python
 python:
   - "2.7"
-  - "3.4"
   - "3.6"
 
 install:
@@ -10,7 +9,13 @@ install:
   - pipenv install -d --system --skip-lock
 
 script:
+  - make lint
   - make coverage
 
 after_success:
   coveralls
+
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.cache/pre-commit
