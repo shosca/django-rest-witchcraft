@@ -33,7 +33,9 @@ clean-test:  ## remove test and coverage artifacts
 	rm -rf .tox/ .coverage htmlcov/
 
 lint:  ## run pre-commit hooks on all files
-	pipenv run pre-commit run --files $$(git ls-files)
+	if python -c "import sys; exit(1) if sys.version_info.major < 3 else exit(0)"; then \
+		pipenv run pre-commit run --all-files ; \
+	fi
 
 coverage: ## check code coverage quickly with the default Python
 	pipenv run py.test \
