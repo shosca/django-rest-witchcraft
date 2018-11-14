@@ -2,8 +2,20 @@ Changelog
 =========
 
 
-0.7.14 (2018-11-07)
+0.7.15 (2018-11-13)
 -----------------------------
+- Handling ValidationError in update on set attribute (#28) [Miroslav
+  Shubernetskiy]
+
+
+
+
+
+- Bump pre-commit check versions (#27) [Serkan Hosca]
+
+
+0.7.14 (2018-11-07)
+-------------------
 - Fixing typo referencing session which does not exist (#26) [Miroslav
   Shubernetskiy]
 
