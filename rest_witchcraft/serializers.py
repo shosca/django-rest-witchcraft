@@ -236,6 +236,9 @@ class CompositeSerializer(BaseSerializer):
 
                 self.update_attribute(instance, field, value)
 
+            except DjangoValidationError as e:
+                errors.setdefault(self.field_name, {}).update(django_to_drf_validation_error(e).detail)
+
             except Exception as e:
                 errors.setdefault(field.field_name, []).append(" ".join(e.args))
 
@@ -787,6 +790,9 @@ class ModelSerializer(BaseSerializer):
                     value = validated_data.get(field.source)
 
                 self.update_attribute(instance, field, value)
+
+            except DjangoValidationError as e:
+                errors.update(django_to_drf_validation_error(e).detail)
 
             except Exception as e:
                 errors.setdefault(field.field_name, []).append(" ".join(map(six.text_type, e.args)))

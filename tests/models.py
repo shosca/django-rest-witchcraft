@@ -7,6 +7,7 @@ from sqlalchemy import Column, ForeignKey, Sequence, orm, types
 from django.core.exceptions import ValidationError
 
 from django_sorcery.db import databases
+from django_sorcery.db.models import autocoerce
 
 
 session = databases.get("sqlite://")
@@ -46,6 +47,7 @@ class Engine(object):
         return isinstance(other, Engine) and other.__composite_values__() == self.__composite_values__()
 
 
+@autocoerce
 class Vehicle(Base):
     __tablename__ = "vehicles"
 

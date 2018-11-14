@@ -5,7 +5,7 @@ from collections import OrderedDict
 from decimal import Decimal
 
 from rest_framework import fields
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ErrorDetail, ValidationError
 from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.settings import api_settings
 from rest_framework.test import APIRequestFactory
@@ -15,7 +15,7 @@ from rest_witchcraft.serializers import BaseSerializer, CompositeSerializer, Exp
 from sqlalchemy import Column, types
 from sqlalchemy.orm.properties import ColumnProperty
 
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, ValidationError as DjangoValidationError
 from django.test import SimpleTestCase
 
 from django_sorcery.db.meta import column_info, model_info
@@ -692,8 +692,8 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(vehicle.type, VehicleType(data["type"]))
         self.assertEqual(vehicle.engine.cylinders, data["engine"]["cylinders"])
         self.assertEqual(vehicle.engine.displacement, data["engine"]["displacement"])
-        self.assertEqual(vehicle.engine.fuel_type, None)
-        self.assertEqual(vehicle.engine.type_, None)
+        self.assertEqual(vehicle.engine.fuel_type, "")
+        self.assertEqual(vehicle.engine.type_, "")
         self.assertEqual(vehicle.owner.id, data["owner"]["id"])
         self.assertEqual(vehicle.owner.first_name, "Test")
         self.assertEqual(vehicle.owner.last_name, "Owner")
@@ -732,8 +732,8 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(vehicle.type, VehicleType(data["vehicle_type"]))
         self.assertEqual(vehicle.engine.cylinders, data["engine"]["cylinders"])
         self.assertEqual(vehicle.engine.displacement, data["engine"]["displacement"])
-        self.assertEqual(vehicle.engine.fuel_type, None)
-        self.assertEqual(vehicle.engine.type_, None)
+        self.assertEqual(vehicle.engine.fuel_type, "")
+        self.assertEqual(vehicle.engine.type_, "")
         self.assertEqual(vehicle.owner.id, data["owner"]["id"])
         self.assertEqual(vehicle.owner.first_name, "Test")
         self.assertEqual(vehicle.owner.last_name, "Owner")
@@ -799,8 +799,8 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(vehicle.type, VehicleType(data["basic"]["type"]))
         self.assertEqual(vehicle.engine.cylinders, data["engine"]["cylinders"])
         self.assertEqual(vehicle.engine.displacement, data["engine"]["displacement"])
-        self.assertEqual(vehicle.engine.fuel_type, None)
-        self.assertEqual(vehicle.engine.type_, None)
+        self.assertEqual(vehicle.engine.fuel_type, "")
+        self.assertEqual(vehicle.engine.type_, "")
         self.assertEqual(vehicle.owner.id, data["owner"]["id"])
         self.assertEqual(vehicle.owner.first_name, "Test")
         self.assertEqual(vehicle.owner.last_name, "Owner")
@@ -893,8 +893,8 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(vehicle.other.advertising_cost, 4321)
         self.assertIsNone(vehicle.engine.cylinders)
         self.assertIsNone(vehicle.engine.displacement)
-        self.assertIsNone(vehicle.engine.fuel_type)
-        self.assertIsNone(vehicle.engine.type_)
+        self.assertEqual(vehicle.engine.fuel_type, "")
+        self.assertEqual(vehicle.engine.type_, "")
 
     def test_patch_update(self):
 
@@ -1310,6 +1310,59 @@ class TestModelSerializer(SimpleTestCase):
 
         serializer.update(vehicle, serializer.validated_data)
         self.assertTrue(serializer._set_name_called)
+
+    def test_update_calls_custom_setter_django_validation_error(self):
+        class VehicleSerializer(ModelSerializer):
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = ("name",)
+
+            def set_name(self, instance, field, value):
+                raise DjangoValidationError({"name": [DjangoValidationError("error here")]})
+
+        vehicle = Vehicle(name="Test vehicle")
+
+        data = {"name": "Bob Loblaw"}
+
+        serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        with self.assertRaises(ValidationError) as e:
+            serializer.update(vehicle, serializer.validated_data)
+
+        self.assertEqual(e.exception.detail, {"name": ["error here"]})
+
+    def test_update_composite_calls_custom_setter_django_validation_error(self):
+        class EngineSerializer(CompositeSerializer):
+            class Meta:
+                composite = Vehicle.engine
+
+            def set_cylinders(self, instance, field, value):
+                raise DjangoValidationError({"cylinders": [DjangoValidationError("error here")]})
+
+        class VehicleSerializer(ModelSerializer):
+            engine = EngineSerializer()
+
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = ("engine",)
+
+            def set_name(self, instance, field, value):
+                raise DjangoValidationError({"name": [DjangoValidationError("error here")]})
+
+        vehicle = Vehicle()
+
+        data = {"engine": {"cylinders": 10}}
+
+        serializer = VehicleSerializer(instance=vehicle, data=data, partial=True)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        with self.assertRaises(ValidationError) as e:
+            serializer.update(vehicle, serializer.validated_data)
+
+        self.assertEqual(e.exception.detail, {"engine": {"cylinders": [ErrorDetail("error here", code="invalid")]}})
 
     def test_get_object_can_get_object(self):
         class OwnerSerializer(ModelSerializer):
