@@ -5,8 +5,7 @@ python:
   - "3.6"
 
 install:
-  - pip install pipenv coveralls sqlalchemy_utils
-  - pipenv install -d --system --skip-lock
+  - pip install -U -r requirements.txt
 
 script:
   - make lint
