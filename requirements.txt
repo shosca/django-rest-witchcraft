@@ -1,0 +1,17 @@
+-e .
+pytest
+pytest-cov
+flake8
+flake8-bugbear; python_version > '2.7'
+simplejson
+sphinx-autobuild
+gitchangelog
+yapf
+pdbpp
+pre_commit
+Sphinx
+sphinx_rtd_theme
+mock; python_version <= '2.7'
+tox
+coveralls
+sqlalchemy_utils
