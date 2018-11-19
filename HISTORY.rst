@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.7.15 (2018-11-13)
+0.7.16 (2018-11-19)
 -----------------------------
+- Fix composite source (#31) [Serkan Hosca]
+- Remove pipenv (#30) [Serkan Hosca]
+
+
+0.7.15 (2018-11-14)
+-------------------
 - Handling ValidationError in update on set attribute (#28) [Miroslav
   Shubernetskiy]
 
