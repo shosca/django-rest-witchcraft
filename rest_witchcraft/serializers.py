@@ -173,7 +173,6 @@ class CompositeSerializer(BaseSerializer):
     def __init__(self, *args, **kwargs):
         composite_attr = kwargs.pop("composite", None) or getattr(getattr(self, "Meta", None), "composite", None)
         self._info = composite_info(composite_attr)
-        self.source = kwargs.pop("source", None)
 
         super(CompositeSerializer, self).__init__(*args, **kwargs)
         self.composite_class = self._info.prop.composite_class
