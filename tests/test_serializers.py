@@ -12,15 +12,12 @@ from rest_framework.test import APIRequestFactory
 from rest_witchcraft.fields import HyperlinkedIdentityField
 from rest_witchcraft.serializers import BaseSerializer, CompositeSerializer, ExpandableModelSerializer, ModelSerializer
 
-from sqlalchemy import Column, types
-from sqlalchemy.orm.properties import ColumnProperty
-
 from django.core.exceptions import ImproperlyConfigured, ValidationError as DjangoValidationError
 from django.test import SimpleTestCase
 
-from django_sorcery.db.meta import column_info, model_info
+from django_sorcery.db.meta import model_info
 
-from .models import COLORS, Engine, Option, Owner, Vehicle, VehicleOther, VehicleType, session
+from .models import COLORS, Engine, ModelWithJson, Option, Owner, Vehicle, VehicleOther, VehicleType, session
 
 
 class VehicleOwnerStubSerializer(Serializer):
@@ -406,20 +403,17 @@ class TestModelSerializer(SimpleTestCase):
         self.assertTrue(field.allow_null)
 
     def test_fail_when_a_field_type_not_found(self):
-        class VehicleSerializer(ModelSerializer):
+        class JSSerializer(ModelSerializer):
             class Meta:
-                model = Vehicle
+                model = ModelWithJson
                 session = session
-                fields = ("paint",)
+                fields = ("js",)
 
-        serializer = VehicleSerializer()
-        col = Column("test", types.JSON())
-        prop = ColumnProperty(col)
-        prop.key = col.key
-        info = column_info(prop, col)
+        serializer = JSSerializer()
+        with self.assertRaises(KeyError) as e:
+            serializer.fields
 
-        with self.assertRaises(KeyError):
-            serializer.build_standard_field("test", info)
+        self.assertEqual(e.exception.args, ("Could not figure out type for attribute 'ModelWithJson.js'",))
 
     def test_build_url_field(self):
         class VehicleSerializer(ModelSerializer):
@@ -645,7 +639,7 @@ class TestModelSerializer(SimpleTestCase):
         data = {
             "name": "Test vehicle",
             "one": "Two",
-            "type": "Bus",
+            "type": "bus",
             "engine": {"displacement": 1234, "cylinders": 4},
             "owner": {"id": 1},
             "options": [],
@@ -658,7 +652,7 @@ class TestModelSerializer(SimpleTestCase):
             dict(serializer.validated_data),
             {
                 "name": "Test vehicle",
-                "type": VehicleType("Bus"),
+                "type": VehicleType.bus,
                 "engine": {"displacement": Decimal("1234.00"), "cylinders": 4},
                 "owner": {"id": 1},
                 "options": [],
@@ -676,7 +670,7 @@ class TestModelSerializer(SimpleTestCase):
         data = {
             "name": "Test vehicle",
             "one": "Two",
-            "type": "Bus",
+            "type": "bus",
             "engine": {"displacement": 1234, "cylinders": 4},
             "owner": {"id": 1},
             "options": [],
@@ -689,7 +683,7 @@ class TestModelSerializer(SimpleTestCase):
         vehicle = serializer.save()
 
         self.assertEqual(vehicle.name, data["name"])
-        self.assertEqual(vehicle.type, VehicleType(data["type"]))
+        self.assertEqual(vehicle.type, VehicleType.bus)
         self.assertEqual(vehicle.engine.cylinders, data["engine"]["cylinders"])
         self.assertEqual(vehicle.engine.displacement, data["engine"]["displacement"])
         self.assertEqual(vehicle.engine.fuel_type, "")
@@ -1496,7 +1490,7 @@ class TestExpandableModelSerializer(SimpleTestCase):
             {
                 "id": None,
                 "name": "Test vehicle",
-                "type": "Bus",
+                "type": "bus",
                 "created_at": None,
                 "paint": None,
                 "is_used": None,
@@ -1515,7 +1509,7 @@ class TestExpandableModelSerializer(SimpleTestCase):
                 {
                     "id": None,
                     "name": "Test vehicle",
-                    "type": "Bus",
+                    "type": "bus",
                     "created_at": None,
                     "paint": None,
                     "is_used": None,
@@ -1534,7 +1528,7 @@ class TestExpandableModelSerializer(SimpleTestCase):
             {
                 "id": None,
                 "name": "Test vehicle",
-                "type": "Bus",
+                "type": "bus",
                 "created_at": None,
                 "paint": None,
                 "is_used": None,
@@ -1560,7 +1554,7 @@ class TestExpandableModelSerializer(SimpleTestCase):
             {
                 "id": None,
                 "name": "Test vehicle",
-                "type": "Bus",
+                "type": "bus",
                 "created_at": None,
                 "paint": None,
                 "is_used": None,

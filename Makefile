@@ -34,7 +34,7 @@ lint:  ## run pre-commit hooks on all files
 	fi
 
 coverage: ## check code coverage quickly with the default Python
-	py.test \
+	py.test $(PYTEST_OPTS) \
 		--cov-report html \
 		--cov-report term-missing \
 		--cov=$(PACKAGE) tests \
@@ -42,10 +42,10 @@ coverage: ## check code coverage quickly with the default Python
 		tests $(PACKAGE)
 
 $(FILES):  ## helper target to run coverage tests on a module
-	py.test --cov-report term-missing --cov-fail-under 100 --cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
+	py.test $(PYTEST_OPTS) --cov-report term-missing --cov-fail-under 100 --cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
-	py.test --doctest-modules tests $(PACKAGE)
+	py.test $(PYTEST_OPTS) --doctest-modules tests $(PACKAGE)
 
 check:  ## run all tests
 	tox
