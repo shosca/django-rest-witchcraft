@@ -109,4 +109,13 @@ class Option(Base):
     vehicle = orm.relationship(Vehicle, backref="options")
 
 
+class ModelWithJson(Base):
+    __tablename__ = "model_with_json"
+
+    id = Column(types.Integer(), Sequence("seq_id"), primary_key=True)
+
+
 session.create_all()
+
+# getting around sqlite not supporting json column
+ModelWithJson.js = Column(types.JSON())

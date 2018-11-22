@@ -78,9 +78,9 @@ class BaseSerializer(serializers.Serializer):
                 "allow_blank",
                 "choices",
             }
-            for key in list(field_kwargs.keys()):
+            for key in list(field_kwargs):
                 if key not in valid_kwargs:
-                    field_kwargs.pop(key)
+                    del field_kwargs[key]  # pragma: nocover
 
         if not issubclass(field_class, fields.CharField) and not issubclass(field_class, fields.ChoiceField):
             # `allow_blank` is only valid for textual fields.

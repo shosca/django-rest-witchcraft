@@ -11,6 +11,7 @@ from rest_framework import fields, relations
 from django.db.models.constants import LOOKUP_SEP
 
 from django_sorcery.db.meta import model_info
+from django_sorcery.utils import suppress
 
 
 class HyperlinkedIdentityField(relations.HyperlinkedIdentityField):
@@ -47,24 +48,29 @@ class EnumField(fields.ChoiceField):
     a list of valid fields for the column.
     """
 
-    def __init__(self, **kwargs):
-        self.enum_class = kwargs.pop("enum_class")
-        kwargs["choices"] = [(e.value, e.value) for e in self.enum_class]
+    def __init__(
+        self, enum_class=None, choices=None, to_choice=lambda x: (x.name, x.value), to_repr=lambda x: x.name, **kwargs
+    ):
+        self.enum_class = enum_class or choices
+        self.to_repr = to_repr
+        self.to_choice = to_choice
+        kwargs["choices"] = [to_choice(e) for e in self.enum_class]
         kwargs.pop("max_length", None)
         super(EnumField, self).__init__(**kwargs)
 
     def to_internal_value(self, data):
-        try:
+        with suppress(KeyError, ValueError):
+            return self.enum_class[data]
+        with suppress(KeyError, ValueError):
             return self.enum_class(data)
 
-        except (KeyError, ValueError):
-            self.fail("invalid_choice", input=data)
+        self.fail("invalid_choice", input=data)
 
     def to_representation(self, value):
         if not value:
             return None
 
-        return value.value
+        return self.to_repr(value)
 
 
 class CharMappingField(fields.DictField):
