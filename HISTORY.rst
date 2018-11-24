@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.16 (2018-11-19)
+0.7.17 (2018-11-24)
 -----------------------------
+- Fix enum field and make it more generic (#32) [Serkan Hosca]
+
+
+0.7.16 (2018-11-19)
+-------------------
 - Fix composite source (#31) [Serkan Hosca]
 - Remove pipenv (#30) [Serkan Hosca]
 
