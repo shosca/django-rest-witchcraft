@@ -8,7 +8,6 @@ from sqlalchemy.exc import InvalidRequestError
 from django.http import Http404
 
 from django_sorcery.db.meta import model_info
-from django_sorcery.db.models import get_primary_keys
 from django_sorcery.utils import suppress
 
 
@@ -69,7 +68,7 @@ class GenericAPIView(generics.GenericAPIView):
 
             kwargs[lookup_field] = kwargs.pop(lookup_url_kwarg)
 
-        obj = queryset.get(get_primary_keys(model, kwargs))
+        obj = queryset.get(info.primary_keys_from_dict(kwargs))
 
         if not obj:
             raise Http404("No %s matches the given query." % model.__name__)

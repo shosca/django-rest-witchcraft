@@ -18,7 +18,6 @@ from django.http import QueryDict
 from django.utils.text import capfirst
 
 from django_sorcery.db.meta import composite_info, model_info
-from django_sorcery.db.models import get_primary_keys
 
 from .field_mapping import get_field_type, get_url_kwargs
 from .fields import ImplicitExpandableListField, UriField
@@ -653,10 +652,10 @@ class ModelSerializer(BaseSerializer):
         """
         Returns the primary key values from validated_data
         """
+        info = model_info(self.queryset._only_entity_zero().mapper)
         return (
-            get_primary_keys(
-                self.queryset._only_entity_zero().mapper.class_,
-                {getattr(self.fields.get(k), "source", None) or k: v for k, v in validated_data.items()},
+            info.primary_keys_from_dict(
+                {getattr(self.fields.get(k), "source", None) or k: v for k, v in validated_data.items()}
             )
             if validated_data
             else None
