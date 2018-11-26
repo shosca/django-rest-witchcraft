@@ -90,6 +90,7 @@ class BaseSerializer(serializers.Serializer):
             for kw in {"allow_null", "max_length"}:
                 field_kwargs.pop(kw, None)
 
+        field_kwargs.pop("widget", None)
         return field_kwargs
 
     def build_standard_field(self, field_name, column_info):
