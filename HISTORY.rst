@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.17 (2018-11-24)
+0.7.18 (2018-11-26)
 -----------------------------
+- Stop using deprecated functions (#33) [Serkan Hosca]
+
+
+0.7.17 (2018-11-24)
+-------------------
 - Fix enum field and make it more generic (#32) [Serkan Hosca]
 
 
