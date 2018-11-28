@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.18 (2018-11-26)
+0.7.19 (2018-11-28)
 -----------------------------
+- Pop widget from args (#34) [Serkan Hosca]
+
+
+0.7.18 (2018-11-26)
+-------------------
 - Stop using deprecated functions (#33) [Serkan Hosca]
 
 
