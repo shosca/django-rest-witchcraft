@@ -51,9 +51,6 @@ class BaseSerializer(serializers.Serializer):
         field_kwargs["label"] = capfirst(" ".join(field_name.split("_")).strip())
         field_kwargs["allow_null"] = not field_kwargs.get("required", True)
 
-        # Include any kwargs defined in `Meta.extra_kwargs`
-        field_kwargs = self.include_extra_kwargs(field_kwargs, self._extra_kwargs.get(field_name))
-
         if "choices" in field_kwargs:
             # Fields with choices get coerced into `ChoiceField`
             # instead of using their regular typed field.
@@ -80,6 +77,9 @@ class BaseSerializer(serializers.Serializer):
             for key in list(field_kwargs):
                 if key not in valid_kwargs:
                     del field_kwargs[key]  # pragma: nocover
+
+        # Include any kwargs defined in `Meta.extra_kwargs`
+        field_kwargs = self.include_extra_kwargs(field_kwargs, self._extra_kwargs.get(field_name))
 
         if not issubclass(field_class, fields.CharField) and not issubclass(field_class, fields.ChoiceField):
             # `allow_blank` is only valid for textual fields.
