@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.7.19 (2018-11-28)
+0.7.20 (2018-12-13)
 -----------------------------
+- Fix enum field custom kwargs (#35) [Serkan Hosca]
+
+
+0.7.19 (2018-11-28)
+-------------------
 - Pop widget from args (#34) [Serkan Hosca]
 
 
