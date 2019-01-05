@@ -17,7 +17,7 @@ from django.db.models.constants import LOOKUP_SEP
 from django.http import QueryDict
 from django.utils.text import capfirst
 
-from django_sorcery.db.meta import composite_info, model_info
+from django_sorcery.db import meta
 
 from .field_mapping import get_field_type, get_url_kwargs
 from .fields import ImplicitExpandableListField, UriField
@@ -172,7 +172,7 @@ class CompositeSerializer(BaseSerializer):
 
     def __init__(self, *args, **kwargs):
         composite_attr = kwargs.pop("composite", None) or getattr(getattr(self, "Meta", None), "composite", None)
-        self._info = composite_info(composite_attr)
+        self._info = meta.model_info(composite_attr.prop.parent).composites[composite_attr.prop.key]
 
         super(CompositeSerializer, self).__init__(*args, **kwargs)
         self.composite_class = self._info.prop.composite_class
@@ -346,7 +346,7 @@ class ModelSerializer(BaseSerializer):
         )
 
         declared_fields = copy.deepcopy(self._declared_fields)
-        info = model_info(self.model)
+        info = meta.model_info(self.model)
         depth = getattr(self.Meta, "depth", 0)
 
         if depth is not None:
@@ -533,7 +533,7 @@ class ModelSerializer(BaseSerializer):
         field_kwargs = self.include_extra_kwargs(field_kwargs, self._extra_kwargs.get(field_name))
         nested_extra_kwargs = {}
 
-        nested_info = model_info(target_model)
+        nested_info = meta.model_info(target_model)
         if not field_kwargs.get("required", True):
             for nested_field in nested_info.primary_keys:
                 nested_extra_kwargs.setdefault(nested_field, {}).setdefault("required", False)
@@ -597,7 +597,7 @@ class ModelSerializer(BaseSerializer):
         """
         Get the field names for the nested serializer
         """
-        target_model_info = model_info(relation_info.related_model)
+        target_model_info = meta.model_info(relation_info.related_model)
 
         # figure out backrefs
         backrefs = set()
@@ -634,7 +634,7 @@ class ModelSerializer(BaseSerializer):
         if not self.partial_by_pk or not self.get_primary_keys(data):
             return super(ModelSerializer, self).to_internal_value(data)
 
-        info = model_info(self.model)
+        info = meta.model_info(self.model)
 
         for name, field in self.fields.items():
             if field.source not in info.primary_keys:
@@ -653,7 +653,7 @@ class ModelSerializer(BaseSerializer):
         """
         Returns the primary key values from validated_data
         """
-        info = model_info(self.queryset._only_entity_zero().mapper)
+        info = meta.model_info(self.queryset._only_entity_zero().mapper)
         return (
             info.primary_keys_from_dict(
                 {getattr(self.fields.get(k), "source", None) or k: v for k, v in validated_data.items()}

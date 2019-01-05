@@ -10,13 +10,13 @@ from rest_framework import fields, relations
 
 from django.db.models.constants import LOOKUP_SEP
 
-from django_sorcery.db.meta import model_info
+from django_sorcery.db import meta
 from django_sorcery.utils import suppress
 
 
 class HyperlinkedIdentityField(relations.HyperlinkedIdentityField):
     def get_url(self, obj, view_name, request, format):
-        info = model_info(obj.__class__)
+        info = meta.model_info(obj.__class__)
 
         # Unsaved objects will not yet have a valid URL.
         if not all(getattr(obj, i) for i in info.primary_keys):
