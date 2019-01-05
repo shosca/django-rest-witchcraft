@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 from rest_framework import routers
 
-from django_sorcery.db.meta import model_info
+from django_sorcery.db import meta
 
 
 class DefaultRouter(routers.DefaultRouter):
@@ -35,7 +35,7 @@ class DefaultRouter(routers.DefaultRouter):
 
         model = getattr(viewset, "get_model", lambda: None)()
         if model:
-            info = model_info(model)
+            info = meta.model_info(model)
             base_regex = "(?P<{lookup_prefix}{lookup_url_kwarg}>{lookup_value})"
 
             lookup_keys = [getattr(viewset, "lookup_url_kwarg", None) or getattr(viewset, "lookup_field", None)]

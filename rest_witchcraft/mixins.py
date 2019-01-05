@@ -9,7 +9,7 @@ from sqlalchemy import orm
 
 from django.db.models.constants import LOOKUP_SEP
 
-from django_sorcery.db.meta import model_info
+from django_sorcery.db import meta
 
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
@@ -100,7 +100,7 @@ class ExpandableQuerySerializerMixin(QuerySerializerMixin):
 
             model = queryset._only_entity_zero().class_
             for c in components:
-                props = model_info(model).relationships
+                props = meta.model_info(model).relationships
                 try:
                     field = getattr(model, c)
                     model = props[c].relationship._dependency_processor.mapper.class_
