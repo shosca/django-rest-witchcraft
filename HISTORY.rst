@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.7.20 (2018-12-13)
+0.8.0 (2019-01-04)
 -----------------------------
+- Grab composite meta info from parent model (#37) [Serkan Hosca]
+- Coersion fixes from django-sorcery (#36) [Serkan Hosca]
+
+
+0.7.20 (2018-12-13)
+-------------------
 - Fix enum field custom kwargs (#35) [Serkan Hosca]
 
 
