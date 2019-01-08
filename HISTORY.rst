@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.8.0 (2019-01-04)
+0.8.1 (2019-01-08)
 -----------------------------
+- Allowing to overwrite fields and exclude on serializer init (#38)
+  [Miroslav Shubernetskiy]
+
+
+0.8.0 (2019-01-05)
+------------------
 - Grab composite meta info from parent model (#37) [Serkan Hosca]
 - Coersion fixes from django-sorcery (#36) [Serkan Hosca]
 
