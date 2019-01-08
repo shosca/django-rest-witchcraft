@@ -289,11 +289,15 @@ class ModelSerializer(BaseSerializer):
         self.allow_nested_updates = kwargs.pop("allow_nested_updates", False)
         self.allow_create = kwargs.pop("allow_create", False)
         self.partial_by_pk = kwargs.pop("partial_by_pk", False)
+        overwrite_fields = kwargs.pop("fields", fields.empty)
+        overwrite_exclude = kwargs.pop("exclude", fields.empty)
         extra_kwargs = kwargs.pop("extra_kwargs", {})
 
         super(ModelSerializer, self).__init__(*args, **kwargs)
 
         self._extra_kwargs = self.get_extra_kwargs(**extra_kwargs)
+        self._overwrite_fields = overwrite_fields
+        self._overwrite_exclude = overwrite_exclude
 
     def __deepcopy__(self, memo=None):
         """
@@ -377,8 +381,14 @@ class ModelSerializer(BaseSerializer):
         set of fields, but also takes into account the `Meta.fields` or
         `Meta.exclude` options if they have been specified.
         """
-        _fields = getattr(self.Meta, "fields", None)
-        exclude = getattr(self.Meta, "exclude", None)
+        _fields = (
+            self._overwrite_fields if self._overwrite_fields is not fields.empty else getattr(self.Meta, "fields", None)
+        )
+        exclude = (
+            self._overwrite_exclude
+            if self._overwrite_exclude is not fields.empty
+            else getattr(self.Meta, "exclude", None)
+        )
 
         if _fields and _fields != ALL_FIELDS and not isinstance(_fields, (list, tuple)):
             raise TypeError(
