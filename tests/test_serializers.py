@@ -202,6 +202,44 @@ class TestModelSerializer(SimpleTestCase):
         self.assertIn(Vehicle.owner.key, generated_fields)
         self.assertIn(Vehicle.options.key, generated_fields)
 
+        self.assertFalse(generated_fields[Vehicle.options.key].read_only)
+
+    def test_overwrite_extra_kwargs(self):
+        class VehicleSerializer(ModelSerializer):
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = "__all__"
+
+        serializer = VehicleSerializer(extra_kwargs={Vehicle.options.key: {"read_only": True}})
+        generated_fields = serializer.get_fields()
+
+        self.assertIn(Vehicle.id.key, generated_fields)
+        self.assertIn(Vehicle.type.key, generated_fields)
+        self.assertIn(Vehicle.name.key, generated_fields)
+        self.assertIn(Vehicle.engine.key, generated_fields)
+        self.assertIn(Vehicle.owner.key, generated_fields)
+        self.assertIn(Vehicle.options.key, generated_fields)
+
+        self.assertTrue(generated_fields[Vehicle.options.key].read_only)
+
+    def test_overwrite_fields_exlude(self):
+        class VehicleSerializer(ModelSerializer):
+            class Meta:
+                model = Vehicle
+                session = session
+                fields = "__all__"
+
+        serializer = VehicleSerializer(fields=None, exclude=["options"])
+        generated_fields = serializer.get_fields()
+
+        self.assertIn(Vehicle.id.key, generated_fields)
+        self.assertIn(Vehicle.type.key, generated_fields)
+        self.assertIn(Vehicle.name.key, generated_fields)
+        self.assertIn(Vehicle.engine.key, generated_fields)
+        self.assertIn(Vehicle.owner.key, generated_fields)
+        self.assertNotIn(Vehicle.options.key, generated_fields)
+
     def test_declared_field(self):
         class VehicleSerializer(ModelSerializer):
             name = fields.ChoiceField(choices=["a", "b"])
