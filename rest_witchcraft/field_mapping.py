@@ -7,6 +7,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 import decimal
 
+import six
 from rest_framework import fields
 
 from sqlalchemy.dialects import postgresql
@@ -57,6 +58,9 @@ SERIALIZER_FIELD_MAPPING = {
     int: fields.IntegerField,
     str: fields.CharField,
 }
+SERIALIZER_FIELD_MAPPING[six.text_type] = fields.CharField
+for stype in six.string_types:
+    SERIALIZER_FIELD_MAPPING[stype] = fields.CharField
 
 try:
     from sqlalchemy_utils import types
@@ -98,4 +102,6 @@ def get_field_type(column):
     if issubclass(column.type.python_type, bool):
         return fields.NullBooleanField if column.nullable else fields.BooleanField
 
-    return SERIALIZER_FIELD_MAPPING.get(column.type.python_type)
+    for typ in column.type.python_type.mro():
+        if typ in SERIALIZER_FIELD_MAPPING:
+            return SERIALIZER_FIELD_MAPPING.get(typ)

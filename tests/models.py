@@ -21,8 +21,8 @@ class Owner(Base):
     __tablename__ = "owners"
 
     id = Column(types.Integer(), primary_key=True)
-    first_name = Column(types.String())
-    last_name = Column(types.String())
+    first_name = Column(types.Unicode(length=50))
+    last_name = Column(types.Unicode(length=50))
 
 
 class VehicleType(enum.Enum):
@@ -52,7 +52,7 @@ class Vehicle(Base):
     __tablename__ = "vehicles"
 
     id = Column(types.Integer(), Sequence("seq_id"), primary_key=True, doc="The primary key")
-    name = Column(types.String(), doc="The name of the vehicle")
+    name = Column(types.String(length=50), doc="The name of the vehicle")
     type = Column(types.Enum(VehicleType), nullable=False)
     created_at = Column(types.DateTime())
     paint = Column(types.Enum(*COLORS))
@@ -103,7 +103,7 @@ class VehicleOther(Base):
 class Option(Base):
     __tablename__ = "options"
     id = Column(types.Integer(), primary_key=True)
-    name = Column(types.String())
+    name = Column(types.String(length=50))
 
     _vehicle_id = Column(types.Integer(), ForeignKey(Vehicle.id))
     vehicle = orm.relationship(Vehicle, backref="options")
