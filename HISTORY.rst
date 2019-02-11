@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.8.1 (2019-01-08)
+0.8.2 (2019-02-11)
 -----------------------------
+- Fix Unicode type column mapping (#40) [Serkan Hosca]
+
+
+0.8.1 (2019-01-08)
+------------------
 - Allowing to overwrite fields and exclude on serializer init (#38)
   [Miroslav Shubernetskiy]
 
