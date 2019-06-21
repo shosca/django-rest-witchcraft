@@ -11,6 +11,11 @@ help:
 		grep -E '^[a-zA-Z_-%]+:.*?## .*$$' $$f | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}' ; \
 	done ; \
 
+resetdb: ## reset test db
+	-psql -c "drop database test;" -h localhost -U postgres
+	-psql -c "create database test;" -h localhost -U postgres
+
+
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 clean-build:  ## remove build artifacts
