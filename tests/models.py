@@ -6,11 +6,11 @@ from sqlalchemy import Column, ForeignKey, Sequence, orm, types
 
 from django.core.exceptions import ValidationError
 
-from django_sorcery.db import databases
+from django_sorcery.db import SQLAlchemy
 from django_sorcery.db.models import autocoerce
 
 
-session = databases.get("sqlite://")
+session = SQLAlchemy("postgresql://postgres@localhost/test")
 
 Base = session.Model
 
@@ -53,9 +53,9 @@ class Vehicle(Base):
 
     id = Column(types.Integer(), Sequence("seq_id"), primary_key=True, doc="The primary key")
     name = Column(types.String(length=50), doc="The name of the vehicle")
-    type = Column(types.Enum(VehicleType), nullable=False)
+    type = Column(types.Enum(VehicleType, name="vehicle_type"), nullable=False)
     created_at = Column(types.DateTime())
-    paint = Column(types.Enum(*COLORS))
+    paint = Column(types.Enum(*COLORS, name="colors"))
     is_used = Column(types.Boolean)
 
     @property
