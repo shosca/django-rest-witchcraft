@@ -9,10 +9,11 @@ gitchangelog
 yapf
 pdbpp
 pre_commit
-psycopg2
+psycopg2cffi
 Sphinx
 sphinx_rtd_theme
 mock; python_version <= '2.7'
 tox
+tox-pyenv
 coveralls
 sqlalchemy_utils

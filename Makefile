@@ -2,6 +2,7 @@ PACKAGE=rest_witchcraft
 FILES=$(shell find $(PACKAGE) -iname '*.py')
 VERSION=$(shell python setup.py --version)
 NEXT=$(shell semver -i $(BUMP) $(VERSION))
+COVERAGE_FLAGS?=--cov-fail-under=100
 
 .PHONY: docs $(FILES)
 
@@ -43,11 +44,15 @@ coverage: ## check code coverage quickly with the default Python
 		--cov-report html \
 		--cov-report term-missing \
 		--cov=$(PACKAGE) tests \
+		$(COVERAGE_FLAGS) \
 		--doctest-modules \
 		tests $(PACKAGE)
 
 $(FILES):  ## helper target to run coverage tests on a module
-	py.test $(PYTEST_OPTS) --cov-report term-missing --cov-fail-under 100 --cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
+	py.test $(PYTEST_OPTS)
+		--cov-report term-missing
+		--cov-fail-under 100
+		--cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
 	py.test $(PYTEST_OPTS) --doctest-modules tests $(PACKAGE)
