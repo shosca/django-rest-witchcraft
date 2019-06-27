@@ -49,9 +49,9 @@ coverage: ## check code coverage quickly with the default Python
 		tests $(PACKAGE)
 
 $(FILES):  ## helper target to run coverage tests on a module
-	py.test $(PYTEST_OPTS)
-		--cov-report term-missing
-		--cov-fail-under 100
+	py.test $(PYTEST_OPTS) \
+		--cov-report term-missing \
+		--cov-fail-under 100 \
 		--cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
