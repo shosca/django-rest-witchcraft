@@ -2,9 +2,9 @@ rest\_witchcraft package
 ========================
 
 .. automodule:: rest_witchcraft
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Submodules
 ----------

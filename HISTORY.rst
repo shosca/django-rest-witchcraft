@@ -2,8 +2,16 @@ Changelog
 =========
 
 
-0.8.2 (2019-02-11)
+0.8.3 (2019-06-26)
 -----------------------------
+- Fix module test runner target (#44) [Serkan Hosca]
+- Switching to tox-travis and tox matrix (#43) [Miroslav Shubernetskiy]
+- Run tests with pg (#42) [Serkan Hosca]
+- Update pre-commit (#41) [Serkan Hosca]
+
+
+0.8.2 (2019-02-11)
+------------------
 - Fix Unicode type column mapping (#40) [Serkan Hosca]
 
 
@@ -452,3 +460,5 @@ Other
 - Added initial readme. [Serkan Hosca]
 - Add travis. [Serkan Hosca]
 - Initial commit. [Serkan Hosca]
+
+
