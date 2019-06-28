@@ -8,14 +8,17 @@ import datetime
 import decimal
 
 import six
-from rest_framework import fields
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import sqltypes
 
 from django_sorcery.db import meta
 
-from .fields import CharMappingField, EnumField
+from rest_framework import fields
+
+from rest_enumfield import EnumField
+
+from .fields import CharMappingField
 
 
 def get_detail_view_name(model):

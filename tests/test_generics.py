@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from rest_framework.test import APIRequestFactory
-from rest_witchcraft import serializers, viewsets
-
 from sqlalchemy import Column, create_engine, orm, types
 from sqlalchemy.ext.declarative import declarative_base
 
 from django.http import Http404
 from django.test import SimpleTestCase
+
+from rest_framework.test import APIRequestFactory
+
+from rest_witchcraft import serializers, viewsets
 
 
 factory = APIRequestFactory()

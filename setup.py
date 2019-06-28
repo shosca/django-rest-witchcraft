@@ -36,7 +36,7 @@ setup(
     author=about["__author__"],
     author_email=about["__author_email__"],
     description=about["__description__"],
-    install_requires=["djangorestframework", "six", "django-sorcery"],
+    install_requires=["djangorestframework", "six", "django-sorcery", "django-rest-enumfield"],
     license="MIT",
     long_description=read("README.rst"),
     name="django-rest-witchcraft",
@@ -45,7 +45,7 @@ setup(
     version=about["__version__"],
     keywords="sqlalchemy django rest framework drf rest_framework",
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
         "Framework :: Django :: 1.11",
         "Framework :: Django",

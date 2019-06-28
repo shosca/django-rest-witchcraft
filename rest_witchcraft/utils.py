@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError as DjangoValidationError
+
 from rest_framework.serializers import ValidationError
 from rest_framework.settings import api_settings
-
-from django.core.exceptions import NON_FIELD_ERRORS, ValidationError as DjangoValidationError
 
 
 def _django_to_drf(e):

@@ -2,17 +2,19 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import six
+
+from sqlalchemy.orm import joinedload
+
+from django.test import SimpleTestCase
+
 from rest_framework.fields import IntegerField
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.test import APIRequestFactory
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
+
 from rest_witchcraft.mixins import ExpandableQuerySerializerMixin
 from rest_witchcraft.serializers import ExpandableModelSerializer, ModelSerializer
-
-from sqlalchemy.orm import joinedload
-
-from django.test import SimpleTestCase
 
 from .models import Vehicle, session
 from .test_routers import UnAuthMixin

@@ -4,18 +4,19 @@ import copy
 from collections import OrderedDict
 from decimal import Decimal
 
+from django.core.exceptions import ImproperlyConfigured, ValidationError as DjangoValidationError
+from django.test import SimpleTestCase
+
+from django_sorcery.db.meta import model_info
+
 from rest_framework import fields
 from rest_framework.exceptions import ErrorDetail, ValidationError
 from rest_framework.serializers import ListSerializer, Serializer
 from rest_framework.settings import api_settings
 from rest_framework.test import APIRequestFactory
+
 from rest_witchcraft.fields import HyperlinkedIdentityField
 from rest_witchcraft.serializers import BaseSerializer, CompositeSerializer, ExpandableModelSerializer, ModelSerializer
-
-from django.core.exceptions import ImproperlyConfigured, ValidationError as DjangoValidationError
-from django.test import SimpleTestCase
-
-from django_sorcery.db.meta import model_info
 
 from .models import COLORS, Engine, ModelWithJson, Option, Owner, Vehicle, VehicleOther, VehicleType, session
 

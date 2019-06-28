@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from rest_framework import generics
-
 from sqlalchemy.exc import InvalidRequestError
 
 from django.http import Http404
 
 from django_sorcery.db.meta import model_info
 from django_sorcery.utils import suppress
+
+from rest_framework import generics
 
 
 class GenericAPIView(generics.GenericAPIView):

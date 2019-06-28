@@ -2,10 +2,11 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import simplejson as json
-from rest_witchcraft import routers, serializers, viewsets
 
 from django.conf.urls import include, url
 from django.test import SimpleTestCase, override_settings
+
+from rest_witchcraft import routers, serializers, viewsets
 
 from .models_composite import RouterTestCompositeKeyModel, RouterTestModel, session
 

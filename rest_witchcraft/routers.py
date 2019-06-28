@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from rest_framework import routers
-
 from django_sorcery.db import meta
+
+from rest_framework import routers
 
 
 class DefaultRouter(routers.DefaultRouter):
