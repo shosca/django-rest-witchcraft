@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.8.3 (2019-06-26)
+0.9.0 (2019-06-28)
 -----------------------------
+- Drop enumfield and update importanize config (#45) [Serkan Hosca]
+
+
+0.8.3 (2019-06-27)
+------------------
 - Fix module test runner target (#44) [Serkan Hosca]
 - Switching to tox-travis and tox matrix (#43) [Miroslav Shubernetskiy]
 - Run tests with pg (#42) [Serkan Hosca]
@@ -460,3 +465,5 @@ Other
 - Added initial readme. [Serkan Hosca]
 - Add travis. [Serkan Hosca]
 - Initial commit. [Serkan Hosca]
+
+
