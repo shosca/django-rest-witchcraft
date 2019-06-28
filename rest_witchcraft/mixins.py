@@ -3,13 +3,14 @@ from __future__ import absolute_import, print_function, unicode_literals
 from itertools import chain
 
 import six
-from rest_framework import mixins
 
 from sqlalchemy import orm
 
 from django.db.models.constants import LOOKUP_SEP
 
 from django_sorcery.db import meta
+
+from rest_framework import mixins
 
 
 class DestroyModelMixin(mixins.DestroyModelMixin):

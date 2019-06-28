@@ -6,9 +6,6 @@ from collections import OrderedDict, namedtuple
 from itertools import groupby
 
 import six
-from rest_framework import fields, serializers
-from rest_framework.exceptions import ValidationError
-from rest_framework.settings import api_settings
 
 from sqlalchemy.orm.interfaces import ONETOMANY
 
@@ -18,6 +15,10 @@ from django.http import QueryDict
 from django.utils.text import capfirst
 
 from django_sorcery.db import meta
+
+from rest_framework import fields, serializers
+from rest_framework.exceptions import ValidationError
+from rest_framework.settings import api_settings
 
 from .field_mapping import get_field_type, get_url_kwargs
 from .fields import ImplicitExpandableListField, UriField

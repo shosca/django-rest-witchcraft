@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, print_function, unicode_literals
 
-from rest_framework import fields
-from rest_witchcraft import field_mapping
-from rest_witchcraft.fields import CharMappingField, EnumField
-
 import sqlalchemy as sqa
 from sqlalchemy.dialects import postgresql
 
 from django.test import SimpleTestCase
+
+from rest_framework import fields
+
+from rest_enumfield import EnumField
+
+from rest_witchcraft import field_mapping
+from rest_witchcraft.fields import CharMappingField
 
 from .models import Owner
 

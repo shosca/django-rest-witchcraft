@@ -6,12 +6,12 @@ Some SQLAlchemy specific field types.
 from __future__ import absolute_import, print_function, unicode_literals
 
 import six
-from rest_framework import fields, relations
 
 from django.db.models.constants import LOOKUP_SEP
 
 from django_sorcery.db import meta
-from django_sorcery.utils import suppress
+
+from rest_framework import fields, relations
 
 
 class HyperlinkedIdentityField(relations.HyperlinkedIdentityField):
@@ -40,37 +40,6 @@ class UriField(HyperlinkedIdentityField):
         Same as basic HyperlinkedIdentityField except return uri vs full url.
         """
         return super(UriField, self).get_url(obj, view_name, None, format)
-
-
-class EnumField(fields.ChoiceField):
-    """
-    Used for SQLAlchemy's Enum column type used in either mapping python Enum's, or
-    a list of valid fields for the column.
-    """
-
-    def __init__(
-        self, enum_class=None, choices=None, to_choice=lambda x: (x.name, x.value), to_repr=lambda x: x.name, **kwargs
-    ):
-        self.enum_class = enum_class or choices
-        self.to_repr = to_repr
-        self.to_choice = to_choice
-        kwargs["choices"] = [to_choice(e) for e in self.enum_class]
-        kwargs.pop("max_length", None)
-        super(EnumField, self).__init__(**kwargs)
-
-    def to_internal_value(self, data):
-        with suppress(KeyError, ValueError):
-            return self.enum_class[data]
-        with suppress(KeyError, ValueError):
-            return self.enum_class(data)
-
-        self.fail("invalid_choice", input=data)
-
-    def to_representation(self, value):
-        if not value:
-            return None
-
-        return self.to_repr(value)
 
 
 class CharMappingField(fields.DictField):

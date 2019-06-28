@@ -2,9 +2,9 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import unittest
 
-from rest_witchcraft.utils import _django_to_drf
-
 from django.core.exceptions import ValidationError
+
+from rest_witchcraft.utils import _django_to_drf
 
 
 class TestUtils(unittest.TestCase):

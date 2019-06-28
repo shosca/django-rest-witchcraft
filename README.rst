@@ -1,7 +1,7 @@
 Django REST Witchcraft
 ======================
 
-|Build Status| |Read The Docs| |PyPI version| |Coveralls Status|
+|Build Status| |Read The Docs| |PyPI version| |Coveralls Status| |Black|
 
 **Django REST Framework integration with SQLAlchemy**
 
@@ -169,7 +169,7 @@ Our user does not belong to a ``Group``, lets fix that:
     session.flush()
 
     serializer = UserSerializer(user, data={
-        'group': {'id': group.id
+        'group': {'id': group.id}
     })
     serializer.is_valid()
     serializer.save()
@@ -251,3 +251,5 @@ And we can register this viewset in our ``urls.py`` like:
    :target: https://badge.fury.io/py/django-rest-witchcraft
 .. |Coveralls Status| image:: https://coveralls.io/repos/github/shosca/django-rest-witchcraft/badge.svg?branch=master
    :target: https://coveralls.io/github/shosca/django-rest-witchcraft?branch=master
+.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/ambv/black
