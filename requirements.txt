@@ -1,4 +1,6 @@
 -e .
+coreapi
+coreschema
 pytest
 pytest-cov
 flake8
