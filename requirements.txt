@@ -3,6 +3,7 @@ coreapi
 coreschema
 pytest
 pytest-cov
+pytest-sugar
 flake8
 flake8-bugbear; python_version > '2.7'
 simplejson

@@ -48,3 +48,4 @@ docs/_build
 /.idea
 .venv
 .pytest_cache
+.mypy_cache
