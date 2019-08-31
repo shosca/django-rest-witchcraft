@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 from django_sorcery.db import meta
 
@@ -50,4 +49,4 @@ class DefaultRouter(routers.DefaultRouter):
 
             return "/".join(regexes)
 
-        return super(DefaultRouter, self).get_lookup_regex(viewset, lookup_prefix)
+        return super().get_lookup_regex(viewset, lookup_prefix)

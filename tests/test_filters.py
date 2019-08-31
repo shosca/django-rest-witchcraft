@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import coreschema
 
@@ -32,7 +31,7 @@ class TestSearchFilters(APISimpleTestCase):
     factory = RequestFactory()
 
     def setUp(self):
-        super(TestSearchFilters, self).setUp()
+        super().setUp()
         self.viewset_class = OwnerViewSet
         self.filter = SearchFilter()
 
@@ -45,7 +44,7 @@ class TestSearchFilters(APISimpleTestCase):
 
     def tearDown(self):
         session.rollback()
-        super(TestSearchFilters, self).tearDown()
+        super().tearDown()
 
     def test_search_field(self):
         viewset = self.viewset_class()

@@ -3,9 +3,11 @@ coreapi
 coreschema
 pytest
 pytest-cov
-pytest-sugar
 flake8
-flake8-bugbear; python_version > '2.7'
+flake8-bugbear
+flake8-comprehensions
+flake8-django
+pytest-sugar
 simplejson
 sphinx-autobuild
 gitchangelog
@@ -15,7 +17,6 @@ pre_commit
 psycopg2cffi
 Sphinx
 sphinx_rtd_theme
-mock; python_version <= '2.7'
 tox
 tox-pyenv
 coveralls

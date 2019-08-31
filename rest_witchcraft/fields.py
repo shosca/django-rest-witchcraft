@@ -3,7 +3,6 @@
 Some SQLAlchemy specific field types.
 """
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
@@ -39,7 +38,7 @@ class UriField(HyperlinkedIdentityField):
         """
         Same as basic HyperlinkedIdentityField except return uri vs full url.
         """
-        return super(UriField, self).get_url(obj, view_name, None, format)
+        return super().get_url(obj, view_name, None, format)
 
 
 class CharMappingField(fields.DictField):
@@ -57,11 +56,11 @@ class ImplicitExpandableListField(fields.ListField):
     """
 
     def to_internal_value(self, data):
-        data = super(ImplicitExpandableListField, self).to_internal_value(data)
+        data = super().to_internal_value(data)
         for i in data[:]:
             parts = i.split(LOOKUP_SEP)
             data = list(
-                (set(LOOKUP_SEP.join(parts[:i]) for i in six.moves.range(1, len(parts))) & set(self.child.choices))
+                ({LOOKUP_SEP.join(parts[:i]) for i in six.moves.range(1, len(parts))} & set(self.child.choices))
                 | set(data)
             )
         return data

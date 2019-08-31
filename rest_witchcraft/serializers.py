@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 import copy
 import re
 from collections import OrderedDict, namedtuple
@@ -48,7 +47,7 @@ class BaseSerializer(serializers.Serializer):
         """
         Analyze model column to generate field kwargs.
         """
-        field_kwargs = column_info.field_kwargs
+        field_kwargs = column_info.field_kwargs.copy()
         field_kwargs["label"] = capfirst(" ".join(field_name.split("_")).strip())
         field_kwargs["allow_null"] = not field_kwargs.get("required", True)
 
@@ -175,7 +174,7 @@ class CompositeSerializer(BaseSerializer):
         composite_attr = kwargs.pop("composite", None) or getattr(getattr(self, "Meta", None), "composite", None)
         self._info = meta.model_info(composite_attr.prop.parent).composites[composite_attr.prop.key]
 
-        super(CompositeSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.composite_class = self._info.prop.composite_class
         self.read_only = False
         self.required = False
@@ -294,7 +293,7 @@ class ModelSerializer(BaseSerializer):
         overwrite_exclude = kwargs.pop("exclude", fields.empty)
         extra_kwargs = kwargs.pop("extra_kwargs", {})
 
-        super(ModelSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self._extra_kwargs = self.get_extra_kwargs(**extra_kwargs)
         self._overwrite_fields = overwrite_fields
@@ -594,7 +593,7 @@ class ModelSerializer(BaseSerializer):
         if relation_info.direction == ONETOMANY:
             kwargs["required"] = False
             kwargs["allow_null"] = True
-        elif all([col.nullable for col in relation_info.foreign_keys]):
+        elif all(col.nullable for col in relation_info.foreign_keys):
             kwargs["required"] = False
             kwargs["allow_null"] = True
 
@@ -624,7 +623,7 @@ class ModelSerializer(BaseSerializer):
 
         _fields = _fields - backrefs
 
-        return tuple([field for field in _fields if not field.startswith("_")])
+        return tuple(field for field in _fields if not field.startswith("_"))
 
     def to_internal_value(self, data):
         """
@@ -643,16 +642,16 @@ class ModelSerializer(BaseSerializer):
         If they are not stripped, it is possible to remove some existing data.
         """
         if not self.partial_by_pk or not self.get_primary_keys(data):
-            return super(ModelSerializer, self).to_internal_value(data)
+            return super().to_internal_value(data)
 
         info = meta.model_info(self.model)
 
-        for name, field in self.fields.items():
+        for _, field in self.fields.items():
             if field.source not in info.primary_keys:
                 field.required = False
 
         passed_keys = set(data)
-        data = super(ModelSerializer, self).to_internal_value(data)
+        data = super().to_internal_value(data)
 
         for k in set(data) - passed_keys:
             if k in self.fields and self.fields[k].get_default() == data[k]:
@@ -664,13 +663,12 @@ class ModelSerializer(BaseSerializer):
         """
         Returns the primary key values from validated_data
         """
+        if not validated_data:
+            return
+
         info = meta.model_info(self.queryset._only_entity_zero().mapper)
-        return (
-            info.primary_keys_from_dict(
-                {getattr(self.fields.get(k), "source", None) or k: v for k, v in validated_data.items()}
-            )
-            if validated_data
-            else None
+        return info.primary_keys_from_dict(
+            {getattr(self.fields.get(k), "source", None) or k: v for k, v in validated_data.items()}
         )
 
     def get_object(self, validated_data, instance=None):
@@ -706,7 +704,7 @@ class ModelSerializer(BaseSerializer):
         Save and return a list of object instances.
         """
         with self.session.no_autoflush:
-            self.instance = super(ModelSerializer, self).save(**kwargs)
+            self.instance = super().save(**kwargs)
 
         self.perform_flush()
         return self.instance
@@ -883,7 +881,7 @@ class ExpandableModelSerializer(ModelSerializer):
         except AttributeError:
             self.root._updated_fields = {id(self): [field.field_name]}
 
-        return super(ExpandableModelSerializer, self).update_attribute(instance, field, value)
+        return super().update_attribute(instance, field, value)
 
     def to_representation(self, instance):
         """
@@ -913,7 +911,7 @@ class ExpandableModelSerializer(ModelSerializer):
             # no reason to leave full field in representation
             self.fields[i.name] = i.replacement
 
-        return super(ExpandableModelSerializer, self).to_representation(instance)
+        return super().to_representation(instance)
 
     @property
     def _expandable_fields(self):

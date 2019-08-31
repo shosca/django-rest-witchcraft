@@ -3,7 +3,6 @@
 Field mapping from SQLAlchemy type's to DRF fields
 """
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 import datetime
 import decimal
 
@@ -95,7 +94,7 @@ def get_field_type(column):
 
             def __init__(self, *args, **kwargs):
                 kwargs["child"] = child_field()
-                super(ArrayField, self).__init__(*args, **kwargs)
+                super().__init__(*args, **kwargs)
 
         return ArrayField
 

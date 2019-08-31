@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 from itertools import chain
 
 import six
@@ -70,7 +69,7 @@ class QuerySerializerMixin(object):
             serializer.is_valid(raise_exception=True)
 
     def initial(self, request, *args, **kwargs):
-        super(QuerySerializerMixin, self).initial(request, *args, **kwargs)
+        super().initial(request, *args, **kwargs)
         self.check_query()
 
 
@@ -84,7 +83,7 @@ class ExpandableQuerySerializerMixin(QuerySerializerMixin):
     """
 
     def get_queryset(self):
-        queryset = super(ExpandableQuerySerializerMixin, self).get_queryset()
+        queryset = super().get_queryset()
 
         serializer = self.query_serializer
         if serializer is None:
@@ -122,6 +121,6 @@ class ExpandableQuerySerializerMixin(QuerySerializerMixin):
         return queryset
 
     def get_serializer_context(self):
-        context = super(ExpandableQuerySerializerMixin, self).get_serializer_context()
+        context = super().get_serializer_context()
         context["query_serializer"] = self.query_serializer
         return context
