@@ -2,8 +2,16 @@ Changelog
 =========
 
 
-0.9.0 (2019-06-28)
+0.10.0 (2019-08-30)
 -----------------------------
+- Drop py2 support (#51) [Serkan Hosca]
+- Pytest and black configs (#49) [Serkan Hosca]
+- Add SearchFilter (#47) [Serkan Hosca]
+- Use python/black (#46) [Serkan Hosca]
+
+
+0.9.0 (2019-06-28)
+------------------
 - Drop enumfield and update importanize config (#45) [Serkan Hosca]
 
 
