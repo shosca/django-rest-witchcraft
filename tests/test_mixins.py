@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 
 import six
 
@@ -53,7 +52,7 @@ class ExpandableViewSet(UnAuthMixin, ExpandableQuerySerializerMixin, ModelViewSe
     queryset = Vehicle.objects
 
     def list(self, request, *args, **kwargs):
-        r = super(ExpandableViewSet, self).list(request, *args, **kwargs)
+        r = super().list(request, *args, **kwargs)
         r.data = {"query": six.text_type(self.get_queryset()), "results": r.data}
         return r
 
@@ -65,7 +64,7 @@ class TestDummyViewSet(SimpleTestCase):
 
 class TestQuerySerializerMixin(SimpleTestCase):
     def setUp(self):
-        super(TestQuerySerializerMixin, self).setUp()
+        super().setUp()
         self.rf = APIRequestFactory()
 
     def test_invalid_query(self):

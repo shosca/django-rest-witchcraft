@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, print_function, unicode_literals
 import copy
 from collections import OrderedDict
 from decimal import Decimal
@@ -37,7 +36,7 @@ class VehicleSerializer(ExpandableModelSerializer):
 
 class TestModelSerializer(SimpleTestCase):
     def setUp(self):
-        super(TestModelSerializer, self).setUp()
+        super().setUp()
         session.add(Owner(id=1, first_name="Test", last_name="Owner"))
         session.add_all(
             [
@@ -51,7 +50,7 @@ class TestModelSerializer(SimpleTestCase):
         self.maxDiff = None
 
     def tearDown(self):
-        super(TestModelSerializer, self).tearDown()
+        super().tearDown()
         session.rollback()
 
     def test_cannot_initialize_without_a_meta(self):
@@ -462,7 +461,7 @@ class TestModelSerializer(SimpleTestCase):
                 exclude = ("name",)
 
             def get_default_field_names(self, declared_fields, info):
-                return super(VehicleSerializer, self).get_default_field_names(declared_fields, info) + ["url"]
+                return super().get_default_field_names(declared_fields, info) + ["url"]
 
         serializer = VehicleSerializer()
         fields = serializer.get_fields()
@@ -644,7 +643,7 @@ class TestModelSerializer(SimpleTestCase):
         owner_serializer = serializer.fields["owner"]
         self.assertEqual(len(owner_serializer.fields), 3)
         self.assertEqual(set(owner_serializer.fields.keys()), {"id", "first_name", "last_name"})
-        self.assertEqual(set(f.label for f in owner_serializer.fields.values()), {"Id", "First name", "Last name"})
+        self.assertEqual({f.label for f in owner_serializer.fields.values()}, {"Id", "First name", "Last name"})
 
         options_serializer = serializer.fields["options"]
         self.assertTrue(options_serializer.many)
@@ -741,7 +740,7 @@ class TestModelSerializer(SimpleTestCase):
                 extra_kwargs = {"other": {"required": False, "allow_create": False}}
 
             def get_fields(self):
-                fields = super(VehicleSerializer, self).get_fields()
+                fields = super().get_fields()
                 fields["vehicle_type"] = fields.pop("type")
                 fields["vehicle_type"].source = "type"
                 return fields
@@ -1146,7 +1145,7 @@ class TestModelSerializer(SimpleTestCase):
                 composite = Vehicle.engine
 
             def set_cylinders(self, instance, field, value):
-                assert False, "Some error"
+                raise AssertionError("Some error")
 
         data = {"cylinders": 2}
         engine = Engine(4, 2345, "apple", "petrol")
@@ -1208,7 +1207,7 @@ class TestModelSerializer(SimpleTestCase):
         vehicle = serializer.update(vehicle, serializer.validated_data)
 
         self.assertEqual(len(vehicle.options), 2)
-        self.assertEqual(set([v.id for v in vehicle.options]), {3, 4})
+        self.assertEqual({v.id for v in vehicle.options}, {3, 4})
 
     def test_patch_update_to_list_with_new_list_with_allow_create(self):
         vehicle = Vehicle(
@@ -1236,7 +1235,7 @@ class TestModelSerializer(SimpleTestCase):
         vehicle = serializer.update(vehicle, serializer.validated_data)
 
         self.assertEqual(len(vehicle.options), 2)
-        self.assertEqual(set([v.name for v in vehicle.options]), {"Test", "Other Test"})
+        self.assertEqual({v.name for v in vehicle.options}, {"Test", "Other Test"})
 
     def test_patch_update_to_list_with_new_list_with_nested(self):
         vehicle = Vehicle(
@@ -1481,6 +1480,7 @@ class TestModelSerializer(SimpleTestCase):
 
         serializer = OwnerSerializer(data={"id": 1}, partial_by_pk=True)
 
+        self.assertTrue(serializer.fields["id"].required)
         self.assertTrue(serializer.is_valid())
         self.assertTrue(serializer.fields["id"].required)
         self.assertFalse(serializer.fields["first_name"].required)
@@ -1506,10 +1506,16 @@ class TestModelSerializer(SimpleTestCase):
         self.assertTrue(serializer.is_valid(), serializer.errors)
         self.assertEqual(serializer.validated_data["vehicle"], {"id": 1})
 
+        serializer = OwnerSerializer(data={"id": 111, "name": "foo", "vehicle": {}})
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+
+        serializer = OwnerSerializer(data={"id": 111, "name": "foo"})
+        self.assertFalse(serializer.is_valid(), serializer.errors)
+
 
 class TestExpandableModelSerializer(SimpleTestCase):
     def setUp(self):
-        super(TestExpandableModelSerializer, self).setUp()
+        super().setUp()
         self.vehicle = Vehicle(
             name="Test vehicle",
             type=VehicleType.bus,

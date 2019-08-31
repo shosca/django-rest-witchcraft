@@ -4,7 +4,6 @@ Provides generic filtering backends that can be used to filter the results
 returned by list views.
 """
 
-from __future__ import absolute_import, print_function, unicode_literals
 
 from sqlalchemy import func, or_
 from sqlalchemy.sql import operators
