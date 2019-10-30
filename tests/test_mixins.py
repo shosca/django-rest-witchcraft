@@ -4,18 +4,20 @@ import six
 
 from sqlalchemy.orm import joinedload
 
+from django.http import QueryDict
 from django.test import SimpleTestCase
 
-from rest_framework.fields import IntegerField
+from rest_framework.fields import CharField, IntegerField
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 from rest_framework.test import APIRequestFactory
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
+from rest_witchcraft.fields import SkippableField
 from rest_witchcraft.mixins import ExpandableQuerySerializerMixin
 from rest_witchcraft.serializers import ExpandableModelSerializer, ModelSerializer
 
-from .models import Vehicle, session
+from .models import Engine, Option, Owner, Vehicle, VehicleType, session
 from .test_routers import UnAuthMixin
 
 
@@ -31,12 +33,16 @@ class VehicleOwnerStubSerializer(Serializer):
 
 
 class VehicleSerializer(ExpandableModelSerializer):
-    foo = IntegerField()
+    name = CharField()
 
     class Meta(object):
         session = session
         model = Vehicle
-        expandable_fields = {"owner": VehicleOwnerStubSerializer(source="*", read_only=True), "foo": IntegerField()}
+        expandable_fields = {
+            "owner": VehicleOwnerStubSerializer(source="*", read_only=True),
+            "options": SkippableField(),
+            "name": CharField(),
+        }
         fields = "__all__"
 
 
@@ -66,13 +72,28 @@ class TestQuerySerializerMixin(SimpleTestCase):
     def setUp(self):
         super().setUp()
         self.rf = APIRequestFactory()
+        session.add(
+            Vehicle(
+                name="Test vehicle",
+                type=VehicleType.car,
+                engine=Engine(4, 1234, None, None),
+                owner=Owner(id=1, first_name="Test", last_name="Owner"),
+                options=[Option(name="Navigation"), Option(name="Rocket Engine")],
+            )
+        )
+        session.flush()
+        self.maxDiff = None
+
+    def tearDown(self):
+        super().tearDown()
+        session.rollback()
 
     def test_invalid_query(self):
         view = ExpandableViewSet.as_view(actions={"get": "list"})
 
         self.assertEqual(view(self.rf.get("/")).status_code, 200)
         self.assertEqual(view(self.rf.get("/", {"expand": "owner"})).status_code, 200)
-        self.assertEqual(view(self.rf.get("/", {"expand": "foo"})).status_code, 200)
+        self.assertEqual(view(self.rf.get("/", {"expand": "name"})).status_code, 200)
         self.assertEqual(view(self.rf.get("/", {"expand": "haha"})).status_code, 400)
 
     def test_no_query_serializer(self):
@@ -84,11 +105,18 @@ class TestQuerySerializerMixin(SimpleTestCase):
         view = ExpandableViewSet.as_view(actions={"get": "list"})
 
         self.assertNotIn("LEFT OUTER JOIN", view(self.rf.get("/")).data["query"])
-        self.assertNotIn("LEFT OUTER JOIN", view(self.rf.get("/", {"expand": "foo"})).data["query"])
+        self.assertNotIn("LEFT OUTER JOIN", view(self.rf.get("/", {"expand": "name"})).data["query"])
 
         r = view(self.rf.get("/", {"expand": "owner"}))
         self.assertIn("LEFT OUTER JOIN", r.data["query"])
         self.assertEqual(r.data["query"].count("LEFT OUTER JOIN"), 1)
+        self.assertNotIn("options", r.data["results"][0])
+
+        # one to many should not add any more joins since selectinload is used
+        r = view(self.rf.get("/", QueryDict("expand=owner&expand=options")))
+        self.assertIn("LEFT OUTER JOIN", r.data["query"])
+        self.assertEqual(r.data["query"].count("LEFT OUTER JOIN"), 1)
+        self.assertIn("options", r.data["results"][0])
 
     def test_already_eagerload(self):
         view = ExpandableViewSet.as_view(

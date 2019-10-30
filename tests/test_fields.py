@@ -3,9 +3,10 @@
 from django.conf.urls import url
 from django.test import SimpleTestCase, override_settings
 
-from rest_framework.fields import ChoiceField
+from rest_framework.fields import ChoiceField, IntegerField
+from rest_framework.serializers import Serializer
 
-from rest_witchcraft.fields import HyperlinkedIdentityField, ImplicitExpandableListField, UriField
+from rest_witchcraft.fields import HyperlinkedIdentityField, ImplicitExpandableListField, SkippableField, UriField
 
 from .models import Owner
 from .models_composite import RouterTestCompositeKeyModel
@@ -53,3 +54,12 @@ class TestImplicitExpandableListField(SimpleTestCase):
 
         self.assertEqual(f.run_validation(["foo"]), ["foo"])
         self.assertEqual(set(f.run_validation(["foo__bar"])), {"foo__bar", "foo"})
+
+
+class TestSkippableField(SimpleTestCase):
+    def test_field_always_skippable(self):
+        class TestSerializer(Serializer):
+            foo = SkippableField()
+            bar = IntegerField()
+
+        self.assertEqual(TestSerializer(instance={"foo": "foo", "bar": 5}).data, {"bar": 5})
