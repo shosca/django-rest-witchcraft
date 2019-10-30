@@ -2,8 +2,14 @@ Changelog
 =========
 
 
-0.10.0 (2019-08-30)
+0.10.1 (2019-10-30)
 -----------------------------
+- Expandable serializer uses selectinload for *tomany (#53) [Miroslav
+  Shubernetskiy]
+
+
+0.10.0 (2019-08-31)
+-------------------
 - Drop py2 support (#51) [Serkan Hosca]
 - Pytest and black configs (#49) [Serkan Hosca]
 - Add SearchFilter (#47) [Serkan Hosca]
