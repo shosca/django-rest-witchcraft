@@ -64,3 +64,32 @@ class ImplicitExpandableListField(fields.ListField):
                 | set(data)
             )
         return data
+
+
+class SkippableField(fields.Field):
+    """
+    Field which is always skipped on to_representation
+
+    Useful when used together with ``ExpandableModelSerializer`` since it allows
+    to completely skip expandable field when it is not being expanded.
+    Especially useful for ``OneToMany`` relations since by default nested
+    serializer cannot be rendered as none of the PKs of the "many" items are
+    known unlike ``ManyToOne`` when nested serializer can be rendered with PK.
+    For example:
+
+    .. code::
+
+        class FooSerializer(ExpandableModelSerializer):
+            bar = BarSerializer(many=True)
+
+            class Meta:
+                model = Foo
+                session = session
+                fields = "__all__"
+                expandable_fields = {
+                    "bar": SkippableField()
+                }
+    """
+
+    def get_attribute(self, instance):
+        raise fields.SkipField

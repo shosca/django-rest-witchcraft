@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import collections
 from itertools import chain
 
 import six
@@ -10,6 +11,9 @@ from django.db.models.constants import LOOKUP_SEP
 from django_sorcery.db import meta
 
 from rest_framework import mixins
+
+
+ToLoadField = collections.namedtuple("ToLoadField", ["field", "direction"])
 
 
 class DestroyModelMixin(mixins.DestroyModelMixin):
@@ -103,19 +107,31 @@ class ExpandableQuerySerializerMixin(QuerySerializerMixin):
                 props = meta.model_info(model).relationships
                 try:
                     field = getattr(model, c)
-                    model = props[c].relationship._dependency_processor.mapper.class_
+                    prop = props[c]
+                    model = prop.relationship._dependency_processor.mapper.class_
                 except (KeyError, AttributeError):
                     to_load = []
                     break
                 else:
-                    to_load.append(field)
+                    to_load.append(ToLoadField(field, prop.direction))
 
             if to_load:
                 to_expand.append(to_load)
 
         if to_expand:
             queryset = queryset.options(
-                *[six.moves.reduce(lambda a, b: a.joinedload(b), expand, orm) for expand in to_expand]
+                *[
+                    six.moves.reduce(
+                        lambda a, b: (
+                            a.selectinload(b.field)
+                            if b.direction in {orm.interfaces.ONETOMANY, orm.interfaces.MANYTOMANY}
+                            else a.joinedload(b.field)
+                        ),
+                        expand,
+                        orm,
+                    )
+                    for expand in to_expand
+                ]
             )
 
         return queryset
