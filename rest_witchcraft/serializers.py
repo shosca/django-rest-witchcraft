@@ -922,13 +922,9 @@ class ExpandableModelSerializer(ModelSerializer):
         root = self.root
         f = self
         while f is not root:
-            if f.parent is root and isinstance(f.parent, serializers.ListSerializer):
-                break
-            if isinstance(f, serializers.ListSerializer):
-                f = f.parent
-            else:
+            if f.field_name:
                 components.insert(0, f.field_name)
-                f = f.parent
+            f = f.parent
 
         nt = namedtuple("ExpandableField", ["name", "parts", "path", "replacement"])
 
