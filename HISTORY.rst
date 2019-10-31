@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.10.1 (2019-10-30)
+0.10.2 (2019-10-31)
 -----------------------------
+- Accounting for all expandable fields (#54) [Miroslav Shubernetskiy]
+
+
+0.10.1 (2019-10-30)
+-------------------
 - Expandable serializer uses selectinload for *tomany (#53) [Miroslav
   Shubernetskiy]
 
