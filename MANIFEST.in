@@ -1,4 +1,20 @@
-include *.rst *.txt
-recursive-include tests *
+include *.rc
+include *.editorconfig
+include *.importanizerc
+include *.rst
+include *.toml
+include *.txt
+include *.yaml *.yml
+include LICENSE
+include Makefile
+include pytest.ini
+include tox.ini
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
+
+recursive-include rest_witchcraft *.py
+
+recursive-include docs *
+recursive-exclude docs/_build *
+
+recursive-include tests *
