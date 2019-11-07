@@ -21,9 +21,7 @@ clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and 
 
 clean-build:  ## remove build artifacts
 	find -name '*.sqlite3' -delete
-	rm -rf build/ dist/ .eggs/
-	rm -rf '*.egg-info'
-	rm -rf '*.egg'
+	rm -rf build dist .eggs .mypy_cache .pytest_cache docs/_build *.egg* pip-wheel-metadata
 
 clean-pyc:  ## remove Python file artifacts
 	find -name '*.pyc' -delete
