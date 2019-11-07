@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.10.2 (2019-10-31)
+0.10.3 (2019-11-07)
 -----------------------------
+- Checking manifest with pre-commit (#55) [Miroslav Shubernetskiy]
+
+
+0.10.2 (2019-10-31)
+-------------------
 - Accounting for all expandable fields (#54) [Miroslav Shubernetskiy]
 
 
