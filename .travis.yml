@@ -1,6 +1,5 @@
 ---
 language: python
-dist: xenial
 branches:
   only:
     - master
