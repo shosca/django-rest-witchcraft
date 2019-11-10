@@ -2,13 +2,14 @@ import enum
 
 from sqlalchemy import Column, ForeignKey, Sequence, orm, types
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from django_sorcery.db import SQLAlchemy
 from django_sorcery.db.models import autocoerce
 
 
-session = SQLAlchemy("postgresql://postgres:postgres@localhost/test")
+session = SQLAlchemy(settings.DB_URL)
 
 Base = session.Model
 

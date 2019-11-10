@@ -1,8 +1,10 @@
 from sqlalchemy import Column, create_engine, orm, types
 from sqlalchemy.ext.declarative import declarative_base
 
+from django.conf import settings
 
-engine = create_engine("sqlite://")
+
+engine = create_engine(settings.DB_URL)
 session = orm.scoped_session(orm.sessionmaker(bind=engine))
 Base = declarative_base()
 Base.query = session.query_property()
