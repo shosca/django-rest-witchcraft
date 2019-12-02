@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-from django.conf.urls import url
 from django.test import SimpleTestCase, override_settings
 
 from rest_framework.fields import ChoiceField, IntegerField
@@ -12,7 +10,7 @@ from .models import Owner
 from .models_composite import RouterTestCompositeKeyModel
 
 
-@override_settings(ROOT_URLCONF=[url(r"^example/(?P<id>.+)/$", lambda: None, name="owner")])
+@override_settings(ROOT_URLCONF="tests.urls.testhyperlinkedidentityfield")
 class TestHyperlinkedIdentityField(SimpleTestCase):
     def test_url(self):
         field = HyperlinkedIdentityField(view_name="foo", lookup_url_kwarg="id", lookup_field="id")
@@ -27,7 +25,7 @@ class TestHyperlinkedIdentityField(SimpleTestCase):
         self.assertIsNone(field.get_url(Owner(first_name="Jon", last_name="Snow"), "owner", None, None))
 
 
-@override_settings(ROOT_URLCONF=[url(r"^example/(?P<id>.+)/(?P<other_id>.+)/$", lambda: None, name="owner")])
+@override_settings(ROOT_URLCONF="tests.urls.testhyperlinkedidentityfieldcomposite")
 class TestHyperlinkedIdentityFieldComposite(SimpleTestCase):
     def test_url_composite(self):
         field = HyperlinkedIdentityField(view_name="foo")
@@ -38,7 +36,7 @@ class TestHyperlinkedIdentityFieldComposite(SimpleTestCase):
         self.assertEqual(url, "/example/1/2/")
 
 
-@override_settings(ROOT_URLCONF=[url(r"^example/(?P<id>.+)/$", lambda: None, name="owner")])
+@override_settings(ROOT_URLCONF="tests.urls.testhyperlinkedidentityfield")
 class TestUriField(SimpleTestCase):
     def test_url(self):
         field = UriField(view_name="foo", lookup_url_kwarg="id", lookup_field="id")
