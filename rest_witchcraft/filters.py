@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Provides generic filtering backends that can be used to filter the results
-returned by list views.
-"""
+"""Provides generic filtering backends that can be used to filter the results
+returned by list views."""
 
 
 from sqlalchemy import func, or_
@@ -21,7 +18,7 @@ class SearchFilter(BaseFilterBackend):
     search_param = api_settings.SEARCH_PARAM
     template = "rest_framework/filters/search.html"
     lookup_prefixes = {
-        "": lambda c, x: operators.ilike_op(c, "%{0}%".format(x)),  # icontains
+        "": lambda c, x: operators.ilike_op(c, "%{}%".format(x)),  # icontains
         "^": lambda c, x: c.ilike(x.replace("%", "%%") + "%"),  # istartswith
         "=": lambda c, x: func.lower(c) == func.lower(x),  # iequals
         "@": operators.eq,  # equals

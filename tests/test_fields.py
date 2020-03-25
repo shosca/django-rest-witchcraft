@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.test import SimpleTestCase, override_settings
 
 from rest_framework.fields import ChoiceField, IntegerField

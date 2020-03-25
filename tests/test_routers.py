@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import simplejson as json
 
 from django.conf.urls import include, url
@@ -24,7 +22,7 @@ class RouterTestCompositeKeyModelSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class UnAuthMixin(object):
+class UnAuthMixin:
     def perform_authentication(self, request):
         return None
 

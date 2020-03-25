@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy.exc import InvalidRequestError
 
 from django.http import Http404
@@ -11,15 +9,11 @@ from rest_framework import generics
 
 
 class GenericAPIView(generics.GenericAPIView):
-    """
-    Base class for sqlalchemy specific views
-    """
+    """Base class for sqlalchemy specific views."""
 
     @classmethod
     def get_model(cls):
-        """
-        Returns the model class
-        """
+        """Returns the model class."""
         model = None
 
         with suppress(AttributeError, InvalidRequestError):
@@ -39,18 +33,15 @@ class GenericAPIView(generics.GenericAPIView):
         return model
 
     def get_session(self):
-        """
-        Returns the session
-        """
+        """Returns the session."""
         queryset = self.get_queryset()
         return queryset.session
 
     def get_object(self):
-        """
-        Returns the object the view is displaying.
+        """Returns the object the view is displaying.
 
-        We ignore the `lookup_field` and `lookup_url_kwarg` values
-        only when tere are multiple primary keys
+        We ignore the `lookup_field` and `lookup_url_kwarg` values only
+        when tere are multiple primary keys
         """
         queryset = self.get_queryset()
         model = self.get_model()

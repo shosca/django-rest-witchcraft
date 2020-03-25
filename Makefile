@@ -1,27 +1,29 @@
 PACKAGE=rest_witchcraft
-FILES=$(shell find $(PACKAGE) -iname '*.py')
+FILES=$(shell find $(PACKAGE) -iname '*.py' ! -iname '__*')
 VERSION=$(shell python setup.py --version)
 NEXT=$(shell semver -i $(BUMP) $(VERSION))
-COVERAGE_FLAGS?=--cov-fail-under=100
+DBS=\
+	test
+RESETDBS=$(addsuffix -resetdb,$(DBS))
+COVERAGE_FLAGS?=--cov-report term-missing --cov-fail-under=100
 
-.PHONY: docs $(FILES)
+.PHONY: help list docs $(FILES)
+
 
 help:
 	@for f in $(MAKEFILE_LIST) ; do \
 		echo "$$f:" ; \
-		grep -E '^[a-zA-Z_-%]+:.*?## .*$$' $$f | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}' ; \
+		grep -E '^[^[:space:]].*:.*?## .*$$' $$f | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}' ; \
 	done ; \
 
-resetdb: ## reset test db
-	-psql -c "drop database test;" -h localhost -U postgres
-	-psql -c "create database test;" -h localhost -U postgres
-
+list:  ## list all possible targets
+	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$'
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
 clean-build:  ## remove build artifacts
 	find -name '*.sqlite3' -delete
-	rm -rf build dist .eggs .mypy_cache .pytest_cache docs/_build *.egg* pip-wheel-metadata
+	rm -rf build dist .eggs .mypy_cache .pytest_cache docs/_build *.egg*
 
 clean-pyc:  ## remove Python file artifacts
 	find -name '*.pyc' -delete
@@ -30,7 +32,13 @@ clean-pyc:  ## remove Python file artifacts
 	find -name '__pycache__' -delete
 
 clean-test:  ## remove test and coverage artifacts
-	rm -rf .tox/ .coverage htmlcov/
+	rm -rf .tox .coverage htmlcov
+
+%-resetdb:
+	-psql postgresql://postgres:postgres@localhost -c "drop database $*;"
+	-psql postgresql://postgres:postgres@localhost -c "create database $*;"
+
+resetdb: $(RESETDBS)
 
 lint:  ## run pre-commit hooks on all files
 	if python -c "import sys; exit(1) if sys.version_info.major < 3 else exit(0)"; then \
@@ -39,21 +47,16 @@ lint:  ## run pre-commit hooks on all files
 
 coverage: ## check code coverage quickly with the default Python
 	py.test $(PYTEST_OPTS) \
-		--cov-report html \
-		--cov-report term-missing \
-		--cov=$(PACKAGE) tests \
+		--cov=$(PACKAGE) \
 		$(COVERAGE_FLAGS) \
-		--doctest-modules \
-		tests $(PACKAGE)
+		tests
 
 $(FILES):  ## helper target to run coverage tests on a module
-	py.test $(PYTEST_OPTS) \
-		--cov-report term-missing \
-		--cov-fail-under 100 \
+	py.test $(PYTEST_OPTS) $(COVERAGE_FLAGS) \
 		--cov=$(subst /,.,$(firstword $(subst ., ,$@))) $(subst $(PACKAGE),tests,$(dir $@))test_$(notdir $@)
 
 test:  ## run tests
-	py.test $(PYTEST_OPTS) --doctest-modules tests $(PACKAGE)
+	py.test $(PYTEST_OPTS) tests $(PACKAGE)
 
 check:  ## run all tests
 	tox
@@ -76,6 +79,7 @@ next:  # print next version
 bump: history
 	@sed -i 's/$(VERSION)/$(NEXT)/g' $(PACKAGE)/__version__.py
 	@sed -i 's/Next version (unreleased yet)/$(NEXT) ($(shell date +"%Y-%m-%d"))/g' HISTORY.rst
+	@git add .
 	@git commit -am "Bump version: $(VERSION) → $(NEXT)"
 
 tag:  ## tags branch

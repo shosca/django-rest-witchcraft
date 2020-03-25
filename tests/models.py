@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import enum
 
 from sqlalchemy import Column, ForeignKey, Sequence, orm, types
@@ -9,7 +8,7 @@ from django_sorcery.db import SQLAlchemy
 from django_sorcery.db.models import autocoerce
 
 
-session = SQLAlchemy("postgresql://postgres@localhost/test")
+session = SQLAlchemy("postgresql://postgres:postgres@localhost/test")
 
 Base = session.Model
 
@@ -29,7 +28,7 @@ class VehicleType(enum.Enum):
     car = "Car"
 
 
-class Engine(object):
+class Engine:
     def __init__(self, cylinders, displacement, type_, fuel_type):
         self.cylinders = cylinders
         self.displacement = displacement

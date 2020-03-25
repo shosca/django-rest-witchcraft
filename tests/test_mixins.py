@@ -1,7 +1,3 @@
-# -*- coding: utf-8 -*-
-
-import six
-
 from sqlalchemy.orm import joinedload
 
 from django.http import QueryDict
@@ -22,7 +18,7 @@ from .test_routers import UnAuthMixin
 
 
 class DummySerializer(ModelSerializer):
-    class Meta(object):
+    class Meta:
         session = session
         model = Vehicle
         fields = "__all__"
@@ -35,7 +31,7 @@ class VehicleOwnerStubSerializer(Serializer):
 class VehicleSerializer(ExpandableModelSerializer):
     name = CharField()
 
-    class Meta(object):
+    class Meta:
         session = session
         model = Vehicle
         expandable_fields = {
@@ -59,7 +55,7 @@ class ExpandableViewSet(UnAuthMixin, ExpandableQuerySerializerMixin, ModelViewSe
 
     def list(self, request, *args, **kwargs):
         r = super().list(request, *args, **kwargs)
-        r.data = {"query": six.text_type(self.get_queryset()), "results": r.data}
+        r.data = {"query": str(self.get_queryset()), "results": r.data}
         return r
 
 
