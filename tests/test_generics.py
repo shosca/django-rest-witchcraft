@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from sqlalchemy import Column, create_engine, orm, types
 from sqlalchemy.ext.declarative import declarative_base
 

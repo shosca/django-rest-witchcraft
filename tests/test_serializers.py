@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import copy
 from collections import OrderedDict
 from decimal import Decimal
@@ -25,7 +24,7 @@ class VehicleOwnerStubSerializer(Serializer):
 
 
 class VehicleSerializer(ExpandableModelSerializer):
-    class Meta(object):
+    class Meta:
         model = Vehicle
         session = session
         expandable_fields = {"owner": VehicleOwnerStubSerializer(source="*", read_only=True)}
@@ -71,7 +70,7 @@ class TestModelSerializer(SimpleTestCase):
 
     def test_cannot_initialize_without_a_model_with_session_meta(self):
         class VehicleSerializer(ModelSerializer):
-            class Meta(object):
+            class Meta:
                 session = session
 
         with self.assertRaises(AssertionError):
@@ -80,7 +79,7 @@ class TestModelSerializer(SimpleTestCase):
 
     def test_cannot_initialize_without_a_model_with_session_kwarg(self):
         class VehicleSerializer(ModelSerializer):
-            class Meta(object):
+            class Meta:
                 pass
 
         with self.assertRaises(AssertionError):
@@ -1634,7 +1633,7 @@ class TestExpandableModelSerializer(SimpleTestCase):
         class Serializer(ExpandableModelSerializer):
             vehicles = VehicleSerializer(many=True)
 
-            class Meta(object):
+            class Meta:
                 model = Owner
                 session = session
                 fields = "__all__"

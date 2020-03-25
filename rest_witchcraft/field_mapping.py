@@ -1,12 +1,6 @@
-# -*- coding: utf-8 -*-
-"""
-Field mapping from SQLAlchemy type's to DRF fields
-"""
-# -*- coding: utf-8 -*-
+"""Field mapping from SQLAlchemy type's to DRF fields."""
 import datetime
 import decimal
-
-import six
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql import sqltypes
@@ -21,18 +15,14 @@ from .fields import CharMappingField
 
 
 def get_detail_view_name(model):
-    """
-    Given a model class, return the view name to use for URL relationships
-    that rever to instances of the model.
-    """
+    """Given a model class, return the view name to use for URL relationships
+    that rever to instances of the model."""
     # TODO split camel case
     return "{}-detail".format(model.__name__.lower())
 
 
 def get_url_kwargs(model):
-    """
-    Gets kwargs for the UriField
-    """
+    """Gets kwargs for the UriField."""
     info = meta.model_info(model)
     lookup_field = list(info.primary_keys.keys())[0]
 
@@ -60,9 +50,6 @@ SERIALIZER_FIELD_MAPPING = {
     int: fields.IntegerField,
     str: fields.CharField,
 }
-SERIALIZER_FIELD_MAPPING[six.text_type] = fields.CharField
-for stype in six.string_types:
-    SERIALIZER_FIELD_MAPPING[stype] = fields.CharField
 
 try:
     from sqlalchemy_utils import types
@@ -75,9 +62,8 @@ except ImportError:  # pragma: no cover
 
 
 def get_field_type(column):
-    """
-    Returns the field type to be used determined by the sqlalchemy column type or the column type's python type
-    """
+    """Returns the field type to be used determined by the sqlalchemy column
+    type or the column type's python type."""
     if isinstance(column.type, sqltypes.Enum) and not column.type.enum_class:
         return fields.ChoiceField
 
@@ -90,7 +76,7 @@ def get_field_type(column):
             raise KeyError("Could not figure out field for ARRAY item type '{}'".format(column.type.__class__))
 
         class ArrayField(fields.ListField):
-            """Nested array field for PostreSQL's ARRAY type"""
+            """Nested array field for PostreSQL's ARRAY type."""
 
             def __init__(self, *args, **kwargs):
                 kwargs["child"] = child_field()

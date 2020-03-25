@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Django REST Witchcraft documentation build configuration file, created by
 # sphinx-quickstart on Sat Jun 10 09:20:17 2017.

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError as DjangoValidationError
 
 from rest_framework.serializers import ValidationError

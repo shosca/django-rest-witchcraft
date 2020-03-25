@@ -1,8 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Some SQLAlchemy specific field types.
-"""
-# -*- coding: utf-8 -*-
+"""Some SQLAlchemy specific field types."""
 
 import six
 
@@ -30,30 +26,24 @@ class HyperlinkedIdentityField(relations.HyperlinkedIdentityField):
 
 
 class UriField(HyperlinkedIdentityField):
-    """
-    Represents a uri to the resource
-    """
+    """Represents a uri to the resource."""
 
     def get_url(self, obj, view_name, request, format):
-        """
-        Same as basic HyperlinkedIdentityField except return uri vs full url.
-        """
+        """Same as basic HyperlinkedIdentityField except return uri vs full
+        url."""
         return super().get_url(obj, view_name, None, format)
 
 
 class CharMappingField(fields.DictField):
-    """
-    Used for Postgresql HSTORE columns for storing key-value pairs.
-    """
+    """Used for Postgresql HSTORE columns for storing key-value pairs."""
 
     child = fields.CharField(allow_null=True)
 
 
 class ImplicitExpandableListField(fields.ListField):
-    """
-    List field which implicitly expands parent field when child field
-    is expanded assuming parent field is also expandable by being one of the choices.
-    """
+    """List field which implicitly expands parent field when child field is
+    expanded assuming parent field is also expandable by being one of the
+    choices."""
 
     def to_internal_value(self, data):
         data = super().to_internal_value(data)
@@ -67,8 +57,7 @@ class ImplicitExpandableListField(fields.ListField):
 
 
 class SkippableField(fields.Field):
-    """
-    Field which is always skipped on to_representation
+    """Field which is always skipped on to_representation.
 
     Useful when used together with ``ExpandableModelSerializer`` since it allows
     to completely skip expandable field when it is not being expanded.

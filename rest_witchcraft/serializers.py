@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
 import copy
 import re
 from collections import OrderedDict, namedtuple
 from itertools import groupby
-
-import six
 
 from sqlalchemy.orm.interfaces import ONETOMANY
 
@@ -44,9 +41,7 @@ class BaseSerializer(serializers.Serializer):
         return False
 
     def build_standard_field_kwargs(self, field_name, field_class, column_info):
-        """
-        Analyze model column to generate field kwargs.
-        """
+        """Analyze model column to generate field kwargs."""
         field_kwargs = column_info.field_kwargs.copy()
         field_kwargs["label"] = capfirst(" ".join(field_name.split("_")).strip())
         field_kwargs["allow_null"] = not field_kwargs.get("required", True)
@@ -94,9 +89,7 @@ class BaseSerializer(serializers.Serializer):
         return field_kwargs
 
     def build_standard_field(self, field_name, column_info):
-        """
-        Create regular model fields.
-        """
+        """Create regular model fields."""
         field_class = self.get_field_type(column_info)
 
         field_kwargs = self.build_standard_field_kwargs(field_name, field_class, column_info)
@@ -104,9 +97,8 @@ class BaseSerializer(serializers.Serializer):
         return field_class(**field_kwargs)
 
     def get_field_type(self, column_info):
-        """
-        Returns the field type to be used determined by the sqlalchemy column type or the column type's python type
-        """
+        """Returns the field type to be used determined by the sqlalchemy
+        column type or the column type's python type."""
         field_class = get_field_type(column_info.column)
 
         if not field_class:
@@ -117,10 +109,8 @@ class BaseSerializer(serializers.Serializer):
         return field_class
 
     def include_extra_kwargs(self, kwargs, extra_kwargs=None):
-        """
-        Include any 'extra_kwargs' that have been included for this field,
-        possibly removing any incompatible existing keyword arguments.
-        """
+        """Include any 'extra_kwargs' that have been included for this field,
+        possibly removing any incompatible existing keyword arguments."""
         extra_kwargs = extra_kwargs or {}
         if extra_kwargs.get("read_only", False):
             for attr in [
@@ -155,9 +145,7 @@ class BaseSerializer(serializers.Serializer):
         raise NotImplementedError()
 
     def update_attribute(self, instance, field, value):
-        """
-        Performs update on the instance for the given field with value
-        """
+        """Performs update on the instance for the given field with value."""
         field_setter = getattr(self, "set_" + field.field_name, None)
         if field_setter:
             field_setter(instance, field.source, value)
@@ -166,9 +154,8 @@ class BaseSerializer(serializers.Serializer):
 
 
 class CompositeSerializer(BaseSerializer):
-    """
-    This class is useful for generating a serializer for sqlalchemy's `composite` model attributes.
-    """
+    """This class is useful for generating a serializer for sqlalchemy's
+    `composite` model attributes."""
 
     def __init__(self, *args, **kwargs):
         composite_attr = kwargs.pop("composite", None) or getattr(getattr(self, "Meta", None), "composite", None)
@@ -183,10 +170,8 @@ class CompositeSerializer(BaseSerializer):
         self._extra_kwargs = {}
 
     def get_fields(self):
-        """
-        Return the dict of field names -> field instances that should be
-        used for `self.fields` when instantiating the serializer.
-        """
+        """Return the dict of field names -> field instances that should be
+        used for `self.fields` when instantiating the serializer."""
         _fields = OrderedDict()
 
         for field_name, column_info in self._info.properties.items():
@@ -244,10 +229,8 @@ class CompositeSerializer(BaseSerializer):
         return instance
 
     def __deepcopy__(self, memo=None):
-        """
-        When cloning fields we instantiate using the arguments it was
-        originally created with, rather than copying the complete state.
-        """
+        """When cloning fields we instantiate using the arguments it was
+        originally created with, rather than copying the complete state."""
         # Treat regexes, validators and session as immutable.
         args = [copy.deepcopy(item) if not isinstance(item, REGEX_TYPE) else item for item in self._args]
         kwargs = {
@@ -258,9 +241,8 @@ class CompositeSerializer(BaseSerializer):
 
 
 class ModelSerializer(BaseSerializer):
-    """
-    ModelSerializer is basically like a drf model serializer except that it works with
-    sqlalchemy models:
+    """ModelSerializer is basically like a drf model serializer except that it
+    works with sqlalchemy models:
 
     * A set of default fields are automatically populated by introspecting a sqlalchemy model
     * Default `.create()` and `.update()` implementations provided by mostly reducing the problem
@@ -278,12 +260,12 @@ class ModelSerializer(BaseSerializer):
     default_error_messages = {"not_found": "No instance found with primary keys"}
 
     def __init__(self, *args, **kwargs):
-        """
-        ModelSerializer initializer
-        The main things that we're interested in is the sqlalchemy session, you can provide it thru `Meta.session`,
+        """ModelSerializer initializer The main things that we're interested in
+        is the sqlalchemy session, you can provide it thru `Meta.session`,
         `session` kwarg or thru `context`
 
-        `allow_nested_updates` is for controlling nested related model updates.
+        `allow_nested_updates` is for controlling nested related model
+        updates.
         """
         self._session = kwargs.pop("session", None) or getattr(getattr(self, "Meta", None), "session", None)
         self.allow_nested_updates = kwargs.pop("allow_nested_updates", False)
@@ -300,10 +282,8 @@ class ModelSerializer(BaseSerializer):
         self._overwrite_exclude = overwrite_exclude
 
     def __deepcopy__(self, memo=None):
-        """
-        When cloning fields we instantiate using the arguments it was
-        originally created with, rather than copying the complete state.
-        """
+        """When cloning fields we instantiate using the arguments it was
+        originally created with, rather than copying the complete state."""
         # Treat regexes, validators and session as immutable.
         args = [copy.deepcopy(item) if not isinstance(item, REGEX_TYPE) else item for item in self._args]
         kwargs = {
@@ -338,10 +318,8 @@ class ModelSerializer(BaseSerializer):
         return getattr(self.Meta, "queryset", None) or self.session.query(self.model)
 
     def get_fields(self):
-        """
-        Return the dict of field names -> field instances that should be
-        used for `self.fields` when instantiating the serializer.
-        """
+        """Return the dict of field names -> field instances that should be
+        used for `self.fields` when instantiating the serializer."""
         if self.url_field_name is None:
             self.url_field_name = api_settings.URL_FIELD_NAME
 
@@ -375,11 +353,12 @@ class ModelSerializer(BaseSerializer):
         return _fields
 
     def get_field_names(self, declared_fields, info):
-        """
-        Returns the list of all field names that should be created when
-        instantiating this serializer class. This is based on the default
-        set of fields, but also takes into account the `Meta.fields` or
-        `Meta.exclude` options if they have been specified.
+        """Returns the list of all field names that should be created when
+        instantiating this serializer class.
+
+        This is based on the default set of fields, but also takes into
+        account the `Meta.fields` or `Meta.exclude` options if they have
+        been specified.
         """
         _fields = (
             self._overwrite_fields if self._overwrite_fields is not fields.empty else getattr(self.Meta, "fields", None)
@@ -448,15 +427,13 @@ class ModelSerializer(BaseSerializer):
         return _fields
 
     def get_default_field_names(self, declared_fields, info):
-        """
-        Return the default list of field names that will be used if the `Meta.fields` option is not specified.
-        """
+        """Return the default list of field names that will be used if the
+        `Meta.fields` option is not specified."""
         return info.field_names + list(declared_fields.keys())
 
     def get_extra_kwargs(self, **additional_kwargs):
-        """
-        Return a dictionary mapping field names to a dictionary of additional keyword arguments.
-        """
+        """Return a dictionary mapping field names to a dictionary of
+        additional keyword arguments."""
         extra_kwargs = copy.deepcopy(getattr(self.Meta, "extra_kwargs", {})) or {}
 
         read_only_fields = getattr(self.Meta, "read_only_fields", None)
@@ -477,9 +454,7 @@ class ModelSerializer(BaseSerializer):
         return extra_kwargs
 
     def build_field(self, field_name, info, model_class, nested_depth):
-        """
-        Return a field or a nested serializer for the field name
-        """
+        """Return a field or a nested serializer for the field name."""
         if field_name in info.primary_keys:
             pk = info.primary_keys[field_name]
             return self.build_primary_key_field(field_name, pk)
@@ -505,9 +480,7 @@ class ModelSerializer(BaseSerializer):
         return self.build_unknown_field(field_name, info)
 
     def build_primary_key_field(self, field_name, column_info):
-        """
-        Builds a field for the primary key of the model
-        """
+        """Builds a field for the primary key of the model."""
         field_class = self.get_field_type(column_info)
 
         field_kwargs = self.build_standard_field_kwargs(field_name, field_class, column_info)
@@ -525,17 +498,14 @@ class ModelSerializer(BaseSerializer):
         return field_class(**field_kwargs)
 
     def build_composite_field(self, field_name, composite):
-        """
-        Builds a `CompositeSerializer` to handle composite attribute in model
-        """
+        """Builds a `CompositeSerializer` to handle composite attribute in
+        model."""
         field_kwargs = {"composite": composite}
         field_kwargs = self.include_extra_kwargs(field_kwargs, self._extra_kwargs.get(field_name))
         return CompositeSerializer(**field_kwargs)
 
     def build_nested_field(self, field_name, relation_info, nested_depth):
-        """
-        Builds nested serializer to handle relationshipped model
-        """
+        """Builds nested serializer to handle relationshipped model."""
         target_model = relation_info.related_model
         nested_fields = self.get_nested_relationship_fields(relation_info, nested_depth)
 
@@ -568,9 +538,7 @@ class ModelSerializer(BaseSerializer):
         return fields.ReadOnlyField()
 
     def build_url_field(self, field_name, info):
-        """
-        Create a field representing the object's own URL.
-        """
+        """Create a field representing the object's own URL."""
         field_class = self.serializer_url_field
         field_kwargs = get_url_kwargs(info.model_class)
         field_kwargs.update(self._extra_kwargs.get(self.url_field_name, {}))
@@ -578,17 +546,14 @@ class ModelSerializer(BaseSerializer):
         return field_class(**field_kwargs)
 
     def build_unknown_field(self, field_name, info):
-        """
-        Raise an error on any unknown fields.
-        """
+        """Raise an error on any unknown fields."""
         raise ImproperlyConfigured(
-            "Field name `%s` is not valid for model `%s`." % (field_name, info.model_class.__name__)
+            "Field name `{}` is not valid for model `{}`.".format(field_name, info.model_class.__name__)
         )
 
     def get_relationship_kwargs(self, relation_info, depth):
-        """
-        Figure out the arguments to be used in the `NestedSerializer` for the relationship
-        """
+        """Figure out the arguments to be used in the `NestedSerializer` for
+        the relationship."""
         kwargs = {}
         if relation_info.direction == ONETOMANY:
             kwargs["required"] = False
@@ -604,9 +569,7 @@ class ModelSerializer(BaseSerializer):
         return kwargs
 
     def get_nested_relationship_fields(self, relation_info, depth):
-        """
-        Get the field names for the nested serializer
-        """
+        """Get the field names for the nested serializer."""
         target_model_info = meta.model_info(relation_info.related_model)
 
         # figure out backrefs
@@ -626,20 +589,20 @@ class ModelSerializer(BaseSerializer):
         return tuple(field for field in _fields if not field.startswith("_"))
 
     def to_internal_value(self, data):
-        """
-        Same as in DRF but also handle ``partial_by_pk`` by making all non-pk fields optional.
+        """Same as in DRF but also handle ``partial_by_pk`` by making all non-
+        pk fields optional.
 
         Even though flag name implies it will make serializer partial,
-        that is currently not possible in DRF as partial flag is checked on
-        root serializer within serializer validation loops. As such,
-        individual serializers cannot be marked partial.
-        Therefore when flag is provided and primary key is provided
-        in validated data, we physically mark all other fields
-        as not required to effectively make them partial without
-        using ``partial`` flag itself.
-        To make serializer behave more or less like real partial serializer,
-        only passed keys in input data are preserved in validated data.
-        If they are not stripped, it is possible to remove some existing data.
+        that is currently not possible in DRF as partial flag is checked
+        on root serializer within serializer validation loops. As such,
+        individual serializers cannot be marked partial. Therefore when
+        flag is provided and primary key is provided in validated data,
+        we physically mark all other fields as not required to
+        effectively make them partial without using ``partial`` flag
+        itself. To make serializer behave more or less like real partial
+        serializer, only passed keys in input data are preserved in
+        validated data. If they are not stripped, it is possible to
+        remove some existing data.
         """
         if not self.partial_by_pk or not self.get_primary_keys(data):
             return super().to_internal_value(data)
@@ -660,9 +623,7 @@ class ModelSerializer(BaseSerializer):
         return data
 
     def get_primary_keys(self, validated_data):
-        """
-        Returns the primary key values from validated_data
-        """
+        """Returns the primary key values from validated_data."""
         if not validated_data:
             return
 
@@ -672,10 +633,12 @@ class ModelSerializer(BaseSerializer):
         )
 
     def get_object(self, validated_data, instance=None):
-        """
-        Returns model object instance using the primary key values in the `validated_data`.
-        If the instance is not found, depending on serializer's `allow_create` value, it will create a new model
-        instance or raise an error.
+        """Returns model object instance using the primary key values in the
+        `validated_data`.
+
+        If the instance is not found, depending on serializer's
+        `allow_create` value, it will create a new model instance or
+        raise an error.
         """
         pks = self.get_primary_keys(validated_data)
         if validated_data and pks:
@@ -700,9 +663,7 @@ class ModelSerializer(BaseSerializer):
             raise self.fail("required")
 
     def save(self, **kwargs):
-        """
-        Save and return a list of object instances.
-        """
+        """Save and return a list of object instances."""
         with self.session.no_autoflush:
             self.instance = super().save(**kwargs)
 
@@ -710,9 +671,7 @@ class ModelSerializer(BaseSerializer):
         return self.instance
 
     def perform_flush(self):
-        """
-        Perform session flush changes
-        """
+        """Perform session flush changes."""
         try:
             self.session.flush()
         except DjangoValidationError as e:
@@ -721,30 +680,23 @@ class ModelSerializer(BaseSerializer):
             raise e
 
     def query_model(self, pks):
-        """
-        Hook to allow to customize how model is queried when serializer is nested and needs
-        to query the model by its primary keys
-        """
+        """Hook to allow to customize how model is queried when serializer is
+        nested and needs to query the model by its primary keys."""
         return self.queryset.get(pks)
 
     def create_model(self, validated_data):
-        """
-        Hook to allow to customize how model is created in create flow
-        """
+        """Hook to allow to customize how model is created in create flow."""
         return self.model()
 
     def create(self, validated_data):
-        """
-        Creates a model instance using validated_data
-        """
+        """Creates a model instance using validated_data."""
         instance = self.update(self.create_model(validated_data), validated_data)
         self.session.add(instance)
         return instance
 
     def update(self, instance, validated_data):
-        """
-        Updates an existing model instance using validated_data with suspended autoflush
-        """
+        """Updates an existing model instance using validated_data with
+        suspended autoflush."""
         errors = {}
         instance = self.perform_update(instance, validated_data, errors)
 
@@ -754,9 +706,8 @@ class ModelSerializer(BaseSerializer):
         return instance
 
     def perform_update(self, instance, validated_data, errors):
-        """
-        The main nested update logic implementation using nested fields and serializer
-        """
+        """The main nested update logic implementation using nested fields and
+        serializer."""
         for field in self._writable_fields:
             try:
                 if isinstance(field, BaseSerializer):
@@ -803,14 +754,14 @@ class ModelSerializer(BaseSerializer):
                 errors.update(django_to_drf_validation_error(e).detail)
 
             except Exception as e:
-                errors.setdefault(field.field_name, []).append(" ".join(map(six.text_type, e.args)))
+                errors.setdefault(field.field_name, []).append(" ".join(map(str, e.args)))
 
         return instance
 
 
 class ExpandableModelSerializer(ModelSerializer):
-    """
-    Same as ``ModelSerializer`` but allows to conditionally recursively expand specific fields
+    """Same as ``ModelSerializer`` but allows to conditionally recursively
+    expand specific fields.
 
     Serializer by default renders with all fields collapsed
     however validates data with expanded fields.
@@ -869,12 +820,12 @@ class ExpandableModelSerializer(ModelSerializer):
     """
 
     def update_attribute(self, instance, field, value):
-        """
-        Mark which attributes are updated so that during representation
-        of the resource, we can expand those fields even if not explicitly asked for
+        """Mark which attributes are updated so that during representation of
+        the resource, we can expand those fields even if not explicitly asked
+        for.
 
-        Fields are marked on root serializer since child serializers should not
-        contain any state.
+        Fields are marked on root serializer since child serializers
+        should not contain any state.
         """
         try:
             self.root._updated_fields.setdefault(id(self), []).append(field.field_name)
@@ -884,10 +835,8 @@ class ExpandableModelSerializer(ModelSerializer):
         return super().update_attribute(instance, field, value)
 
     def to_representation(self, instance):
-        """
-        Switch expandable fields to collapsed fields
-        if not explicitly asked to be expanded or field was updated
-        """
+        """Switch expandable fields to collapsed fields if not explicitly asked
+        to be expanded or field was updated."""
         expandable_query_key = getattr(self.Meta, "expandable_query_key", "expand")
 
         for i in self._expandable_fields:
@@ -915,9 +864,8 @@ class ExpandableModelSerializer(ModelSerializer):
 
     @property
     def _expandable_fields(self):
-        """
-        Get all defined expandable fields with their path within serializers
-        """
+        """Get all defined expandable fields with their path within
+        serializers."""
         components = []
         root = self.root
         f = self
@@ -934,9 +882,7 @@ class ExpandableModelSerializer(ModelSerializer):
             yield nt(name, parts, path, copy.deepcopy(replacement))
 
     def _get_all_expandable_fields(self, parents, this, exclude):
-        """
-        Recursively search for all expandable fields on class
-        """
+        """Recursively search for all expandable fields on class."""
         nt = namedtuple("ExpandableField", ["query_key", "parts", "path"])
 
         query_key = getattr(getattr(this, "Meta", None), "expandable_query_key", "expand")
@@ -953,13 +899,11 @@ class ExpandableModelSerializer(ModelSerializer):
             if isinstance(field, serializers.ListSerializer):
                 field = field.child
 
-            for i in self._get_all_expandable_fields(parents=parents + [field_name], this=field, exclude=exclude):
-                yield i
+            yield from self._get_all_expandable_fields(parents=parents + [field_name], this=field, exclude=exclude)
 
     def get_query_serializer_class(self, exclude=(), disallow=(), implicit_expand=True):
-        """
-        Generate serializer to either validate request querystring or generate documentation
-        """
+        """Generate serializer to either validate request querystring or
+        generate documentation."""
         attrs = {
             k: (ImplicitExpandableListField if implicit_expand else fields.ListField)(
                 required=False,
@@ -975,4 +919,4 @@ class ExpandableModelSerializer(ModelSerializer):
             )
         }
         attrs["implicit_expand"] = implicit_expand
-        return type(str("ExpandableQuerySerializer"), (serializers.Serializer,), attrs)
+        return type("ExpandableQuerySerializer", (serializers.Serializer,), attrs)

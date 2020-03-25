@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import sqlalchemy as sqa
 from sqlalchemy.dialects import postgresql
 
@@ -115,7 +113,7 @@ class TestGetFieldType(SimpleTestCase):
         self.assertIsInstance(field().child, fields.IntegerField)
 
     def test_get_field_type_pg_array_column_raises_when_item_type_not_found(self):
-        class DummyType(object):
+        class DummyType:
             python_type = None
 
         column = sqa.Column(postgresql.ARRAY(item_type=DummyType))

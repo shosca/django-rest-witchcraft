@@ -19,6 +19,7 @@ lib
 lib64
 .eggs
 .cache
+.python-version
 
 # Installer logs
 pip-log.txt

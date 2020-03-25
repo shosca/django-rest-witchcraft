@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django_sorcery.db import meta
 
 from rest_framework import routers
@@ -22,10 +20,11 @@ class DefaultRouter(routers.DefaultRouter):
     get_default_basename = get_default_base_name
 
     def get_lookup_regex(self, viewset, lookup_prefix=""):
-        """
-        Given a viewset, return the portion of the url regex that is used to match against a single instance.
+        """Given a viewset, return the portion of the url regex that is used to
+        match against a single instance.
 
-        Can be overwritten by providing a `lookup_url_regex` on the viewset.
+        Can be overwritten by providing a `lookup_url_regex` on the
+        viewset.
         """
 
         lookup_url_regex = getattr(viewset, "lookup_url_regex", None)
