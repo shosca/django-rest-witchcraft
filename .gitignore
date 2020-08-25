@@ -51,3 +51,5 @@ docs/_build
 .pytest_cache
 .mypy_cache
 pip-wheel-metadata
+.vscode
+.python-version
