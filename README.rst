@@ -243,8 +243,8 @@ And we can register this viewset in our ``urls.py`` like:
     ]
 
 
-.. |Build Status| image:: https://travis-ci.com/shosca/django-rest-witchcraft.svg?branch=master
-   :target: https://travis-ci.com/shosca/django-rest-witchcraft
+.. |Build Status| image:: https://github.com/shosca/django-rest-witchcraft/workflows/Build/badge.svg?branch=master
+   :target: https://github.com/shosca/django-rest-witchcraft/actions?query=workflow%3ABuild+branch%3Amaster
 .. |Read The Docs| image:: https://readthedocs.org/projects/django-rest-witchcraft/badge/?version=latest
    :target: http://django-rest-witchcraft.readthedocs.io/en/latest/?badge=latest
 .. |PyPI version| image:: https://badge.fury.io/py/django-rest-witchcraft.svg
