@@ -7,6 +7,8 @@ DBS=\
 RESETDBS=$(addsuffix -resetdb,$(DBS))
 COVERAGE_FLAGS?=--cov-report term-missing --cov-fail-under=100
 
+DATABASE_URL?=postgresql://postgres:postgres@localhost
+
 .PHONY: help list docs $(FILES)
 
 
@@ -35,15 +37,13 @@ clean-test:  ## remove test and coverage artifacts
 	rm -rf .tox .coverage htmlcov
 
 %-resetdb:
-	-psql postgresql://postgres:postgres@localhost -c "drop database $*;"
-	-psql postgresql://postgres:postgres@localhost -c "create database $*;"
+	-psql $(DATABASE_URL) -c "drop database $*;"
+	psql $(DATABASE_URL) -c "create database $*;"
 
 resetdb: $(RESETDBS)
 
 lint:  ## run pre-commit hooks on all files
-	if python -c "import sys; exit(1) if sys.version_info.major < 3 else exit(0)"; then \
-		pre-commit run --all-files ; \
-	fi
+	pre-commit run --all-files
 
 coverage: ## check code coverage quickly with the default Python
 	py.test $(PYTEST_OPTS) \
