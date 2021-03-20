@@ -10,6 +10,7 @@ Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    rest_witchcraft.field_mapping
    rest_witchcraft.fields

@@ -2,8 +2,20 @@ Changelog
 =========
 
 
-0.10.3 (2019-11-07)
+0.11.0 (2021-03-20)
 -----------------------------
+- Add sqlalchemy 1.4 support (#65) [Serkan Hosca]
+- Github actions build badge (#64) [Serkan Hosca]
+- Adding github actions (#57) [Serkan Hosca]
+- Fix build link. [Serkan Hosca]
+- Add dj3.1 and drf3.11 to matrix (#62) [Serkan Hosca]
+- Pre-commit imporanize pyupgrade and docformat (#61) [Serkan Hosca]
+- Add django3 to build matrix (#58) [Serkan Hosca]
+- Add drf 3.10 on build matrix (#56) [Serkan Hosca]
+
+
+0.10.3 (2019-11-07)
+-------------------
 - Checking manifest with pre-commit (#55) [Miroslav Shubernetskiy]
 
 
