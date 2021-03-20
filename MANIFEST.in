@@ -11,6 +11,8 @@ include LICENSE
 include Makefile
 include pytest.ini
 include tox.ini
+include Dockerfile
+exclude docker-compose.override.yml
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 

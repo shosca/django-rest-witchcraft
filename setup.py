@@ -34,7 +34,7 @@ setup(
     author=about["__author__"],
     author_email=about["__author_email__"],
     description=about["__description__"],
-    install_requires=["djangorestframework", "six", "django-sorcery>=0.10.1", "django-rest-enumfield"],
+    install_requires=["djangorestframework", "six", "django-sorcery>=0.11.1", "django-rest-enumfield"],
     license="MIT",
     long_description=read("README.rst"),
     name="django-rest-witchcraft",

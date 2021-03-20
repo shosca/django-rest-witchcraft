@@ -97,7 +97,7 @@ class ExpandableQuerySerializerMixin(QuerySerializerMixin):
             to_load = []
             components = value.split(LOOKUP_SEP)
 
-            model = queryset._only_entity_zero().class_
+            model = queryset._only_full_mapper_zero("get").class_
             for c in components:
                 props = meta.model_info(model).relationships
                 try:
