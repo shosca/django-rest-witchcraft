@@ -51,7 +51,7 @@ SERIALIZER_FIELD_MAPPING = {
     str: fields.CharField,
 }
 
-try:
+try:  # pragma: no cover
     from sqlalchemy_utils import types
 
     SERIALIZER_FIELD_MAPPING[types.IPAddressType] = fields.IPAddressField

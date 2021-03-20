@@ -17,7 +17,7 @@ class GenericAPIView(generics.GenericAPIView):
         model = None
 
         with suppress(AttributeError, InvalidRequestError):
-            model = cls.queryset._only_entity_zero().class_
+            model = cls.queryset._only_full_mapper_zero("get").class_
 
         if model:
             return model

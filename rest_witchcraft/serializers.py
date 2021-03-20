@@ -628,7 +628,7 @@ class ModelSerializer(BaseSerializer):
         if not validated_data:
             return
 
-        info = meta.model_info(self.queryset._only_entity_zero().mapper)
+        info = meta.model_info(self.queryset._only_full_mapper_zero("get").class_)
         return info.primary_keys_from_dict(
             {getattr(self.fields.get(k), "source", None) or k: v for k, v in validated_data.items()}
         )
