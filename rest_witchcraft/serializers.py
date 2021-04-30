@@ -42,7 +42,7 @@ class BaseSerializer(serializers.Serializer):
 
     def build_standard_field_kwargs(self, field_name, field_class, column_info):
         """Analyze model column to generate field kwargs."""
-        field_kwargs = column_info.field_kwargs.copy()
+        field_kwargs = copy.deepcopy(column_info.field_kwargs)
         field_kwargs["label"] = capfirst(" ".join(field_name.split("_")).strip())
         field_kwargs["allow_null"] = not field_kwargs.get("required", True)
 
