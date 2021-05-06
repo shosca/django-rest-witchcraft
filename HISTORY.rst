@@ -2,8 +2,13 @@ Changelog
 =========
 
 
-0.11.0 (2021-03-20)
+0.11.1 (2021-05-06)
 -----------------------------
+- Use suppress from contextlib (#69) [Serkan Hosca]
+
+
+0.11.0 (2021-03-20)
+-------------------
 - Add sqlalchemy 1.4 support (#65) [Serkan Hosca]
 - Github actions build badge (#64) [Serkan Hosca]
 - Adding github actions (#57) [Serkan Hosca]
