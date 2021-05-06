@@ -1,9 +1,10 @@
+from contextlib import suppress
+
 from sqlalchemy.exc import InvalidRequestError
 
 from django.http import Http404
 
 from django_sorcery.db.meta import model_info
-from django_sorcery.utils import suppress
 
 from rest_framework import generics
 
