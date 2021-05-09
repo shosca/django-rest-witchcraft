@@ -1,7 +1,5 @@
 """Some SQLAlchemy specific field types."""
 
-import six
-
 from django.db.models.constants import LOOKUP_SEP
 
 from django_sorcery.db import meta
@@ -50,8 +48,7 @@ class ImplicitExpandableListField(fields.ListField):
         for i in data[:]:
             parts = i.split(LOOKUP_SEP)
             data = list(
-                ({LOOKUP_SEP.join(parts[:i]) for i in six.moves.range(1, len(parts))} & set(self.child.choices))
-                | set(data)
+                ({LOOKUP_SEP.join(parts[:i]) for i in range(1, len(parts))} & set(self.child.choices)) | set(data)
             )
         return data
 

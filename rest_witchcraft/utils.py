@@ -7,9 +7,10 @@ from rest_framework.settings import api_settings
 def _django_to_drf(e):
     if hasattr(e, "error_dict") or isinstance(e, dict):
         return {
-            k if not k == NON_FIELD_ERRORS else api_settings.NON_FIELD_ERRORS_KEY: _django_to_drf(v)
+            k if k != NON_FIELD_ERRORS else api_settings.NON_FIELD_ERRORS_KEY: _django_to_drf(v)
             for k, v in getattr(e, "error_dict", e).items()
         }
+
     elif hasattr(e, "error_list"):
         return e.messages
     elif isinstance(e, list):

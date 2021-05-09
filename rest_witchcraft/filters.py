@@ -1,7 +1,6 @@
 """Provides generic filtering backends that can be used to filter the results
 returned by list views."""
 
-
 from sqlalchemy import func, or_
 from sqlalchemy.sql import operators
 
@@ -94,5 +93,4 @@ class SearchFilter(BaseFilterBackend):
             op = self.lookup_prefixes[field[0]]
             field = field[1:]
 
-        expr = op(getattr(model, field), term)
-        return expr
+        return op(getattr(model, field), term)

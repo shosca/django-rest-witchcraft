@@ -383,7 +383,7 @@ class ModelSerializer(BaseSerializer):
             serializer_class=self.__class__.__name__
         )
 
-        assert not (_fields is None and exclude is None), (
+        assert _fields is not None or exclude is not None, (
             "Creating a ModelSerializer without either the 'fields' attribute "
             "or the 'exclude' attribute has been deprecated since 3.3.0, "
             "and is now disallowed. Add an explicit fields = '__all__' to the "
@@ -574,10 +574,7 @@ class ModelSerializer(BaseSerializer):
         target_model_info = meta.model_info(relation_info.related_model)
 
         # figure out backrefs
-        backrefs = set()
-        for key, rel in target_model_info.relationships.items():
-            if rel.related_model == self.model:
-                backrefs.add(key)
+        backrefs = {key for key, rel in target_model_info.relationships.items() if rel.related_model == self.model}
 
         _fields = set(target_model_info.primary_keys.keys())
         _fields.update(target_model_info.properties.keys())

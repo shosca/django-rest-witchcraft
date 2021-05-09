@@ -26,14 +26,12 @@ def get_url_kwargs(model):
     info = meta.model_info(model)
     lookup_field = list(info.primary_keys.keys())[0]
 
-    field_kwargs = {
+    return {
         "read_only": True,
         "view_name": get_detail_view_name(model),
         "lookup_field": lookup_field,
         "lookup_url_kwarg": "pk",
     }
-
-    return field_kwargs
 
 
 SERIALIZER_FIELD_MAPPING = {
