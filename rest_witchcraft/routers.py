@@ -40,11 +40,14 @@ class DefaultRouter(routers.DefaultRouter):
             if not lookup_keys[0] or len(info.primary_keys) > 1:
                 lookup_keys = list(info.primary_keys)
 
-            regexes = []
-            for key in lookup_keys:
-                regexes.append(
-                    base_regex.format(lookup_prefix=lookup_prefix, lookup_url_kwarg=key, lookup_value="[^/.]+")
+            regexes = [
+                base_regex.format(
+                    lookup_prefix=lookup_prefix,
+                    lookup_url_kwarg=key,
+                    lookup_value="[^/.]+",
                 )
+                for key in lookup_keys
+            ]
 
             return "/".join(regexes)
 
