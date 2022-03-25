@@ -1,11 +1,17 @@
 import simplejson as json
 
-from django.conf.urls import include, url
 from django.test import SimpleTestCase, override_settings
 
 from rest_witchcraft import routers, serializers, viewsets
 
 from .models_composite import RouterTestCompositeKeyModel, RouterTestModel, session
+
+
+try:
+    from django.conf.urls import url as re_path
+    from django.conf.urls import include
+except ImportError:  # pragma: no cover
+    from django.urls import re_path, include
 
 
 class RouterTestModelSerializer(serializers.ModelSerializer):
@@ -50,7 +56,7 @@ router.register(r"test", RouterTestViewSet)
 router.register(r"testcomposite", RouterTestCompositeViewSet)
 router.register(r"testcompositeregex", RouterTestCompositeCustomRegexViewSet)
 
-urlpatterns = [url(r"^", include(router.urls))]
+urlpatterns = [re_path(r"^", include(router.urls))]
 
 
 @override_settings(ROOT_URLCONF="tests.test_routers")
