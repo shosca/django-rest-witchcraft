@@ -7,6 +7,7 @@ include *.sh
 include *.toml
 include *.txt
 include *.yaml *.yml
+exclude .*
 include LICENSE
 include Makefile
 include pytest.ini

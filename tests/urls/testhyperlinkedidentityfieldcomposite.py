@@ -1,4 +1,7 @@
-from django.conf.urls import url
+try:
+    from django.conf.urls import url as re_path
+except ImportError:  # pragma: no cover
+    from django.urls import re_path
 
 
-urlpatterns = [url(r"^example/(?P<id>.+)/(?P<other_id>.+)/$", lambda: None, name="owner")]
+urlpatterns = [re_path(r"^example/(?P<id>.+)/(?P<other_id>.+)/$", lambda: None, name="owner")]
