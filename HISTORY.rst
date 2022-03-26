@@ -2,8 +2,24 @@ Changelog
 =========
 
 
-0.11.1 (2021-05-06)
+0.12.0 (2022-03-26)
 -----------------------------
+- Add django 4 to tox matrix (#77) [Serkan Hosca]
+- [pre-commit.ci] pre-commit autoupdate (#75) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#74) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#73) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#72) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#71) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- Sourcery fixes (#70) [Serkan Hosca]
+
+
+0.11.1 (2021-05-06)
+-------------------
 - Use suppress from contextlib (#69) [Serkan Hosca]
 
 
