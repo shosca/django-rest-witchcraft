@@ -2,7 +2,7 @@
 repos:
 
 - repo: https://github.com/miki725/importanize
-  rev: '0.7'
+  rev: '0.8.0-alpha1'
   hooks:
   - id: importanize
     language_version: python3
@@ -26,7 +26,7 @@ repos:
   - id: docformatter
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 5.0.2
+  rev: 5.0.4
   hooks:
   - id: flake8
     exclude: deployment/roles
