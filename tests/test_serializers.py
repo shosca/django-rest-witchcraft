@@ -267,7 +267,6 @@ class TestModelSerializer(SimpleTestCase):
             serializer.get_field_names(["type"], info)
 
     def test_include_extra_kwargs(self):
-
         serializer = BaseSerializer()
 
         kwargs = {}
@@ -278,7 +277,6 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_include_extra_kwargs_filter_when_read_only(self):
-
         serializer = BaseSerializer()
 
         kwargs = {
@@ -300,7 +298,6 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(kwargs, {"read_only": True})
 
     def test_include_extra_kwargs_filter_required_when_default_provided(self):
-
         serializer = BaseSerializer()
 
         kwargs = {"required": False}
@@ -311,14 +308,12 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(kwargs, {"default": True})
 
     def test_base_serializer_raises_on_create(self):
-
         serializer = BaseSerializer()
 
         with self.assertRaises(NotImplementedError):
             serializer.create({})
 
     def test_base_serializer_raises_on_update(self):
-
         serializer = BaseSerializer()
 
         with self.assertRaises(NotImplementedError):
@@ -838,7 +833,6 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(vehicle.options, data["options"])
 
     def test_post_update(self):
-
         vehicle = Vehicle(
             name="Test vehicle",
             type=VehicleType.bus,
@@ -928,7 +922,6 @@ class TestModelSerializer(SimpleTestCase):
         self.assertIsNone(vehicle.engine.type_)
 
     def test_patch_update(self):
-
         vehicle = Vehicle(
             name="Test vehicle",
             type=VehicleType.bus,
@@ -955,7 +948,6 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(vehicle.other.advertising_cost, data["other"]["advertising_cost"])
 
     def test_patch_update_with_nested_id(self):
-
         vehicle = Vehicle(
             name="Test vehicle",
             type=VehicleType.bus,
@@ -987,7 +979,6 @@ class TestModelSerializer(SimpleTestCase):
         self.assertEqual(vehicle.other, other)
 
     def test_patch_update_nested_set_null(self):
-
         vehicle = Vehicle(
             name="Test vehicle",
             type=VehicleType.bus,
@@ -1014,7 +1005,6 @@ class TestModelSerializer(SimpleTestCase):
         self.assertIsNone(vehicle.other)
 
     def test_patch_update_nested_set_null_allow_null_false(self):
-
         vehicle = Vehicle(
             name="Test vehicle",
             type=VehicleType.bus,
@@ -1037,7 +1027,6 @@ class TestModelSerializer(SimpleTestCase):
         self.assertFalse(serializer.is_valid(), serializer.errors)
 
     def test_patch_update_nested_set_null_allow_create_false(self):
-
         vehicle = Vehicle(
             name="Test vehicle",
             type=VehicleType.bus,

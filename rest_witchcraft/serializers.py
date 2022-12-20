@@ -26,7 +26,6 @@ REGEX_TYPE = type(re.compile(""))
 
 
 class BaseSerializer(serializers.Serializer):
-
     serializer_choice_field = fields.ChoiceField
 
     @property
@@ -80,10 +79,9 @@ class BaseSerializer(serializers.Serializer):
             # `allow_blank` is only valid for textual fields.
             field_kwargs.pop("allow_blank", None)
 
-        if issubclass(field_class, (fields.NullBooleanField, fields.BooleanField)):
-            # 'allow_null' and 'max_length' is not valid kwarg for NullBooleanField
-            for kw in {"allow_null", "max_length"}:
-                field_kwargs.pop(kw, None)
+        if hasattr(fields, "NullBooleanField") and issubclass(field_class, fields.NullBooleanField):
+            # 'allow_null' is not valid kwarg for NullBooleanField
+            field_kwargs.pop("allow_null", None)  # pragma: nocover
 
         field_kwargs.pop("widget", None)
         return field_kwargs
@@ -207,7 +205,6 @@ class CompositeSerializer(BaseSerializer):
         return instance
 
     def perform_update(self, instance, validated_data, errors):
-
         validated_data = validated_data or {}
 
         for field in self._writable_fields:
