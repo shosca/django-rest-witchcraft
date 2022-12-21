@@ -5,7 +5,6 @@ from rest_framework import routers
 
 class DefaultRouter(routers.DefaultRouter):
     def get_default_base_name(self, viewset):
-
         model = getattr(viewset, "get_model", lambda: None)()
 
         assert model is not None, (

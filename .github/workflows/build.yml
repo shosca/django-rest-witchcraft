@@ -60,6 +60,13 @@ jobs:
           - image: python:3.10
             toxenv: py310-sqla14
 
+          - image: python:3.11
+            toxenv: py311-sqla12
+          - image: python:3.11
+            toxenv: py311-sqla13
+          - image: python:3.11
+            toxenv: py311-sqla14
+
     container:
       image: ${{ matrix.container.image }}
 
@@ -69,7 +76,7 @@ jobs:
       run: |
         apt-get update
         apt-get install -y postgresql-client
-        pip install pre-commit tox tox-pyenv tox-factor coveralls
+        pip install pre-commit tox==3.28.0 tox-factor coveralls
 
     - name: Tox
       run: |

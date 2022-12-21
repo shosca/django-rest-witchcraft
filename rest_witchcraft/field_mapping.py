@@ -86,7 +86,10 @@ def get_field_type(column):
         return SERIALIZER_FIELD_MAPPING.get(column.type.__class__)
 
     if issubclass(column.type.python_type, bool):
-        return fields.NullBooleanField if column.nullable else fields.BooleanField
+        if hasattr(fields, "NullBooleanField") and column.nullable:
+            return fields.NullBooleanField  # pragma: no cover
+
+        return fields.BooleanField
 
     for typ in column.type.python_type.mro():
         if typ in SERIALIZER_FIELD_MAPPING:

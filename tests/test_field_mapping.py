@@ -15,7 +15,6 @@ from .models import Owner
 
 class TestModelViewName(SimpleTestCase):
     def test_get_detail_view_name(self):
-
         name = field_mapping.get_detail_view_name(EnumField)
 
         self.assertEqual(name, "enumfield-detail")
@@ -31,81 +30,72 @@ class TestGetUrlKwargs(SimpleTestCase):
 
 class TestGetFieldType(SimpleTestCase):
     def test_get_field_type_can_map_string_column(self):
-
         field = field_mapping.get_field_type(sqa.Column(sqa.String()))
 
         self.assertTrue(issubclass(field, fields.CharField))
 
     def test_get_field_type_can_map_int_column(self):
-
         field = field_mapping.get_field_type(sqa.Column(sqa.BigInteger()))
 
         self.assertTrue(issubclass(field, fields.IntegerField))
 
     def test_get_field_type_can_map_float_column(self):
-
         field = field_mapping.get_field_type(sqa.Column(sqa.Float()))
 
         self.assertTrue(issubclass(field, fields.FloatField))
 
     def test_get_field_type_can_map_decimal_column(self):
-
         column = sqa.Column(sqa.Numeric(asdecimal=True))
         field = field_mapping.get_field_type(column)
 
         self.assertTrue(issubclass(field, fields.DecimalField))
 
     def test_get_field_type_can_map_interval_column(self):
-
         column = sqa.Column(sqa.Interval())
         field = field_mapping.get_field_type(column)
 
         self.assertTrue(issubclass(field, fields.DurationField))
 
     def test_get_field_type_can_map_time_column(self):
-
         column = sqa.Column(sqa.Time())
         field = field_mapping.get_field_type(column)
 
         self.assertTrue(issubclass(field, fields.TimeField))
 
     def test_get_field_type_can_map_datetime_column(self):
-
         column = sqa.Column(sqa.DateTime())
         field = field_mapping.get_field_type(column)
 
         self.assertTrue(issubclass(field, fields.DateTimeField))
 
     def test_get_field_type_can_map_date_column(self):
-
         column = sqa.Column(sqa.Date())
         field = field_mapping.get_field_type(column)
 
         self.assertTrue(issubclass(field, fields.DateField))
 
     def test_get_field_type_can_map_bool_column(self):
-
         column = sqa.Column(sqa.Boolean(), nullable=False)
         field = field_mapping.get_field_type(column)
 
         self.assertTrue(issubclass(field, fields.BooleanField))
 
     def test_get_field_type_can_map_nullable_bool_column(self):
-
         column = sqa.Column(sqa.Boolean(), nullable=True)
         field = field_mapping.get_field_type(column)
 
-        self.assertTrue(issubclass(field, fields.NullBooleanField))
+        if hasattr(fields, "NullBooleanField"):
+            self.assertTrue(issubclass(field, fields.NullBooleanField))
+        else:
+            self.assertTrue(issubclass(field, fields.BooleanField))
 
     def test_get_field_type_can_map_pg_hstore_column(self):
-
         column = sqa.Column(postgresql.HSTORE())
         field = field_mapping.get_field_type(column)
 
         self.assertTrue(issubclass(field, CharMappingField))
 
     def test_get_field_type_can_map_pg_array_column(self):
-
         column = sqa.Column(postgresql.ARRAY(item_type=sqa.Integer()))
         field = field_mapping.get_field_type(column)
 
