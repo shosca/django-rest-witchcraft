@@ -2,8 +2,39 @@ Changelog
 =========
 
 
-0.12.0 (2022-03-26)
+0.12.1 (2022-12-21)
 -----------------------------
+- Add support for DRF 3.14 and python 3.11 (#89) [Serkan Hosca]
+- [pre-commit.ci] pre-commit autoupdate (#87) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#86) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- Add dj41 to build matrix (#85) [Serkan Hosca]
+- [pre-commit.ci] pre-commit autoupdate (#84) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#83) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#82) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+
+
+
+- [pre-commit.ci] pre-commit autoupdate (#81) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#80) [Serkan Hosca, pre-commit-
+  ci[bot], pre-commit-ci[bot]]
+- [pre-commit.ci] pre-commit autoupdate (#79) [pre-commit-ci[bot], pre-
+  commit-ci[bot]]
+
+
+
+- [pre-commit.ci] pre-commit autoupdate (#76) [Serkan Hosca, pre-commit-
+  ci[bot], pre-commit-ci[bot]]
+- Multi python dockerfile for local dev (#78) [Serkan Hosca]
+
+
+0.12.0 (2022-03-26)
+-------------------
 - Add django 4 to tox matrix (#77) [Serkan Hosca]
 - [pre-commit.ci] pre-commit autoupdate (#75) [pre-commit-ci[bot], pre-
   commit-ci[bot]]
